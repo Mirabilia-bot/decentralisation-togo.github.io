@@ -1,4 +1,10 @@
+# Autorise tous les robots (Google, IA, Bing, etc.)
 User-agent: *
 Allow: /
+
+# Autorise spécifiquement Facebook (pour WhatsApp/Instagram)
 User-agent: facebookexternalhit
 Allow: /
+
+# Indique le chemin du plan du site pour une indexation ultra-rapide
+Sitemap: https://mirabilia-bot.github.io/sitemap.xml
