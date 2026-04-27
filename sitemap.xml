@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://mirabilia-bot.github.io/Site-decentralisation/</loc>
+    <lastmod>2026-04-22</lastmod>
+    <priority>1.00</priority>
+  </url>
+
+  <url>
+    <loc>https://mirabilia-bot.github.io/Site-decentralisation/blog.html</loc>
+    <lastmod>2026-04-22</lastmod>
+    <priority>0.80</priority>
+  </url>
+
+  <url>
+    <loc>https://mirabilia-bot.github.io/Site-decentralisation/article-gestion-dechets-agoe.html</loc>
+    <lastmod>2026-04-22</lastmod>
+    <priority>0.70</priority>
+  </url>
+
+  <url>
+    <loc>https://mirabilia-bot.github.io/Site-decentralisation/article-pdc-communal.html</loc>
+    <lastmod>2026-04-22</lastmod>
+    <priority>0.70</priority>
+  </url>
+
+  <url>
+    <loc>https://mirabilia-bot.github.io/Site-decentralisation/article-sig-gestion.html</loc>
+    <lastmod>2026-04-22</lastmod>
+    <priority>0.70</priority>
+    </url>
+  
+    <url>
+    <loc>https://mirabilia-bot.github.io/Site-decentralisation/article-loi-2019.html</loc>
+    <lastmod>2026-04-22</lastmod>
+    <priority>0.70</priority>
+  </url>
+</urlset>

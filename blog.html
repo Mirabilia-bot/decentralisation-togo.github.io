@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analyses & Perspectives | KODOMMA Gnimdou M.</title>
+    <meta name="description" content="Centre d'analyses et de ressources sur la gouvernance locale au Togo. Études de cas sur les SIG, la gestion des déchets à Agoè-Nyivé 1 et le cadre juridique de la décentralisation.">
+<meta name="keywords" content="Analyses décentralisation Togo, SIG et territoire, KODOMMA Gnimdou M., gouvernance locale, ressources collectivités territoriales, ressources financières des communes au Togo, cartographie Togo, gestion communale, PDC, planification locale au Togo">
+<meta name="author" content="KODOMMA Gnimdou M.">
+
+<meta property="og:title" content="Analyses & Ressources | Décentralisation et SIG au Togo">
+<meta property="og:description" content="Expertise technique et juridique pour le développement des collectivités territoriales au Togo.">
+<meta property="og:type" content="website">
+    
+    <link rel="icon" type="image/png" href="icon.png?v=1">
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@600&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root { --primary: #00264d; --secondary: #006633; --accent: #d4af37; --light: #fdfdfd; --text: #2c3e50; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        /* --- SOLUTION POUR LE PIED DE PAGE --- */
+        html, body {
+            height: 100%; /* Force la hauteur sur les parents */
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            color: var(--text); 
+            background: var(--light); 
+            line-height: 1.7; 
+            padding-top: 85px; 
+            display: flex;
+            flex-direction: column; /* Aligne les enfants verticalement */
+        }
+
+        main {
+            flex: 1; /* Cette section va "pousser" et prendre tout l'espace vide restant */
+        }
+
+        /* --- TÊTE IMMOBILE (FIXÉE) --- */
+        nav { 
+            background: white; 
+            padding: 1.2rem 8%; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            box-shadow: 0 2px 15px rgba(0,0,0,0.05); 
+            position: fixed; 
+            top: 0; 
+            left: 0;
+            width: 100%;
+            z-index: 2000; 
+        }
+        .logo { 
+            font-family: sans-serif; 
+            font-weight: 800; 
+            color: #1a3a5f; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            border-left: 3px solid #006a4e; 
+            padding-left: 10px; 
+            text-decoration: none; 
+        }
+
+        .logo div { line-height: 1.7; }
+        .logo-sub { font-size: 0.8rem; color: #fecb00; font-weight: bold; }
+        
+        .nav-links { display: flex; gap: 15px; }
+        .nav-links a { text-decoration: none; color: #1a3a5f; font-weight: bold; font-size: 0.9rem; }
+
+        /* --- HEADER BLEU --- */
+        .blog-header { background: #1a3a5f; color: white; padding: 60px 20px; text-align: center; }
+        .blog-header h1 { 
+            font-family: 'Crimson Pro', serif; 
+            font-size: 2.8rem; 
+            margin-bottom: 10px; 
+            white-space: nowrap; 
+        }
+        
+        /* --- GRILLE ARTICLES --- */
+        .container { max-width: 1100px; margin: 40px auto; padding: 0 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; }
+        .card { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #eee; display: flex; flex-direction: column; transition: 0.4s; }
+        .card:hover { transform: translateY(-5px); border-top: 4px solid var(--secondary); }
+        .card h3 { font-family: 'Crimson Pro', serif; color: #1a3a5f; font-size: 1.4rem; margin-bottom: 15px; }
+        .card-link { color: #006a4e; font-weight: bold; text-decoration: none; border-bottom: 2px solid #fecb00; align-self: flex-start; margin-top: auto; }
+
+        /* --- SECTION CONTACT --- */
+        section { padding: 80px 8%; border-bottom: 1px solid #eee; text-align: center; }
+        .section-title { 
+            font-family: 'Crimson Pro', serif; 
+            font-size: 2.2rem; 
+            color: var(--primary); 
+            margin-bottom: 40px; 
+            border-bottom: 3px solid var(--accent); 
+            display: inline-block; 
+            white-space: nowrap; 
+            padding-bottom: 5px;
+        }
+        .contact-link { color: var(--primary); text-decoration: none; font-weight: bold; }
+
+        /* --- FOOTER --- */
+        footer { background: var(--primary); color: #fff; padding: 40px 8% 20px; text-align: center; width: 100%; }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 768px) { 
+            nav { flex-direction: column !important; align-items: flex-start !important; padding: 15px 5% !important; gap: 12px !important; } 
+            .nav-links { display: flex !important; flex-direction: row !important; gap: 8px !important; width: 100% !important; overflow-x: auto; padding-bottom: 5px; }
+            .nav-links a { font-size: 0.92rem !important; font-weight: 600 !important; white-space: nowrap !important; padding: 5px 8px !important; background: #f0f4f7; border-radius: 4px; }
+            .blog-header h1 { font-size: 2rem; white-space: normal; }
+            .section-title { font-size: 1.7rem; white-space: normal; }
+        }
+        
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="index.html" class="logo">
+            <span style="font-size: 2rem; color: #006a4e;">🏛️</span> 
+            <div>
+                DÉCENTRALISATION <br>
+                <span class="logo-sub">AU TOGO</span>
+            </div>
+        </a>
+        <div class="nav-links">
+            <a href="index.html">Accueil</a>
+            <a href="index.html#expertise">Expertise</a>
+            <a href="blog.html">Analyses</a>
+            <a href="index.html#ressources">Ressources</a>
+            <a href="#contact">Contact</a>
+        </div>
+    </nav>
+    
+    <main>
+        <header class="blog-header">
+            <h1>Analyses & Perspectives</h1>
+            <p>Analyses territoriales et guide pratique sur la gouvernance locale.</p>
+        </header>
+
+        <div class="container">
+            <div class="card">
+                <span style="color: #006a4e; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; margin-bottom: 12px;">Analyse</span>
+                <h3>L'impact des SIG dans la gestion territoriale</h3>
+                <p style="color: #666; font-size: 0.95rem; margin-bottom: 20px;">Comment l'outil cartographique révolutionne la levée de l'impôt foncier et la planification urbaine au Togo...</p>
+                <a href="article-sig-gestion.html" class="card-link">Lire l'article</a>
+            </div>
+
+            <div class="card">
+                <span style="color: #006a4e; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; margin-bottom: 12px;">Guide</span>
+                <h3>Réussir son PDC (Plan de Développement Communal)</h3>
+                <p style="color: #666; font-size: 0.95rem; margin-bottom: 20px;">Les 5 étapes clés pour une planification stratégique efficace au service des citoyens.</p>
+                <a href="article-pdc-communal.html" class="card-link">Lire le guide</a>
+            </div>
+
+            <div class="card">
+                <span style="color: #006a4e; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; margin-bottom: 12px;">Juridique</span>
+                <h3>L’impact de la Loi n° 2019-006 sur la gouvernance locale</h3>
+                <p style="color: #666; font-size: 0.95rem; margin-bottom: 20px;">Analyse approfondie du nouveau cadre législatif et des défis de l'autonomie financière des collectivités locales.</p>
+                <a href="article-loi-2019.html" class="card-link">Lire l'analyse</a>
+            </div>
+            <div class="card">
+    <span style="color: #006a4e; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; margin-bottom: 12px;">Environnement</span>
+    <h3>Gestion des déchets à Agoè-Nyivé 1 : Défis et Perspectives</h3>
+    <p style="color: #666; font-size: 0.95rem; margin-bottom: 20px;">Diagnostic des failles structurelles et financières de la gestion des déchets solides ménagers...</p>
+    <a href="article-gestion-dechets-agoe.html" class="card-link">Lire l'article</a>
+            </div>
+            
+        </div>
+
+        <section id="contact"> 
+            <h2 class="section-title">Contact & Consultance</h2>
+            <div class="contact-info">
+                <p>📍 <strong>Localisation :</strong> Lomé, Togo</p>
+                <p>📞 <strong>Téléphone :</strong> <a href="tel:+22893019105" class="contact-link">+228 93 01 91 05</a></p>
+                <p>💬 <strong>WhatsApp :</strong> <a href="https://wa.me/22893019105" class="contact-link">Démarrer une discussion</a></p>
+            </div>
+        </section>
+    </main>
+    
+    <footer>
+        <div style="font-family: 'Crimson Pro', serif; font-size: 1.2rem; font-weight: bold; margin-bottom: 5px;">KODOMMA Gnimdou M.</div>
+        <p style="font-size: 0.8rem; opacity: 0.8; margin-bottom: 12px; max-width: 600px; margin-left: auto; margin-right: auto; line-height: 1.4;">
+            Spécialiste SIG et gestionnaire des collectivités locales | Consultant en Gouvernance Territoriale
+        </p>
+        <div style="margin-top: 15px; font-size: 0.7rem; opacity: 0.4; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
+            &copy; KGM - KODOMMA Gnimdou M. 2026 - Togo. Tous droits réservés.
+        </div>
+    </footer>
+
+</body>
+</html>
