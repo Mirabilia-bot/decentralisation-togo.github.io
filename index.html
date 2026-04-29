@@ -127,21 +127,19 @@
   "knowsAbout": ["développement local", "Décentralisation", "SIG", "Cartographie", "Gouvernance Territoriale"]
 }
     </script>
-    <link rel="manifest" href="/manifest.json">
+    <link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0056b3">
+<link rel="apple-touch-icon" href="images/icon-192.png">
 
-    <meta name="theme-color" content="#0056b3">
-
-    <link rel="apple-touch-icon" href="/images/icon-192.png">
-
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(reg => console.log('KGM App : Activée !', reg))
-                    .catch(err => console.log('KGM App : Erreur', err));
-            });
-        }
-    </script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js') // Pas de slash devant sw.js
+        .then(reg => console.log('App installée !'))
+        .catch(err => console.log('Erreur SW', err));
+    });
+  }
+</script>
 <style>
     /* On force la grille à se comporter correctement */
     .analyses-grid {
