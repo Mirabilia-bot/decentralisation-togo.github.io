@@ -40,6 +40,15 @@
   "description": "Utilisation de la cartographie et du SIG pour l'optimisation de la gouvernance locale."
 }
     </script>
+    <link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0056b3">
+<link rel="apple-touch-icon" href="images/icon-192.png">
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js');
+  }
+</script>
     
 </head>
 <body>
