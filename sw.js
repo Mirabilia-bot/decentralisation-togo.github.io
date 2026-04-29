@@ -12,9 +12,10 @@ self.addEventListener('install', (e) => {
     caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
   );
 });
+self.addEventListener('install', (e) => {
+  console.log('SW installé');
+});
 
 self.addEventListener('fetch', (e) => {
-  e.respondWith(
-    caches.match(e.request).then((res) => res || fetch(e.request))
-  );
+  // Vide pour l'instant
 });
