@@ -4,66 +4,45 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestion des Déchets à Agoè-Nyivé 1 | KODOMMA Gnimdou M.</title>
+        <meta property="og:title" content="Gestion des Déchets à Agoè-Nyivé 1 | KGM">
+<meta property="og:description" content="Analyse des défis financiers et techniques de la gestion des déchets à Agoè-Nyivé 1. Étude basée sur les résultats d'août 2025.">
+<meta property="og:image" content="https://mirabilia-bot.github.io/images/gestion-dechets-agoe.png">
+<meta property="og:url" content="https://mirabilia-bot.github.io/article-gestion-dechets-agoe.html">
     
-    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <meta name="description" content="Analyse des défis financiers et techniques de la gestion des déchets à Agoè-Nyivé 1. Étude basée sur les résultats d'août 2025 concernant le sous-financement et la couverture territoriale.">
+<meta name="keywords" content="Agoè-Nyivé 1, commune d'agoè-nyivé, gestion des déchets des communes Togo, décentralisation Togo, KODOMMA Gnimdou M., environnement Togo, budget communal, SIG, services urbains">
+<meta name="author" content="KODOMMA Gnimdou M.">
+    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌿</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@600&family=Inter:wght@400;600&display=swap" rel="stylesheet">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
         :root { --primary: #00264d; --secondary: #006a4e; --accent: #d4af37; --text: #2c3e50; --bg: #fdfdfd; }
         
-        body { font-family: 'Inter', sans-serif; color: var(--text); background: var(--bg); line-height: 1.8; margin: 0; padding: 0; }
+        html, body { height: 100%; margin: 0; }
+        body { font-family: 'Inter', sans-serif; color: var(--text); background: var(--bg); line-height: 1.8; display: flex; flex-direction: column; }
         
-        nav { background: white; padding: 1rem 8%; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000; }
-        
-        main { max-width: 800px; margin: 40px auto; padding: 0 20px; background: white; }
+        nav { background: white; padding: 1rem 8%; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: fixed; top: 0; left: 0; right: 0; z-index: 1000; width: 100%; box-sizing: border-box; }
+        main { flex: 1; max-width: 850px; margin: 80px auto 40px auto; padding: 0 20px; }
         
         .tag { background: #e8f5e9; color: var(--secondary); padding: 5px 15px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; text-transform: uppercase; }
+        h1 { font-family: 'Crimson Pro', serif; font-size: 2.4rem; color: var(--primary); margin: 15px 0; line-height: 1.2; text-align: left; hyphens: none !important; }
         
-        h1 { 
-            font-family: 'Crimson Pro', serif; 
-            font-size: 2.2rem; 
-            color: var(--primary); 
-            margin: 15px 0; 
-            line-height: 1.3; 
-            text-align: left;
-            /* EMPECHE LA COUPURE DES MOTS */
-            hyphens: none !important;
-            word-break: normal;
-        }
+        .article-img { width: 100%; border-radius: 12px; margin: 30px 0; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         
-        .article-img { width: 100%; border-radius: 12px; margin: 20px 0; display: block; }
-        
-        h2 { font-family: 'Crimson Pro', serif; color: var(--secondary); margin-top: 35px; border-bottom: 2px solid #eee; padding-bottom: 8px; hyphens: none; }
-        
-        /* TEXTE PROPRE SANS COUPURE */
-        p { 
-            text-align: justify; 
-            hyphens: none !important; /* INTERDIT DE COUPER LES MOTS */
-            word-break: normal;
-            overflow-wrap: normal;
-        }
-
+        h2 { font-family: 'Crimson Pro', serif; color: var(--secondary); margin-top: 35px; border-bottom: 2px solid #eee; padding-bottom: 8px; hyphens: none !important; }
         .highlight-box { background: #f4f7f9; border-left: 5px solid var(--accent); padding: 25px; margin: 30px 0; border-radius: 0 8px 8px 0; }
         
-        .btn-pdf {
-            background: var(--secondary);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 4px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: 0.3s;
-        }
-        .btn-pdf:hover { background: var(--primary); }
+        footer { background: var(--primary); color: white; padding: 40px 8%; text-align: center; }
+        .back-link { text-decoration: none; color: var(--primary); font-weight: bold; font-size: 0.9rem; }
 
-        footer { background: var(--primary); color: white; padding: 40px 8%; text-align: center; margin-top: 50px; }
-        .back-link { text-decoration: none; color: var(--primary); font-weight: bold; }
-        
-        /* Cache des éléments inutiles sur le PDF */
-        .no-print { display: block; text-align: center; margin: 40px 0; }
+        /* Correction Césure (Empêche de couper les mots) */
+        p, li, h1, h2 { hyphens: none !important; word-break: normal !important; overflow-wrap: normal !important; text-align: justify; }
+
+        /* Style du bouton */
+        .btn-pdf { background: var(--secondary); color: white; border: none; padding: 12px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 20px; }
     </style>
 </head>
 <body>
@@ -72,69 +51,82 @@
         <a href="blog.html" class="back-link">← Retour aux analyses</a>
     </nav>
 
-    <main id="capture-area">
+    <main id="printable-content">
         <span class="tag">Environnement & Gouvernance</span>
-        <p style="color: var(--accent); font-weight: bold; font-size: 0.85rem; margin-bottom: 10px; text-align: left;">Analyse | 26 Avril 2026</p>
+        <p style="color: var(--accent); font-weight: bold; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;" > Analyse| 26 Avril 2026</p>
         
         <h1>Les défis de la gestion des déchets solides à Agoè-Nyivé 1 : Diagnostic et perspectives issues des résultats d'études, Août 2025</h1>
 
         <p>La gestion des déchets solides ménagers et assimilés constitue aujourd'hui un défi majeur pour le développement durable de la commune d'Agoè-Nyivé 1. Une analyse profonde révèle des failles structurelles nécessitant des réformes urgentes.</p>
 
-        <img src="images/gestion-dechets-agoe.png" alt="Analyse Déchets" class="article-img">
+        <img src="images/gestion-dechets-agoe.png" alt="Infographie gestion des déchets Agoè-Nyivé 1" class="article-img">
 
         <h2>Un sous-financement chronique</h2>
-        <p>Les contraintes financières pèsent lourdement sur l’efficacité du système communal. Les dépenses allouées à la gestion des déchets ne représentent qu’environ <strong>03 % du budget total</strong> de la commune exercice 2025.</p>
+        <p>Les contraintes financières pèsent lourdement sur l’efficacité du système communal. Les dépenses allouées à la gestion des déchets ne représentent qu’environ <strong>03 % du budget total</strong> de la commune exercice 2025, révélant une capacité budgétaire largement insuffisante.</p>
 
         <div class="highlight-box">
-            <strong>Le paradoxe de la couverture :</strong> Bien que le taux d’abonnement soit relativement élevé (84 %), la couverture effective n’atteint que 50 % du territoire communal.
+            <strong>Le paradoxe de la couverture :</strong> Bien que le taux d’abonnement soit relativement élevé (84 %), la couverture effective n’atteint que 50 % du territoire communal, favorisant la prolifération de dépotoirs sauvages.(Résultats d'étude, Juillet et Août 2025)
         </div>
 
         <h2>Des failles techniques et environnementales</h2>
-        <p>L’analyse du dispositif révèle l’absence d’étanchéité au niveau des centres de regroupement intermédiaire, exposant les sols et les nappes phréatiques à des risques de pollution.</p>
+        <p>L’analyse du dispositif révèle l’absence d’étanchéité au niveau des centres de regroupement intermédiaire, exposant les sols et les nappes phréatiques à des risques de pollution. Cette situation va à l’encontre des principes de précaution environnementale et de salubrité publique.(Résultats d'études, Juillet et Août 2025) </p>
 
-        <p>Seule une approche participative permettra de faire de la gestion des déchets un véritable levier du développement local durable.</p>
+        <h2>Vers une approche systémique</h2>
+        <p>La réussite d’une gestion efficace repose sur une approche intégrée associant :
+            <ul>
+                <li>Une gouvernance performante et un financement adéquat.</li>
+                <li>La mobilisation active des populations (sensibilisation et incitation).</li>
+                <li>L'analyse économique des circuits de valorisation, comme le compostage.</li>
+            </ul>
+        </p>
+
+        <p>Seule une approche participative permettra de faire de la gestion des déchets un véritable levier du développement local durable pour la commune.</p>
         
-        <div class="no-print">
-            <button onclick="genererPDF()" class="btn-pdf">Générer la Note de Synthèse (PDF)</button>
+        <div style="text-align:center; margin-top:30px;" id="ignore-pdf">
+            <button onclick="genererNote()" class="btn-pdf">Générer la Note de Synthèse (PDF)</button>
         </div>
     </main>
 
+    <div style="font-size: 0.75rem; opacity: 0.5; text-align: center; padding: 15px 0; background: var(--bg);">
+        Dernière mise à jour : <span id="date-modif"></span>
+    </div>
+
     <footer>
-        <div style="font-family: 'Crimson Pro', serif; font-size: 1.2rem; font-weight: bold;">KODOMMA Gnimdou M.</div>
-        <p style="font-size: 0.8rem; opacity: 0.8;">Spécialiste SIG | Consultant en Gouvernance Territoriale</p>
-        <div style="font-size: 0.7rem; opacity: 0.4; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px; margin-top: 15px;">
-            &copy; 2026 KGM - Togo. Tous droits réservés.
+        <div style="font-family: 'Crimson Pro', serif; font-size: 1.2rem; font-weight: bold; margin-bottom: 5px;">KODOMMA Gnimdou M.</div>
+        <p style="font-size: 0.8rem; opacity: 0.8; margin-bottom: 12px; max-width: 600px; margin-left: auto; margin-right: auto; line-height: 1.4;">
+            Spécialiste SIG et gestionnaire des collectivités locales | Consultant en Gouvernance Territoriale
+        </p>
+        <div style="margin-top: 15px; font-size: 0.7rem; opacity: 0.4; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
+            &copy; KGM - KODOMMA Gnimdou M. 2026 - Togo. Tous droits réservés.
         </div>
     </footer>
 
     <script>
-        function genererPDF() {
-            const element = document.getElementById('capture-area');
-            const btn = document.querySelector('.no-print');
+        // Restauration de votre script de date
+        const dateModif = new Date(document.lastModified);
+        const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+        document.getElementById('date-modif').textContent = dateModif.toLocaleDateString('fr-FR', options);
+
+        // Script PDF corrigé pour éviter la page blanche
+        function genererNote() {
+            const element = document.getElementById('printable-content');
+            const btnContainer = document.getElementById('ignore-pdf');
             
-            // Masquer le bouton AVANT la capture pour éviter qu'il soit dans le PDF
-            btn.style.visibility = 'hidden';
+            btnContainer.style.display = 'none'; // Cache le bouton pour le PDF
 
             const opt = {
-                margin:       10,
-                filename:     'Note_KGM_Agoe.pdf',
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { 
-                    scale: 2, 
-                    useCORS: true, // Important pour charger les images
-                    logging: false 
-                },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                margin: 10,
+                filename: 'Note_Synthese_KGM.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            // Lancement de la capture
             html2pdf().set(opt).from(element).save().then(() => {
-                btn.style.visibility = 'visible'; // Réafficher le bouton après
-            }).catch(err => {
-                console.error("Erreur PDF:", err);
-                btn.style.visibility = 'visible';
+                btnContainer.style.display = 'block';
             });
         }
     </script>
 </body>
 </html>
+    
