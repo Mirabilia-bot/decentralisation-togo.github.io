@@ -4,51 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sécuriser les limites communales au Togo | KODOMMA Gnimdou M.</title>
-        <meta property="og:title" content="Sécuriser les limites communales au Togo | KGM">
+    <meta property="og:title" content="Sécuriser les limites communales au Togo | KGM">
     <meta property="og:description" content="Analyse technique et juridique sur la délimitation des ressorts territoriaux au Togo. Expertise SIG au service de la gestion locale.">
-    <meta property="og:image" content="affiche-delimitation-togo.png">
+    <meta property="og:image" content="https://mirabilia-bot.github.io/affiche-delimitation-togo.png">
     <meta property="og:url" content="https://mirabilia-bot.github.io/delimitation-territoriale-togo.html">
     <meta property="og:type" content="article">
-    <meta name="description" content="Analyse des enjeux juridiques et techniques de la délimitation des ressorts territoriaux des communes au Togo. L’expertise SIG contre les conflits de limites.">
-    <meta name="keywords" content="délimitation territoriale, communes Togo, décentralisation Togo, gestion des collectivités locales, KODOMMA Gnimdou M., droit public, SIG, ressort territorial, foncier Togo">
+    <meta name="description" content="Analyse des enjeux juridiques et techniques de la délimitation des ressorts territoriaux au Togo. Cas pratique du conflit Kloto 1 et Kloto 3.">
+    <meta name="keywords" content="délimitation territoriale, Kloto 1, Kloto 3, communes Togo, décentralisation Togo, KODOMMA Gnimdou M., SIG, foncier Togo">
     <meta name="author" content="KODOMMA Gnimdou M.">
     
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚖️</text></svg>">
     <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@600&family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #00264d; --secondary: #006a4e; --accent: #d4af37; --text: #2c3e50; --bg: #fdfdfd; }
-        
         html, body { height: 100%; margin: 0; }
         body { font-family: 'Inter', sans-serif; color: var(--text); background: var(--bg); line-height: 1.8; display: flex; flex-direction: column; }
-        
         nav { background: white; padding: 1rem 8%; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: fixed; top: 0; left: 0; right: 0; z-index: 1000; width: 100%; box-sizing: border-box; }
         main { flex: 1; max-width: 850px; margin: 80px auto 40px auto; padding: 0 20px; }
-        
         .tag { background: #fff3e0; color: #e65100; padding: 5px 15px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; text-transform: uppercase; }
         h1 { font-family: 'Crimson Pro', serif; font-size: 2.4rem; color: var(--primary); margin: 15px 0; line-height: 1.2; }
-        
         .article-img { width: 100%; border-radius: 12px; margin: 30px 0; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        
         h2 { font-family: 'Crimson Pro', serif; color: var(--secondary); margin-top: 35px; border-bottom: 2px solid #eee; padding-bottom: 8px; }
         .highlight-box { background: #f4f7f9; border-left: 5px solid var(--accent); padding: 25px; margin: 30px 0; border-radius: 0 8px 8px 0; }
-        
         footer { background: var(--primary); color: white; padding: 40px 8%; text-align: center; }
         .back-link { text-decoration: none; color: var(--primary); font-weight: bold; font-size: 0.9rem; }
     </style>
-    
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Article",
-      "headline": "La délimitation des communes : Entre imprécision textuelle et rigueur cartographique",
-      "author": {
-        "@type": "Person",
-        "name": "KODOMMA Gnimdou M."
-      },
-      "datePublished": "2026-04-30",
-      "description": "Analyse juridique et technique de la délimitation territoriale au Togo."
-    }
-    </script>
 </head>
 <body>
 
@@ -58,33 +38,31 @@
 
     <main>
         <span class="tag">Droit & Territoire</span>
-        <p style="color: var(--accent); font-weight: bold; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;" > Analyse | 30 Avril 2026</p>
+        <p style="color: var(--accent); font-weight: bold; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">Analyse | 30 Avril 2026</p>
         
         <h1>La délimitation des communes : Entre imprécision textuelle et rigueur cartographique</h1>
 
-        <p>Au Togo, la création des 117 communes a marqué un tournant historique dans la gouvernance locale. Cependant, sur le terrain, la définition des « ressorts territoriaux » se heurte parfois à des réalités géographiques floues, générant des conflits de compétences entre collectivités territoriales et autorités traditionnelles.</p>
+        <p>Au Togo, la création des 117 communes a marqué un tournant historique. Cependant, sur le terrain, la définition des « ressorts territoriaux » se heurte à des réalités géographiques floues. <strong>Le conflit persistant depuis 2019 entre les communes de Kloto 1 et Kloto 3 illustre parfaitement cette impasse, où l'appartenance de villages comme Agomé Kpodzi et Kusuntu devient un enjeu de discorde majeur.</strong></p>
 
         <div class="highlight-box">
-            <strong>L'enjeu juridique :</strong> Une limite mal définie fragilise l'exercice du pouvoir de police municipale et sème l'incertitude sur la légitimité du recouvrement des taxes locales.
+            <strong>L'enjeu juridique :</strong> Une limite mal définie fragilise l'exercice du pouvoir de police municipale. Dans le Kloto, l'annexion contestée de villages crée non seulement une instabilité politique, mais fausse aussi le calcul des ristournes de l'OTR, générant un déséquilibre financier critique.
         </div>
+
         <figure style="margin: 30px 0; text-align: center;">
-    <img src="affiche-delimitation-togo.png" 
-         alt="Affiche technique sur la délimitation des ressorts territoriaux au Togo par KGM" 
-         class="article-img">
-    <figcaption style="font-size: 0.85rem; color: #666; font-style: italic; margin-top: 10px;">
-        Synthèse technique : Articulation entre Droit et SIG pour la sécurisation des limites communales.
-    </figcaption>
+            <img src="affiche-delimitation-togo.png" alt="Affiche technique délimitation territoriale Togo KGM" class="article-img">
+            <figcaption style="font-size: 0.85rem; color: #666; font-style: italic; margin-top: 10px;">
+                Synthèse technique : Articulation entre Droit et SIG pour la sécurisation des limites communales.
+            </figcaption>
         </figure>
-        
 
         <h2>Le texte de loi face à la réalité du terrain</h2>
-        <p>Si la loi définit les communes par des noms de chefs-lieux et de cantons, la traduction de ces limites administratives en coordonnées géographiques précises est un chantier majeur. Sans une base cartographique certifiée, la gestion foncière devient un terreau fertile pour les litiges de voisinage.</p>
+        <p>Si la loi définit les communes par des noms de chefs-lieux et de cantons, leur traduction en coordonnées précises est un défi. <strong>À Kpalimé, alors que les Centres de Recensement et de Vote (CRV) rattachaient initialement certains quartiers à Kloto 3, des interprétations divergentes ont conduit à leur revendication par Kloto 1.</strong> Sans base cartographique certifiée, la gestion foncière devient un terreau fertile pour les litiges, exigeant aujourd'hui l'arbitrage du Premier ministre.</p>
 
         <h2>Le SIG comme outil de médiation territoriale</h2>
-        <p>L’expertise en Systèmes d'Information Géographique permet de transformer les limites « littéraires » des décrets en limites « numériques » incontestables. En superposant les limites administratives sur les levés topographiques réels, le SIG sécurise l'action publique communale.</p>
+        <p>L’expertise en Systèmes d'Information Géographique permet de transformer les limites « littéraires » en limites « numériques » incontestables. <strong>Dans le litige du Kloto, les tentatives d'implantation de plaques de délimitation près du Lycée de Kpodzi ont échoué car elles n'étaient pas adossées à une démarcation numérique consensuelle.</strong> Le SIG sécurise l'action publique en superposant les droits historiques et les levés topographiques réels.</p>
 
         <h2>Vers une harmonie administrative</h2>
-        <p>La réussite de la décentralisation exige une clarté spatiale. Marier la science du droit et la précision du SIG n'est plus une option, c'est une nécessité pour la paix sociale et l'efficacité administrative de nos administrations locales.</p>
+        <p>La réussite de la décentralisation exige une clarté spatiale. Le cas des infrastructures stratégiques comme le Grand marché de Kpalimé ou le CHP, situés en zone de tension, prouve que marier la science du droit et la précision du SIG est une nécessité absolue pour garantir la paix sociale et l'efficacité des administrations locales.</p>
 
         <p style="margin-top: 40px; font-style: italic; border-top: 1px solid #ddd; padding-top: 20px;">
             Par <strong>KODOMMA Gnimdou M.</strong>, gestionnaire des collectivités locales & Expert SIG.
