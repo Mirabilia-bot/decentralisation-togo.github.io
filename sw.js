@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kgm-expert-v1';
+const CACHE_NAME = 'kgm-expert-v2'; // On change de version pour forcer la mise à jour
 const ASSETS = [
   './index.html',
   './manifest.json',
@@ -6,21 +6,20 @@ const ASSETS = [
   './images/icon-512.png'
 ];
 
-// Installation et mise en cache
 self.addEventListener('install', (e) => {
   e.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(ASSETS);
     })
   );
+  self.skipWaiting(); // Force le SW à s'activer tout de suite
 });
 
-// Activation et nettoyage des anciens caches
 self.addEventListener('activate', (e) => {
-  console.log('Service Worker activé');
+  e.waitUntil(clients.claim()); // Prend le contrôle des pages ouvertes immédiatement
+  console.log('Service Worker activé et opérationnel');
 });
 
-// Interception des requêtes (Obligatoire pour le bouton d'installation)
 self.addEventListener('fetch', (e) => {
   e.respondWith(
     caches.match(e.request).then((response) => {
