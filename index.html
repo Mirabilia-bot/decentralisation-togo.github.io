@@ -389,5 +389,17 @@
         &copy; KGM - KODOMMA Gnimdou M. 2026 - Togo. Tous droits réservés.
     </div>
     </footer>
+    <script>
+    // Sélectionne tous les articles de la page d'accueil
+    const articles = document.querySelectorAll('.container .card');
+    
+    // Si vous avez plus de 3 articles, on masque les plus anciens
+    articles.forEach((article, index) => {
+        if (index >= 3) {
+            article.style.display = 'none';
+        }
+    });
+    </script>
+    
 </body>
 </html>
