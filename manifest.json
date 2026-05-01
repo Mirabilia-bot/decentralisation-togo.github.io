@@ -2,7 +2,7 @@
   "name": "KGM - Expertise Territoriale",
   "short_name": "KGM Expert",
   "description": "Expertise en Décentralisation et SIG au Togo",
-  "start_url": "/index.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#0056b3",
