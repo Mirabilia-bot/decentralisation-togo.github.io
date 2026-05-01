@@ -60,68 +60,68 @@
         footer { background: var(--primary); color: #fff; padding: 60px 8% 20px; text-align: center; }
         .copy { margin-top: 40px; font-size: 0.8rem; opacity: 0.6; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); }
 
-                      @media (max-width: 768px) { 
+                      
+                @media (max-width: 768px) { 
             nav { 
                 flex-direction: column !important; 
                 align-items: flex-start !important; 
-                padding: 10px 5% !important;
+                padding: 15px 5% !important;
+                gap: 12px !important;
             } 
 
-            /* --- CORRECTION CENTRAGE & ALIGNEMENT --- */
-            .grid, .analyses-grid, #ressources {
+            /* --- SECTION ANALYSES : On centre tout proprement --- */
+            .analyses-grid {
                 display: flex !important;
                 flex-direction: column !important;
-                align-items: center !important; /* Centre les blocs sur l'écran */
-                padding: 10px !important;
+                align-items: center !important; /* Centre les blocs d'analyses */
+                padding: 0 15px !important;
                 width: 100% !important;
             }
 
-            /* --- BLOCS ADAPTATIFS --- */
-            .card, .analyse-card, .res-item { 
-                width: 100% !important;        /* Prend toute la largeur disponible */
-                max-width: 380px !important;    /* Taille max élégante sur mobile */
-                margin: 0 auto 20px auto !important; /* Centre le bloc lui-même */
-                display: flex !important;
-                flex-direction: column !important; /* Bouton EN DESSOUS impérativement */
-                align-items: center !important;    /* Contenu au centre du bloc */
-                text-align: center !important;     /* Texte centré */
+            .analyse-card {
+                width: 100% !important;
+                max-width: 400px !important;
+                margin: 0 auto 20px auto !important;
+            }
+
+            /* --- SECTION RESSOURCES : Boutons en dessous --- */
+            .res-item { 
+                flex-direction: column !important; /* Force le bouton SOUS le texte */
+                align-items: flex-start !important; /* Aligne le texte à gauche */
                 padding: 20px !important;
-                box-sizing: border-box !important;
-                height: auto !important;
-                border-radius: 12px !important;
+                width: 100% !important;
+                max-width: 400px !important;
+                margin: 0 auto 15px auto !important;
             }
 
-            /* --- BOUTONS PROPRES (SOUS LE TEXTE) --- */
-            .download, .res-item button, .analyse-card a, .btn-main {
-                width: 100% !important;      /* Le bouton s'adapte à la largeur du bloc */
-                margin-top: 15px !important; /* Espace avec le texte au-dessus */
-                display: inline-block !important;
-                padding: 12px !important;
-                font-size: 0.9rem !important;
-                text-decoration: none !important;
-                flex-shrink: 0 !important;
+            .res-item .download, .res-item button { 
+                margin-top: 15px !important; /* Espace au-dessus du bouton */
+                width: 100% !important;      /* Bouton large pour le pouce */
+                text-align: center !important;
+                display: block !important;
             }
 
-            /* --- NAVIGATION FLUIDE --- */
+            /* --- NAVIGATION --- */
             .nav-links { 
                 display: flex !important;
+                flex-direction: row !important; 
                 overflow-x: auto; 
                 width: 100% !important;
                 gap: 10px !important;
-                padding-bottom: 8px;
-            }
-            .nav-links a {
-                background: #f0f4f7;
-                padding: 6px 12px !important;
-                border-radius: 20px;
-                white-space: nowrap;
+                padding-bottom: 5px;
             }
 
+            .nav-links a {
+                white-space: nowrap !important;
+                background: #f0f4f7; 
+                padding: 5px 10px !important;
+                border-radius: 4px;
+            }
+
+            .hero-text { font-size: 1.1rem !important; transform: rotate(0deg) !important; padding: 10px 15px; }
             .hero h1 { font-size: 1.8rem; }
-            .hero-text { font-size: 1.1rem !important; transform: rotate(0deg) !important; position: relative !important; margin-top: 10px; }
-                        }
+                                                                                                                 }
                 
-        
         
         @media (max-width: 600px) {
             .section-title { font-size: 1.6rem; }
