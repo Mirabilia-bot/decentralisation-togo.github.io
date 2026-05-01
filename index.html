@@ -37,7 +37,14 @@
 
         section { padding: 80px 8%; border-bottom: 1px solid #eee; }
         .section-title { font-family: 'Crimson Pro', serif; font-size: 2.2rem; color: var(--primary); margin-bottom: 40px; border-bottom: 3px solid var(--accent); display: inline-block; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+         .grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+            gap: 30px; 
+            width: 100%;
+            max-width: 1200px; /* Aligne sur le reste du site */
+            margin: 0 auto;    /* Garde le centrage parfait sur PC */
+         }
                 .card { 
             background: white; 
             padding: 30px 20px; 
@@ -53,14 +60,31 @@
         .card:hover { box-shadow: 0 15px 35px rgba(0,0,0,0.1); border-top: 4px solid var(--secondary); }
         .card h3 { color: var(--secondary); margin-bottom: 15px; }
 
-        .res-item { background: white; padding: 20px; margin-bottom: 15px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; border-left: 6px solid var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .res-item { 
+            background: white; 
+            padding: 20px; 
+            margin: 0 auto 15px auto; /* Centre le bloc sur PC */
+            max-width: 1200px;        /* Même largeur que la grille d'expertise */
+            width: 100%;
+            border-radius: 5px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-left: 6px solid var(--primary); 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
+        }
         .download { color: var(--secondary); font-weight: bold; text-decoration: none; border: 1px solid var(--secondary); padding: 8px 15px; border-radius: 4px; transition: 0.3s; }
         
         .contact-link { color: var(--primary); text-decoration: none; font-weight: bold; }
         footer { background: var(--primary); color: #fff; padding: 60px 8% 20px; text-align: center; }
         .copy { margin-top: 40px; font-size: 0.8rem; opacity: 0.6; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); }
 
-                    @media (max-width: 768px) { 
+                          @media (max-width: 768px) { 
+            /* On ajoute une marge interne aux sections pour décoller les blocs du bord de l'écran */
+            section { 
+                padding: 60px 5% !important; 
+            }
+
             nav { 
                 flex-direction: column !important; 
                 align-items: flex-start !important; 
@@ -68,70 +92,53 @@
                 gap: 12px !important;
             } 
 
-            /* RENDU TOTALEMENT RESPONSIVE : On utilise 100% et border-box pour ne jamais déborder */
-                /* Grille adaptative pour tous les écrans */
-    .analyses-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 20px;
-        width: 100%;
-        max-width: 1200px; /* Empêche d'être trop large sur très grands écrans */
-        margin: 0 auto;
-        padding: 20px 0;
-    }
-
-    .analyse-card {
-        width: 100%; /* S'adapte à la colonne de la grille */
-        background: #ffffff;
-        border-radius: 12px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        padding: 20px;
-        display: flex;
-        flex-direction: column;
-        transition: transform 0.3s ease;
-    }
-                        
-
-            /* BOUTONS EN DESSOUS : Correction de l'écrasement sur mobile */
-            .res-item { 
-                flex-direction: column !important; 
-                align-items: stretch !important; 
-                text-align: left !important;
+            /* Force les grilles à s'empiler proprement sans déborder */
+            .grid, .analyses-grid {
+                display: flex !important;
+                flex-direction: column !important;
                 width: 100% !important;
-                padding: 20px !important;
+                gap: 20px !important;
             }
 
-            .res-item .download, .res-item button {
-                margin-top: 15px !important;
+            .card, .analyse-card, .res-item { 
                 width: 100% !important;
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+            }
+
+            /* Ressources : Passage du bouton EN DESSOUS uniquement sur mobile */
+            .res-item { 
+                flex-direction: column !important; 
+                align-items: flex-start !important; 
+                text-align: left !important;
+            }
+
+            .res-item .download, .res-item button { 
+                margin-top: 15px !important; 
+                width: 100% !important; 
                 text-align: center !important;
             }
 
             .nav-links { 
-                margin-top: 0 !important; 
                 display: flex !important;
                 flex-direction: row !important; 
-                flex-wrap: nowrap !important;
-                justify-content: flex-start !important;
-                gap: 15px !important; 
-                width: 100% !important;
                 overflow-x: auto; 
+                width: 100% !important;
+                gap: 15px !important; 
                 padding-bottom: 5px;
             }
 
             .nav-links a {
-                font-size: 0.92rem !important; 
-                font-weight: 600 !important;
                 white-space: nowrap !important;
-                padding: 5px 8px !important; 
                 background: #f0f4f7; 
+                padding: 5px 8px !important; 
                 border-radius: 4px;
             }
 
             .hero-text { font-size: 1.1rem !important; transform: rotate(0deg) !important; padding: 10px 15px; }
             .hero h1 { font-size: 1.8rem; }
-                }
-                        
+                          }
+        
         
         @media (max-width: 600px) {
             .section-title { font-size: 1.6rem; }
