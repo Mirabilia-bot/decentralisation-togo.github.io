@@ -69,21 +69,28 @@
             } 
 
             /* RENDU TOTALEMENT RESPONSIVE : On utilise 100% et border-box pour ne jamais déborder */
-            .grid, .analyses-grid {
-                display: flex !important;
-                flex-direction: column !important;
-                align-items: center !important;
-                padding: 0 15px !important;
-                width: 100% !important;
-            }
+                /* Grille adaptative pour tous les écrans */
+    .analyses-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        width: 100%;
+        max-width: 1200px; /* Empêche d'être trop large sur très grands écrans */
+        margin: 0 auto;
+        padding: 20px 0;
+    }
 
-            .analyse-card {
-                width: 100% !important;
-                min-width: unset !important; /* Supprime la rigidité qui causait l'excentrage */
-                max-width: 100% !important;
-                flex: none !important;
-                margin-bottom: 20px !important;
-            }
+    .analyse-card {
+        width: 100%; /* S'adapte à la colonne de la grille */
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.3s ease;
+    }
+                        
 
             /* BOUTONS EN DESSOUS : Correction de l'écrasement sur mobile */
             .res-item { 
