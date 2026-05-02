@@ -1,8 +1,7 @@
 {
   "name": "KGM Expertise Territoriale",
   "short_name": "KGM Expert",
-  "description": "Expertise SIG et Gouvernance au Togo",
-  "start_url": "index.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#00264d",
   "theme_color": "#00264d",
