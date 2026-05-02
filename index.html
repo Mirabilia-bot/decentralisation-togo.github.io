@@ -506,34 +506,24 @@
   }
 
   let deferredPrompt;
-  const btnInstall = document.getElementById('installApp');
+  const btn = document.getElementById('installApp');
 
   window.addEventListener('beforeinstallprompt', (e) => {
-    // On bloque l'affichage automatique pour utiliser notre bouton KGM
     e.preventDefault();
     deferredPrompt = e;
-    if (btnInstall) btnInstall.style.display = 'inline-block';
+    if (btn) btn.style.display = 'inline-block';
   });
 
   function triggerInstall() {
     if (deferredPrompt) {
-      // Lance l'invitation officielle du navigateur
       deferredPrompt.prompt();
-      deferredPrompt.userChoice.then((choiceResult) => {
-        if (choiceResult.outcome === 'accepted') {
-          if (btnInstall) btnInstall.style.display = 'none';
-        }
+      deferredPrompt.userChoice.then((choice) => {
         deferredPrompt = null;
       });
     } else {
-      // Message d'aide si le navigateur fait de la résistance
-      alert("📲 Pour installer l'application :\n\n1. Cliquez sur les 3 points (⋮) du menu navigateur.\n2. Sélectionnez 'Installer l'application' ou 'Ajouter à l'écran d'accueil'.");
+      alert("Cliquez sur le menu (⋮) puis sur 'Installer' ou 'Ajouter à l'écran d'accueil'.");
     }
   }
-
-  window.addEventListener('appinstalled', () => {
-    if (btnInstall) btnInstall.style.display = 'none';
-  });
 </script>
     
     
