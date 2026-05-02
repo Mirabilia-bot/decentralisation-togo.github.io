@@ -1,31 +1,27 @@
-const CACHE_NAME = 'kgm-expert-v2'; // On change de version pour forcer la mise à jour
+const CACHE_NAME = 'kgm-ultimate-v1';
 const ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/images/icon-192.png',
-  '/images/icon-512.png'
+  './',
+  './index.html',
+  './manifest.json',
+  './images/icon-192.png',
+  './images/icon-512.png'
 ];
-
 
 self.addEventListener('install', (e) => {
   e.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS);
+      return cache.addAll(ASSETS).catch(err => console.log("Erreur mise en cache:", err));
     })
   );
-  self.skipWaiting(); // Force le SW à s'activer tout de suite
+  self.skipWaiting();
 });
 
 self.addEventListener('activate', (e) => {
-  e.waitUntil(clients.claim()); // Prend le contrôle des pages ouvertes immédiatement
-  console.log('Service Worker activé et opérationnel');
+  e.waitUntil(clients.claim());
 });
 
 self.addEventListener('fetch', (e) => {
   e.respondWith(
-    caches.match(e.request).then((response) => {
-      return response || fetch(e.request);
-    })
+    caches.match(e.request).then((res) => res || fetch(e.request))
   );
 });
