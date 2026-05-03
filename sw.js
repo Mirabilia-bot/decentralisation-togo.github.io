@@ -1,9 +1,14 @@
-const CACHE_NAME = 'kgm-live-v3'; // On passe en v3
+const CACHE_NAME = 'kgm-live-v3';
 const ASSETS = [
+  './',
   './index.html',
   './manifest.json',
+  './communes.geojson',
+  './pharmacies.geojson',
   './images/icon-192.png',
-  './images/icon-512.png'
+  './images/icon-512.png',
+  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
+  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'
 ];
 
 self.addEventListener('install', (e) => {
