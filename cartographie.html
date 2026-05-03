@@ -3,42 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Observatoire KGM - Intelligence Territoriale</title>
+    <title>Observatoire Géospatial - KGM Expertise</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         :root { --kgm-blue: #00264d; --kgm-green: #2ecc71; }
-        body { font-family: 'Times New Roman', serif; margin: 0; background: #fdfdfd; color: #333; }
-        
-        /* Header Prestige */
+        body { font-family: 'Times New Roman', serif; margin: 0; padding: 0; background: #fdfdfd; }
         header { 
             background: linear-gradient(135deg, var(--kgm-blue) 0%, #004080 100%);
             color: white; padding: 25px 15px; text-align: center;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
-        header h1 { margin: 0; font-size: 1.6em; text-transform: uppercase; letter-spacing: 1px; }
-        header p { margin: 5px 0; font-style: italic; opacity: 0.9; }
-
-        /* Carte avec bordure identitaire */
-        #map { height: 65vh; width: 100%; border-top: 4px solid var(--kgm-green); border-bottom: 4px solid var(--kgm-blue); }
-
-        /* Section Appel à l'action */
-        .cta-container { padding: 25px; text-align: center; background: white; }
-        .btn-expert { 
-            display: inline-block; padding: 12px 30px; background: var(--kgm-blue);
-            color: white; text-decoration: none; border-radius: 50px;
-            font-weight: bold; transition: 0.3s; box-shadow: 0 4px 15px rgba(0,38,77,0.3);
-        }
-        .btn-expert:hover { transform: scale(1.05); background: var(--kgm-green); }
-
-        /* Design des Popups */
-        .leaflet-popup-content-wrapper { border-radius: 0; border-left: 5px solid var(--kgm-blue); }
-        .popup-title { color: var(--kgm-blue); border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 8px; }
+        header h1 { margin: 0; font-size: 1.6em; text-transform: uppercase; }
+        #map { height: 70vh; width: 100%; border-top: 4px solid var(--kgm-green); border-bottom: 4px solid var(--kgm-blue); }
+        .description { padding: 20px; background: #f4f4f4; border-left: 5px solid var(--kgm-blue); margin: 10px; }
+        .btn-retour { display: inline-block; padding: 12px 25px; background: var(--kgm-blue); color: white; text-decoration: none; border-radius: 50px; margin: 20px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
         
-        /* Légende flottante Design */
-        .legend { 
-            background: rgba(255, 255, 255, 0.95); padding: 12px;
-            border: 1px solid var(--kgm-blue); border-radius: 8px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1); line-height: 22px;
+        /* Style des étiquettes automatiques pour les communes */
+        .label-commune {
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            color: #00264d;
+            font-weight: bold;
+            font-family: 'Times New Roman';
+            font-size: 14px;
+            text-shadow: 1px 1px 2px white;
         }
     </style>
 </head>
@@ -46,72 +35,74 @@
 
 <header>
     <h1>KGM EXPERTISE</h1>
-    <p>L'ingénierie géospatiale au service du développement</p>
+    <p style="margin:5px 0 0 0; font-style: italic;">Observatoire des Infrastructures Sanitaires</p>
 </header>
 
-<div style="padding: 15px; text-align: center; font-size: 1.1em;">
-    <strong>Observatoire Sanitaire :</strong> Analyse du maillage des pharmacies
+<div class="description">
+    <p>Visualisation interactive : Répartition des pharmacies et limites des <strong>Collectivités territoriales</strong>.</p>
 </div>
 
 <div id="map"></div>
 
-<div class="cta-container">
-    <p>Besoin d'une étude d'implantation ou d'une analyse territoriale ?</p>
-    <a href="index.html#contact" class="btn-expert">CONTACTER LE CABINET</a>
-</div>
+<a href="index.html" class="btn-retour">← Retour à l'accueil</a>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    var map = L.map('map', {zoomControl: false}).setView([6.18, 1.20], 12);
-    L.control.zoom({position: 'topright'}).addTo(map);
+    var map = L.map('map').setView([6.18, 1.20], 12);
+    
+    // Fond de carte OpenStreetMap (Coloré)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
 
-    // Fond de carte coloré mais élégant
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    // 1. Couche Communes : AFFICHAGE AUTOMATIQUE DU NOM
+    fetch('./communes.geojson')
+        .then(res => res.json())
+        .then(data => {
+            L.geoJSON(data, {
+                style: { color: "#00264d", weight: 2, fillOpacity: 0.05 },
+                onEachFeature: function (feature, layer) {
+                    // Affiche le nom automatiquement sans cliquer
+                    var nom = feature.properties["Noms des communes"];
+                    layer.bindTooltip(nom, {
+                        permanent: true, 
+                        direction: "center",
+                        className: "label-commune"
+                    });
+                }
+            }).addTo(map);
+        });
 
-    // Style des Communes (Identitaire)
-    var styleCommune = { color: "#00264d", weight: 2, fillColor: "#00264d", fillOpacity: 0.08 };
-
-    fetch('./communes.geojson').then(res => res.json()).then(data => {
-        L.geoJSON(data, {
-            style: styleCommune,
-            onEachFeature: function(f, l) {
-                l.bindPopup("<h4 class='popup-title'>Collectivité Territoriale</h4>" +
-                            "<b>Nom :</b> " + f.properties["Noms des communes"]);
-            }
-        }).addTo(map);
-    });
-
-    // Style des Pharmacies (Points éclatants)
-    fetch('./pharmacies.geojson').then(res => res.json()).then(data => {
-        L.geoJSON(data, {
-            pointToLayer: function(f, latlng) {
-                return L.circleMarker(latlng, {
-                    radius: 8, fillColor: "#2ecc71", color: "#ffffff", weight: 2, fillOpacity: 1
-                });
-            },
-            onEachFeature: function(f, l) {
-                var p = f.properties;
-                var content = "<div style='font-family:Times New Roman;'>" +
-                    "<h3 class='popup-title'>" + p.pharmacie_nom + "</h3>" +
-                    "<b>Secteur :</b> " + p.pharmacie_secteur + "<br>" +
-                    "<b>Canton :</b> " + p.canton_nom_bdd + "<br>" +
-                    "<b>Garde :</b> " + (p.ouverture ? "Disponible" : "Sur demande") +
-                    "</div>";
-                l.bindPopup(content);
-            }
-        }).addTo(map);
-    });
-
-    // Légende Identitaire
-    var legend = L.control({position: 'bottomright'});
-    legend.onAdd = function() {
-        var div = L.DomUtil.create('div', 'legend');
-        div.innerHTML = "<b style='color:var(--kgm-blue)'>LÉGENDE SIG</b><br>" +
-            "<i style='background:rgba(0,38,77,0.2); border:1px solid #00264d; width:12px; height:12px; display:inline-block'></i> Communes<br>" +
-            "<i style='background:#2ecc71; border-radius:50%; width:12px; height:12px; display:inline-block'></i> Pharmacies";
-        return div;
-    };
-    legend.addTo(map);
+    // 2. Couche Pharmacies : POINTS PLUS GRANDS ET INFOS AU CLIC
+    fetch('./pharmacies.geojson')
+        .then(res => res.json())
+        .then(data => {
+            L.geoJSON(data, {
+                pointToLayer: function (feature, latlng) {
+                    // Augmentation de la taille (radius: 12) pour une meilleure visibilité
+                    return L.circleMarker(latlng, { 
+                        radius: 12, 
+                        fillColor: "#28a745", 
+                        color: "#fff", 
+                        weight: 2, 
+                        fillOpacity: 1 
+                    });
+                },
+                onEachFeature: function (feature, layer) {
+                    var p = feature.properties;
+                    // On récupère toutes les infos comme dans votre code qui fonctionnait
+                    var popup = "<div style='font-family: Times New Roman; min-width: 180px;'>" +
+                                "<h3 style='color:#00264d; margin:0;'>" + p.pharmacie_nom + "</h3>" +
+                                "<hr>" +
+                                "<b>Commune :</b> " + p.commune_nom_bdd + "<br>" +
+                                "<b>Canton :</b> " + p.canton_nom_bdd + "<br>" +
+                                "<b>Type :</b> " + p.pharmacie_type + "<br>" +
+                                "<b>Ouverture :</b> " + p.ouverture + 
+                                "</div>";
+                    layer.bindPopup(popup);
+                }
+            }).addTo(map);
+        });
 </script>
 </body>
 </html>
