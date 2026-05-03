@@ -38,6 +38,13 @@
             font-size: 11px; text-shadow: 1px 1px 1px white; white-space: nowrap;
         }
 
+        /* AJUSTEMENT : Correction du débordement dans les popups */
+        .leaflet-popup-content {
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            white-space: normal !important;
+        }
+
         /* Légende Responsive */
         .legend {
             background: white; padding: 8px; line-height: 18px; font-size: 11px;
@@ -57,7 +64,7 @@
 
 <header>
     <h1>KGM EXPERTISE</h1>
-    <p>Observatoire National des Infrastructures Sanitaires</p>
+    <p>Observatoire des Infrastructures Sanitaires</p>
 </header>
 
 <div class="description">
@@ -111,12 +118,15 @@
             },
             onEachFeature: function (f, l) {
                 var p = f.properties;
+                // AJUSTEMENT : Ajout d'espaces après les virgules pour aider le retour à la ligne
+                var joursOuverture = p.ouverture ? p.ouverture.replace(/{|}/g, "").replace(/,/g, ", ") : "N/A";
+
                 var content = "<div style='font-family:Times New Roman; max-width:200px;'>" +
                     "<h3 style='margin:0 0 5px 0; color:var(--kgm-blue); font-size:1.1em;'>" + (p.pharmacie_nom || "Pharmacie") + "</h3>" +
                     "<div style='border-top:1px solid #ddd; padding-top:5px; font-size:0.9em;'>" +
                     "<b>Commune :</b> " + (p.commune_nom_bdd || "N/A") + "<br>" +
                     "<b>Canton :</b> " + (p.canton_nom_bdd || "N/A") + "<br>" +
-                    "<b>Ouverture :</b> " + (p.ouverture ? p.ouverture.replace(/{|}/g, "") : "N/A") + 
+                    "<b>Ouverture :</b> <br>" + joursOuverture + 
                     "</div></div>";
                 l.bindPopup(content);
             }
@@ -128,8 +138,8 @@
     legend.onAdd = function () {
         var div = L.DomUtil.create('div', 'legend');
         div.innerHTML = "<b style='color:var(--kgm-blue)'>LÉGENDE</b><br>" +
-            "<i style='background:rgba(0,38,77,0.2); border:1px solid var(--kgm-blue);'></i> Collectivité<br>" +
-            "<i style='background:#28a745; border-radius:50%; border:1px solid white;'></i> Pharmacie";
+            "<i style='background:rgba(0,38,77,0.2); border:1px solid var(--kgm-blue);'></i> Communes<br>" +
+            "<i style='background:#28a745; border-radius:50%; border:1px solid white;'></i> Pharmacies";
         return div;
     };
     legend.addTo(map);
