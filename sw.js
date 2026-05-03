@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kgm-stable-v1';
+const CACHE_NAME = 'kgm-stable-v2';
 const ASSETS = [
   './index.html',
   './manifest.json',
