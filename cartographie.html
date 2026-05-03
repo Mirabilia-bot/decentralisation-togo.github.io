@@ -19,45 +19,36 @@
         header h1 { margin: 0; font-size: 1.4em; text-transform: uppercase; letter-spacing: 1px; }
         header p { margin: 5px 0 0 0; font-style: italic; font-size: 0.85em; opacity: 0.9; }
 
+        /* Barre de Recherche Permanente */
+        .search-container { padding: 10px; background: white; border-bottom: 1px solid #ddd; display: flex; justify-content: center; }
+        #search-input { width: 90%; max-width: 400px; padding: 10px; border: 2px solid var(--kgm-blue); border-radius: 25px; font-family: 'Times New Roman'; }
+
         /* Carte Adaptative */
-        #map { height: 70vh; width: 100%; border-top: 4px solid var(--kgm-green); border-bottom: 4px solid var(--kgm-blue); }
+        #map { height: 65vh; width: 100%; border-top: 4px solid var(--kgm-green); border-bottom: 4px solid var(--kgm-blue); }
+
+        /* Compteur Statistique */
+        .stats-box { background: white; padding: 5px 10px; border: 2px solid var(--kgm-blue); border-radius: 5px; font-weight: bold; color: var(--kgm-blue); font-size: 12px; }
+
+        /* Bouton Géo personnalisé */
+        .geo-btn { background: white; width: 34px; height: 34px; line-height: 34px; text-align: center; cursor: pointer; border-radius: 4px; box-shadow: 0 1px 5px rgba(0,0,0,0.4); font-size: 18px; }
 
         .description { padding: 15px; background: #f4f4f4; border-left: 5px solid var(--kgm-blue); margin: 10px; font-size: 0.95em; }
         
-        .btn-retour { 
-            display: inline-block; padding: 12px 20px; background: var(--kgm-blue); 
-            color: white; text-decoration: none; border-radius: 50px; 
-            margin: 15px; font-weight: bold; font-size: 0.9em;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2); 
-        }
+        .btn-retour { display: inline-block; padding: 12px 20px; background: var(--kgm-blue); color: white; text-decoration: none; border-radius: 50px; margin: 15px; font-weight: bold; font-size: 0.9em; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
 
         /* Étiquettes de communes adaptatives */
-        .label-commune {
-            background: rgba(255, 255, 255, 0.7); border: none; box-shadow: none;
-            color: var(--kgm-blue); font-weight: bold; font-family: 'Times New Roman';
-            font-size: 11px; text-shadow: 1px 1px 1px white; white-space: nowrap;
-        }
+        .label-commune { background: rgba(255, 255, 255, 0.7); border: none; box-shadow: none; color: var(--kgm-blue); font-weight: bold; font-family: 'Times New Roman'; font-size: 11px; text-shadow: 1px 1px 1px white; white-space: nowrap; }
 
-        /* AJUSTEMENT : Correction du débordement dans les popups */
-        .leaflet-popup-content {
-            word-wrap: break-word !important;
-            overflow-wrap: break-word !important;
-            white-space: normal !important;
-        }
+        /* Correction du débordement dans les popups + TRANSITION DOUCE */
+        .leaflet-popup-content-wrapper { border-radius: 8px; animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .leaflet-popup-content { word-wrap: break-word !important; overflow-wrap: break-word !important; white-space: normal !important; }
 
         /* Légende Responsive */
-        .legend {
-            background: white; padding: 8px; line-height: 18px; font-size: 11px;
-            border: 2px solid var(--kgm-blue); border-radius: 5px; font-family: 'Times New Roman';
-        }
+        .legend { background: white; padding: 8px; line-height: 18px; font-size: 11px; border: 2px solid var(--kgm-blue); border-radius: 5px; font-family: 'Times New Roman'; }
         .legend i { width: 12px; height: 12px; float: left; margin-right: 5px; }
 
-        @media (min-width: 768px) {
-            header h1 { font-size: 1.8em; }
-            header p { font-size: 1em; }
-            .label-commune { font-size: 13px; }
-            .legend { font-size: 13px; padding: 10px; }
-        }
+        @media (min-width: 768px) { header h1 { font-size: 1.8em; } header p { font-size: 1em; } .label-commune { font-size: 13px; } .legend { font-size: 13px; padding: 10px; } }
     </style>
 </head>
 <body>
@@ -66,6 +57,10 @@
     <h1>KGM EXPERTISE</h1>
     <p>Observatoire des Infrastructures Sanitaires</p>
 </header>
+
+<div class="search-container">
+    <input type="text" id="search-input" placeholder="Rechercher une pharmacie ou une commune...">
+</div>
 
 <div class="description">
     Visualisation : <strong>Collectivités territoriales</strong> et maillage des pharmacies (Togo).
@@ -77,63 +72,82 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    // Détection de la taille d'écran pour adapter les éléments
     var isMobile = window.innerWidth < 768;
-
-    // Initialisation centrée sur le Togo (Zoom 7 pour mobile, 7.5 pour tablette/PC)
     var map = L.map('map', { zoomControl: false }).setView([8.6195, 1.1414], isMobile ? 6.5 : 7);
     L.control.zoom({ position: 'topright' }).addTo(map);
 
-    // Fond de carte avec COULEURS (OpenStreetMap)
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-    // 1. COMMUNES
+    // Variables globales pour le filtre
+    var pharmacyLayer;
+
+    // 1. GÉOLOCALISATION
+    var geoControl = L.control({ position: 'topright' });
+    geoControl.onAdd = function() {
+        var div = L.DomUtil.create('div', 'leaflet-bar geo-btn');
+        div.innerHTML = '📍';
+        div.onclick = function() {
+            map.locate({setView: true, maxZoom: 15});
+        };
+        return div;
+    };
+    geoControl.addTo(map);
+
+    // 2. COMPTEUR DYNAMIQUE
+    var statsControl = L.control({position: 'topleft'});
+    statsControl.onAdd = function() {
+        var div = L.DomUtil.create('div', 'stats-box');
+        div.id = 'pharmacy-count';
+        div.innerHTML = 'Chargement...';
+        return div;
+    };
+    statsControl.addTo(map);
+
+    // 3. CHARGEMENT DES DONNÉES
     fetch('./communes.geojson').then(res => res.json()).then(data => {
         L.geoJSON(data, {
             interactive: false, 
             style: { color: "#00264d", weight: 1.2, fillOpacity: 0.02 },
             onEachFeature: function (f, l) {
-                l.bindTooltip(f.properties["Noms des communes"], {
-                    permanent: true, 
-                    direction: "center", 
-                    className: "label-commune",
-                    opacity: isMobile ? 0.7 : 0.9 // Plus discret sur mobile
-                });
+                l.bindTooltip(f.properties["Noms des communes"], { permanent: true, direction: "center", className: "label-commune", opacity: isMobile ? 0.7 : 0.9 });
             }
         }).addTo(map);
-
         return fetch('./pharmacies.geojson');
     })
     .then(res => res.json())
     .then(data => {
-        L.geoJSON(data, {
+        document.getElementById('pharmacy-count').innerHTML = data.features.length + ' Pharmacies répertoriées';
+        
+        pharmacyLayer = L.geoJSON(data, {
             pointToLayer: function (f, latlng) {
-                return L.circleMarker(latlng, {
-                    radius: isMobile ? 10 : 8, // Plus gros sur mobile pour le clic
-                    fillColor: "#28a745", 
-                    color: "#ffffff", 
-                    weight: 2, 
-                    fillOpacity: 1
-                });
+                return L.circleMarker(latlng, { radius: isMobile ? 10 : 8, fillColor: "#28a745", color: "#ffffff", weight: 2, fillOpacity: 1 });
             },
             onEachFeature: function (f, l) {
                 var p = f.properties;
-                // AJUSTEMENT : Ajout d'espaces après les virgules pour aider le retour à la ligne
                 var joursOuverture = p.ouverture ? p.ouverture.replace(/{|}/g, "").replace(/,/g, ", ") : "N/A";
-
                 var content = "<div style='font-family:Times New Roman; max-width:200px;'>" +
                     "<h3 style='margin:0 0 5px 0; color:var(--kgm-blue); font-size:1.1em;'>" + (p.pharmacie_nom || "Pharmacie") + "</h3>" +
                     "<div style='border-top:1px solid #ddd; padding-top:5px; font-size:0.9em;'>" +
                     "<b>Commune :</b> " + (p.commune_nom_bdd || "N/A") + "<br>" +
                     "<b>Canton :</b> " + (p.canton_nom_bdd || "N/A") + "<br>" +
-                    "<b>Ouverture :</b> <br>" + joursOuverture + 
-                    "</div></div>";
+                    "<b>Ouverture :</b> <br>" + joursOuverture + "</div></div>";
                 l.bindPopup(content);
             }
         }).addTo(map);
+
+        // LOGIQUE DE RECHERCHE
+        document.getElementById('search-input').addEventListener('input', function(e) {
+            var val = e.target.value.toLowerCase();
+            pharmacyLayer.eachLayer(function(layer) {
+                var p = layer.feature.properties;
+                var match = (p.pharmacie_nom && p.pharmacie_nom.toLowerCase().includes(val)) || 
+                            (p.commune_nom_bdd && p.commune_nom_bdd.toLowerCase().includes(val));
+                if (match) { layer.addTo(map); } else { map.removeLayer(layer); }
+            });
+        });
     });
 
-    // 3. LÉGENDE
+    // 4. LÉGENDE
     var legend = L.control({position: 'bottomright'});
     legend.onAdd = function () {
         var div = L.DomUtil.create('div', 'legend');
@@ -144,10 +158,7 @@
     };
     legend.addTo(map);
 
-    // Ajustement automatique si on tourne l'écran
-    window.addEventListener('resize', function() {
-        map.invalidateSize();
-    });
+    window.addEventListener('resize', function() { map.invalidateSize(); });
 </script>
 </body>
 </html>
