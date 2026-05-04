@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         :root { --kgm-blue: #00264d; --kgm-green: #28a745; }
+        * { box-sizing: border-box; }
         body, html { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; font-family: 'Times New Roman', serif; background: #eee; }
         #map { position: absolute; top: 0; bottom: 0; width: 100%; z-index: 1; }
         header { 
@@ -18,7 +19,7 @@
         
         .search-container { 
             position: absolute; top: 85px; left: 50%; transform: translateX(-50%); z-index: 1000;
-            width: 85%; max-width: 400px;
+            width: 90%; max-width: 400px; padding: 0 10px;
         }
         #search-input { 
             width: 100%; padding: 12px 20px; border: none; border-radius: 30px; 
@@ -45,7 +46,6 @@
         .panel.active { display: block; animation: slideUp 0.3s ease-out; }
         @keyframes slideUp { from { bottom: 50px; opacity: 0; } to { bottom: 85px; opacity: 1; } }
 
-        .stats-box { background: white; padding: 6px 12px; border-radius: 8px; font-weight: bold; color: var(--kgm-blue); font-size: 12px; border: 1px solid rgba(0,0,0,0.1); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .pharmacy-icon { background: var(--kgm-green); color: white; border: 2px solid white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.4); }
         .label-commune { background: transparent; border: none; box-shadow: none; color: var(--kgm-blue); font-weight: bold; font-size: 11px; text-shadow: 1px 1px 2px white; pointer-events: none; }
         .btn-retour { position: absolute; top: 12px; left: 15px; z-index: 1001; color: white; text-decoration: none; font-weight: bold; font-size: 1.2em; }
@@ -114,15 +114,6 @@
     });
 
     var pharmacyLayer, communeLayer;
-    var statsControl = L.control({position: 'topright'});
-    statsControl.onAdd = function() {
-        var div = L.DomUtil.create('div', 'stats-box');
-        div.id = 'pharmacy-count';
-        div.style.marginTop = "140px"; // Décalage vertical suffisant pour passer sous la barre
-        div.style.marginRight = "10px";
-        return div;
-    };
-    statsControl.addTo(map);
 
     fetch('./communes.geojson').then(res => res.json()).then(data => {
         communeLayer = L.geoJSON(data, {
@@ -135,8 +126,6 @@
     })
     .then(res => res.json())
     .then(data => {
-        document.getElementById('pharmacy-count').innerHTML = data.features.length + ' Pharmacies';
-        
         pharmacyLayer = L.geoJSON(data, {
             pointToLayer: function (f, latlng) {
                 return L.marker(latlng, { icon: L.divIcon({ className: 'pharmacy-icon', html: '+', iconSize: [18, 18] }) });
