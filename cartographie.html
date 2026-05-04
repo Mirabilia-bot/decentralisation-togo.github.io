@@ -11,41 +11,48 @@
         #map { position: absolute; top: 0; bottom: 0; width: 100%; z-index: 1; }
         header { 
             position: absolute; top: 0; left: 0; right: 0; z-index: 1000;
-            background: rgba(0,38,77,0.9); color: white; padding: 8px; text-align: center;
+            background: rgba(0,38,77,0.9); color: white; padding: 10px; text-align: center;
         }
-        header h1 { margin: 0; font-size: 1em; text-transform: uppercase; }
-        header p { margin: 2px 0 0; font-size: 0.8em; font-style: italic; opacity: 0.9; }
+        header h1 { margin: 0; font-size: 1.1em; text-transform: uppercase; letter-spacing: 1px; }
+        header p { margin: 4px 0 0; font-size: 0.85em; font-style: italic; opacity: 0.9; }
+        
         .search-container { 
-            position: absolute; top: 70px; left: 50%; transform: translateX(-50%); z-index: 1000;
-            width: 85%; max-width: 350px;
+            position: absolute; top: 85px; left: 50%; transform: translateX(-50%); z-index: 1000;
+            width: 90%; max-width: 400px;
         }
         #search-input { 
-            width: 100%; padding: 10px 15px; border: none; border-radius: 30px; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2); outline: none; font-family: 'Times New Roman';
+            width: 100%; padding: 12px 20px; border: none; border-radius: 30px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3); outline: none; font-family: 'Times New Roman'; font-size: 16px;
         }
+        
         .ui-controls {
-            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-            z-index: 1000; display: flex; gap: 10px; width: 90%; justify-content: center;
+            position: absolute; bottom: 25px; left: 50%; transform: translateX(-50%);
+            z-index: 1000; display: flex; gap: 10px; width: auto; justify-content: center;
         }
         .ui-btn {
-            background: white; color: var(--kgm-blue); border: none; padding: 10px 15px;
-            border-radius: 20px; font-weight: bold; font-size: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); cursor: pointer;
+            background: white; color: var(--kgm-blue); border: none; padding: 10px 18px;
+            border-radius: 25px; font-weight: bold; font-size: 13px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer;
+            white-space: nowrap; transition: 0.3s;
         }
+        .ui-btn:hover { background: #f0f0f0; }
+
         .panel {
-            position: absolute; bottom: 70px; left: 50%; transform: translateX(-50%);
-            width: 85%; max-width: 350px; background: white; border-radius: 12px;
-            padding: 15px; display: none; z-index: 1001; border-top: 5px solid var(--kgm-green);
+            position: absolute; bottom: 85px; left: 50%; transform: translateX(-50%);
+            width: 90%; max-width: 380px; background: white; border-radius: 15px;
+            padding: 20px; display: none; z-index: 1001; border-top: 6px solid var(--kgm-green);
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.2);
         }
-        .panel.active { display: block; }
-        .stats-box { background: white; padding: 5px 10px; border-radius: 5px; font-weight: bold; color: var(--kgm-blue); font-size: 11px; }
-        .pharmacy-icon { background: var(--kgm-green); color: white; border: 2px solid white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-        .label-commune { background: transparent; border: none; box-shadow: none; color: var(--kgm-blue); font-weight: bold; font-size: 10px; text-shadow: 1px 1px 2px white; }
-        .btn-retour { position: absolute; top: 8px; left: 10px; z-index: 1001; color: white; text-decoration: none; font-weight: bold; }
+        .panel.active { display: block; animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { bottom: 50px; opacity: 0; } to { bottom: 85px; opacity: 1; } }
+
+        .stats-box { background: white; padding: 6px 12px; border-radius: 8px; font-weight: bold; color: var(--kgm-blue); font-size: 12px; border: 1px solid rgba(0,0,0,0.1); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .pharmacy-icon { background: var(--kgm-green); color: white; border: 2px solid white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.4); }
+        .label-commune { background: transparent; border: none; box-shadow: none; color: var(--kgm-blue); font-weight: bold; font-size: 11px; text-shadow: 1px 1px 2px white; pointer-events: none; }
+        .btn-retour { position: absolute; top: 12px; left: 15px; z-index: 1001; color: white; text-decoration: none; font-weight: bold; font-size: 1.2em; }
         
-        /* Style spécifique pour les symboles de la légende */
-        .legende-item { display: flex; align-items: center; margin-bottom: 8px; font-size: 13px; }
-        .symbol-pharmacy { width: 18px; height: 18px; background: var(--kgm-green); border: 2px solid white; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; margin-right: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
-        .symbol-commune { width: 18px; height: 18px; background: rgba(0,38,77,0.1); border: 1.5px solid var(--kgm-blue); margin-right: 10px; }
+        .legende-item { display: flex; align-items: center; margin-bottom: 12px; font-size: 14px; }
+        .symbol-pharmacy { width: 22px; height: 22px; background: var(--kgm-green); border: 2px solid white; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; margin-right: 12px; }
+        .symbol-commune { width: 22px; height: 22px; background: rgba(0,38,77,0.1); border: 2px solid var(--kgm-blue); margin-right: 12px; border-radius: 4px; }
     </style>
 </head>
 <body>
@@ -53,7 +60,7 @@
 <a href="index.html" class="btn-retour">←</a>
 <header>
     <h1>KGM EXPERTISE - SIG</h1>
-    <p>Cliquez sur une commune pour zoomer ou sur un symbole (+) pour afficher les infos</p>
+    <p>Cliquez sur une commune pour zoomer ou sur un symbole (+) pour les infos</p>
 </header>
 
 <div class="search-container">
@@ -63,16 +70,16 @@
 <div id="map"></div>
 
 <div id="panel-analyse" class="panel">
-    <h3 style="margin:0; color:var(--kgm-blue)">Analyses Spatiales</h3>
-    <p style="font-size:13px; line-height: 1.4;">
-        <b>Densité :</b> Forte concentration observée dans le Grand Lomé, indiquant une polarisation des services de santé.<br>
-        <b>Maillage :</b> Couverture optimisée le long de la RN1 et des axes structurants pour les populations urbaines et rurales.<br>
+    <h3 style="margin:0 0 10px 0; color:var(--kgm-blue)">Analyses Spatiales</h3>
+    <p style="font-size:14px; line-height: 1.5; margin:0;">
+        <b>Densité :</b> Forte concentration observée dans le Grand Lomé, indiquant une polarisation des services de santé.<br><br>
+        <b>Maillage :</b> Couverture optimisée le long de la RN1 et des axes structurants pour les populations urbaines et rurales.<br><br>
         <b>Fiabilité :</b> Taux de disponibilité territoriale de 85%, assurant une continuité de service public et privé.
     </p>
 </div>
 
 <div id="panel-legende" class="panel">
-    <h3 style="margin:0 0 10px 0; color:var(--kgm-blue)">Légende</h3>
+    <h3 style="margin:0 0 15px 0; color:var(--kgm-blue)">Légende</h3>
     <div class="legende-item">
         <div class="symbol-pharmacy">+</div>
         <span>Pharmacies répertoriées</span>
@@ -91,13 +98,15 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    var map = L.map('map', { zoomControl: false }).setView([8.6195, 1.1414], 7);
+    var map = L.map('map', { zoomControl: false, tap: false }).setView([8.6195, 1.1414], 7);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
     function togglePanel(id) {
         const panels = document.querySelectorAll('.panel');
-        panels.forEach(p => { if(p.id !== id) p.classList.remove('active'); });
-        document.getElementById(id).classList.toggle('active');
+        const target = document.getElementById(id);
+        const isActive = target.classList.contains('active');
+        panels.forEach(p => p.classList.remove('active'));
+        if(!isActive) target.classList.add('active');
     }
 
     map.on('locationfound', function(e) {
@@ -109,14 +118,15 @@
     statsControl.onAdd = function() {
         var div = L.DomUtil.create('div', 'stats-box');
         div.id = 'pharmacy-count';
-        div.style.marginTop = "60px";
+        div.style.marginTop = "80px"; // Ajusté pour le header responsive
+        div.style.marginRight = "10px";
         return div;
     };
     statsControl.addTo(map);
 
     fetch('./communes.geojson').then(res => res.json()).then(data => {
         communeLayer = L.geoJSON(data, {
-            style: { color: "#00264d", weight: 1.5, fillOpacity: 0.05 },
+            style: { color: "#00264d", weight: 2, fillOpacity: 0.05 },
             onEachFeature: function (f, l) {
                 l.bindTooltip(f.properties["Noms des communes"], { permanent: true, direction: "center", className: "label-commune" });
             }
@@ -125,18 +135,18 @@
     })
     .then(res => res.json())
     .then(data => {
-        document.getElementById('pharmacy-count').innerHTML = data.features.length + ' Pharmacies répertoriées';
+        document.getElementById('pharmacy-count').innerHTML = data.features.length + ' Pharmacies';
         
         pharmacyLayer = L.geoJSON(data, {
             pointToLayer: function (f, latlng) {
-                return L.marker(latlng, { icon: L.divIcon({ className: 'pharmacy-icon', html: '+', iconSize: [16, 16] }) });
+                return L.marker(latlng, { icon: L.divIcon({ className: 'pharmacy-icon', html: '+', iconSize: [18, 18] }) });
             },
             onEachFeature: function (f, l) {
                 var p = f.properties;
                 var content = "<div style='font-family:Times New Roman; min-width:180px;'>" +
-                              "<b style='color:#00264d; font-size:14px;'>" + (p.pharmacie_nom || "Pharmacie") + "</b><hr style='margin:5px 0; border:0; border-top:1px solid #eee;'>" +
+                              "<b style='color:#00264d; font-size:15px;'>" + (p.pharmacie_nom || "Pharmacie") + "</b><hr style='margin:8px 0; border:0; border-top:1px solid #eee;'>" +
                               "<b>Canton :</b> " + (p.canton_nom_bdd || "Non spécifié") + "<br>" +
-                              "<b>Type d'établissement :</b> " + (p.pharmacie_type || "Non spécifié") + "</div>";
+                              "<b>Type :</b> " + (p.pharmacie_type || "Non spécifié") + "</div>";
                 l.bindPopup(content);
             }
         }).addTo(map);
@@ -154,7 +164,6 @@
             pharmacyLayer.eachLayer(function(layer) {
                 var nomP = layer.feature.properties.pharmacie_nom?.toLowerCase() || "";
                 var nomC = layer.feature.properties.commune_nom_bdd?.toLowerCase() || "";
-                
                 if (val === "" || nomP.includes(val) || nomC.includes(val)) {
                     layer.addTo(map);
                 } else {
