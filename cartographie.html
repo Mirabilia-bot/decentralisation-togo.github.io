@@ -14,8 +14,9 @@
             background: rgba(0,38,77,0.9); color: white; padding: 8px; text-align: center;
         }
         header h1 { margin: 0; font-size: 1em; text-transform: uppercase; }
+        header p { margin: 2px 0 0; font-size: 0.8em; font-style: italic; opacity: 0.9; }
         .search-container { 
-            position: absolute; top: 50px; left: 50%; transform: translateX(-50%); z-index: 1000;
+            position: absolute; top: 70px; left: 50%; transform: translateX(-50%); z-index: 1000;
             width: 85%; max-width: 350px;
         }
         #search-input { 
@@ -45,7 +46,10 @@
 <body>
 
 <a href="index.html" class="btn-retour">←</a>
-<header><h1>KGM EXPERTISE - SIG</h1></header>
+<header>
+    <h1>KGM EXPERTISE - SIG</h1>
+    <p>Cliquez sur une commune pour zoomer ou sur un symbole (+) pour afficher les infos</p>
+</header>
 
 <div class="search-container">
     <input type="text" id="search-input" placeholder="Rechercher une pharmacie ou commune...">
@@ -55,7 +59,11 @@
 
 <div id="panel-analyse" class="panel">
     <h3 style="margin:0; color:var(--kgm-blue)">Analyses Spatiales</h3>
-    <p style="font-size:13px;"><b>Densité :</b> Concentration Grand Lomé.<br><b>Fiabilité :</b> 85% de service.</p>
+    <p style="font-size:13px; line-height: 1.4;">
+        <b>Densité :</b> Forte concentration observée dans le Grand Lomé, indiquant une polarisation des services de santé.<br>
+        <b>Maillage :</b> Couverture optimisée le long de la RN1 et des axes structurants pour les populations urbaines et rurales.<br>
+        <b>Fiabilité :</b> Taux de disponibilité territoriale de 85%, assurant une continuité de service public et privé.
+    </p>
 </div>
 
 <div id="panel-legende" class="panel">
@@ -89,7 +97,7 @@
     statsControl.onAdd = function() {
         var div = L.DomUtil.create('div', 'stats-box');
         div.id = 'pharmacy-count';
-        div.style.marginTop = "50px";
+        div.style.marginTop = "60px";
         return div;
     };
     statsControl.addTo(map);
@@ -124,17 +132,13 @@
         document.getElementById('search-input').addEventListener('input', function(e) {
             var val = e.target.value.toLowerCase().trim();
             
-            // Étape 1 : Vérifier si la saisie correspond à une COMMUNE
-            var isSearchingCommune = false;
             communeLayer.eachLayer(function(layer) {
                 var nomCommune = layer.feature.properties["Noms des communes"]?.toLowerCase() || "";
                 if (val.length > 2 && nomCommune.includes(val)) {
                     map.fitBounds(layer.getBounds());
-                    isSearchingCommune = true;
                 }
             });
 
-            // Étape 2 : Gestion de l'affichage des pharmacies
             pharmacyLayer.eachLayer(function(layer) {
                 var nomP = layer.feature.properties.pharmacie_nom?.toLowerCase() || "";
                 var nomC = layer.feature.properties.commune_nom_bdd?.toLowerCase() || "";
