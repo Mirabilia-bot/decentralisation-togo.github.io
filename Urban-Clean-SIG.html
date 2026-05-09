@@ -138,7 +138,7 @@
         communeLayer = L.geoJSON(geojson, {
             style: { color: "#00264d", weight: 2, fillOpacity: 0.05 },
             onEachFeature: function (f, l) {
-                let nom = f.properties.nom || f.properties["Noms des communes"];
+                let nom = f.properties["Noms des communes"] || f.properties.nom;
                 if(nom) l.bindTooltip(nom, { permanent: true, direction: "center", className: "commune-label" });
             }
         }).addTo(map);
@@ -150,16 +150,19 @@
         securite: L.divIcon({ html: '<i class="fas fa-exclamation-triangle" style="color:#f57c00; font-size:20px;"></i>', className:'c-icon' })
     };
 
-    function refresh() {
+    function refresh(filter = '') {
         markers.clearLayers();
         let counts = {dechets:0, pollution:0, securite:0};
         let qCounts = {};
 
         data.forEach(d => {
-            L.marker([d.lat, d.lng], {icon: icons[d.type]}).addTo(markers)
-             .bindPopup(`<b style="color:var(--kgm-blue)">${d.quartier}</b><br><i>${d.desc}</i><br><small><i class="far fa-calendar"></i> ${d.date} | <i class="far fa-clock"></i> ${d.heure}</small>`);
-            counts[d.type]++;
-            qCounts[d.quartier] = (qCounts[d.quartier] || 0) + 1;
+            let match = d.quartier.toLowerCase().includes(filter) || d.desc.toLowerCase().includes(filter) || d.type.toLowerCase().includes(filter);
+            if (match) {
+                L.marker([d.lat, d.lng], {icon: icons[d.type]}).addTo(markers)
+                 .bindPopup(`<b style="color:var(--kgm-blue)">${d.quartier}</b><br><i>${d.desc}</i><br><small><i class="far fa-calendar"></i> ${d.date} | <i class="far fa-clock"></i> ${d.heure}</small>`);
+                counts[d.type]++;
+                qCounts[d.quartier] = (qCounts[d.quartier] || 0) + 1;
+            }
         });
 
         document.getElementById('stats-text').innerText = `${data.length} signalements enregistrés`;
@@ -183,14 +186,12 @@
         if(!isActive) p.classList.add('active');
     }
 
-    // Gestion de la localisation précise
     map.on('locationfound', function(e) {
         userPos = e.latlng;
         if (userCircle) map.removeLayer(userCircle);
         userCircle = L.circle(e.latlng, {radius: 15, color: 'blue', fillOpacity: 0.1}).addTo(map);
     });
 
-    // Activer la surveillance GPS haute précision
     map.locate({watch: true, enableHighAccuracy: true});
 
     function ouvrirModal() { 
@@ -205,33 +206,28 @@
         let q = document.getElementById('quartierSelect').value;
         if(q === 'Autres') q = document.getElementById('autreQuartier').value || 'Inconnu';
         
-        // CORRECTION CHIRURGICALE : Priorité absolue au signal GPS
         if (!userPos) {
-            alert("Localisation GPS en cours... Veuillez patienter une seconde.");
+            alert("Localisation GPS en cours...");
             return;
         }
         
-        data.push({
+        let newEntry = {
             quartier: q, 
             type: document.getElementById('typeSelect').value,
             desc: document.getElementById('descInput').value || 'Pas de description', 
             lat: userPos.lat, lng: userPos.lng,
             date: document.getElementById('dateInput').value,
             heure: document.getElementById('heureInput').value
-        });
-
-        // Déplacement doux de la carte vers le nouveau point
-        map.flyTo(userPos, 17, { duration: 1.5 });
+        };
         
-        refresh(); fermerModal();
+        data.push(newEntry);
+        refresh();
+        fermerModal();
+        map.flyTo([newEntry.lat, newEntry.lng], 16, { animate: true, duration: 2 });
     }
 
     document.getElementById('search-input').addEventListener('input', function(e) {
-        let v = e.target.value.toLowerCase();
-        markers.eachLayer(l => {
-            let content = l.getPopup().getContent().toLowerCase();
-            if(content.includes(v)) l.addTo(map); else map.removeLayer(l);
-        });
+        refresh(e.target.value.toLowerCase());
     });
 
     refresh();
