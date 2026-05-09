@@ -3,157 +3,204 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>URBAN-CLEAN | Spot2gether & KGM Expertise</title>
+  <title>URBAN-CLEAN | KGM Expertise</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
   <style>
-    body { margin:0; font-family:'Times New Roman', serif; background:#f4f4f4; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-    #filters { padding:10px; background:#e8f5e9; display:flex; gap:15px; flex-wrap:wrap; z-index: 1001; align-items: flex-end; }
-    #map { height:50vh; width: 100%; position: sticky; top: 0; z-index: 1000; flex-shrink: 0; }
-    #dashboard { flex-grow: 1; background:white; padding:15px; box-shadow:0 -5px 15px rgba(0,0,0,0.1); overflow-y:auto; }
-    canvas { max-height:200px; margin-top:15px; }
-    #addBtn { display:block; width:90%; margin:10px auto; padding:12px; font-size:1.1em; background:#fc3d21; color:white; border:none; border-radius:8px; cursor:pointer; }
-    label { font-weight: bold; display: block; }
-    input, select, textarea { width: 100%; padding: 8px; box-sizing: border-box; border-radius: 4px; border: 1px solid #ccc; }
-    .commune-label { background: transparent; border: none; box-shadow: none; font-weight: bold; color: #1b5e20; text-shadow: 1px 1px 2px white; pointer-events: none; }
+    :root { --kgm-blue: #00264d; --kgm-green: #1b5e20; --kgm-red: #fc3d21; }
+    * { box-sizing: border-box; }
+    body, html { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; font-family: 'Times New Roman', serif; background: #eee; }
+    
+    #map { position: absolute; top: 0; bottom: 0; width: 100%; z-index: 1; }
+    
+    header { 
+        position: absolute; top: 0; left: 0; right: 0; z-index: 1000;
+        background: rgba(0,38,77,0.9); color: white; padding: 10px; text-align: center;
+    }
+    header h1 { margin: 0; font-size: 1.1em; text-transform: uppercase; }
+    header p { margin: 4px 0 0; font-size: 0.8em; opacity: 0.9; }
+
+    .search-container { 
+        position: absolute; top: 75px; left: 0; right: 0; z-index: 1000;
+        width: 100%; display: flex; justify-content: center; padding: 0 15px;
+    }
+    #search-input { 
+        width: 100%; max-width: 400px; padding: 12px 20px; border: none; border-radius: 30px; 
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3); outline: none; font-family: 'Times New Roman';
+    }
+
+    .ui-controls {
+        position: absolute; bottom: 25px; left: 50%; transform: translateX(-50%);
+        z-index: 1000; display: flex; gap: 8px; width: auto;
+    }
+    .ui-btn {
+        background: white; color: var(--kgm-blue); border: none; padding: 10px 15px;
+        border-radius: 25px; font-weight: bold; font-size: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer;
+    }
+
+    .panel {
+        position: absolute; bottom: 85px; left: 50%; transform: translateX(-50%);
+        width: 90%; max-width: 380px; background: white; border-radius: 15px;
+        padding: 20px; display: none; z-index: 1001; border-top: 6px solid var(--kgm-green);
+        box-shadow: 0 -5px 20px rgba(0,0,0,0.2); max-height: 60vh; overflow-y: auto;
+    }
+    .panel.active { display: block; animation: slideUp 0.3s ease-out; }
+    @keyframes slideUp { from { bottom: 50px; opacity: 0; } to { bottom: 85px; opacity: 1; } }
+
+    .commune-label { background: transparent; border: none; box-shadow: none; color: var(--kgm-blue); font-weight: bold; font-size: 11px; text-shadow: 1px 1px 2px white; pointer-events: none; }
+    
+    /* Styles spécifiques Urban-Clean */
+    .legend-item { display: flex; align-items: center; margin-bottom: 10px; font-size: 14px; }
+    .legend-icon { width: 20px; text-align: center; margin-right: 10px; font-size: 18px; }
+    #addBtnFloating { background: var(--kgm-red); color: white; }
+    canvas { max-height: 180px; margin-top: 10px; }
   </style>
 </head>
 <body>
-  <div id="filters">
-    <div style="min-width: 150px;">
-      <label>Quartier :</label>
-      <select id="filterQuartier" onchange="toggleAutreFiltre(this.value); applyFilters();">
-        <option value="all">Tous</option>
-        <option value="Kliklamé">Kliklamé</option>
-        <option value="Bé">Bé</option>
-        <option value="Tokoin">Tokoin</option>
-        <option value="Autres">Autres...</option>
-      </select>
-      <input type="text" id="filterAutreQuartier" placeholder="Nom du quartier" style="display:none; margin-top:5px;" oninput="applyFilters()">
-    </div>
-    <div>
-      <label>Type :</label>
-      <select id="filterType" onchange="applyFilters()">
-        <option value="all">Tous</option>
-        <option value="dechets">Déchets</option>
-        <option value="pollution">Pollution</option>
-        <option value="securite">Sécurité</option>
-      </select>
-    </div>
-    <div>
-      <label>Date :</label>
-      <input type="date" id="filterDate" onchange="applyFilters()">
-    </div>
-    <button onclick="demanderPosition()" style="padding: 8px 15px; cursor: pointer; border-radius: 4px; border: 1px solid #ccc; background: white;">📍 Me localiser</button>
-  </div>
 
-  <div id="map"></div>
-  
-  <div id="dashboard">
-    <button id="addBtn">➕ Ajouter un point signalé</button>
-    <h3>Tableau de bord</h3>
-    <div id="stats"></div>
+<header>
+    <h1>URBAN-CLEAN | KGM EXPERTISE</h1>
+    <p>Signaler et analyser la salubrité urbaine en temps réel</p>
+</header>
+
+<div class="search-container">
+    <input type="text" id="search-input" placeholder="Rechercher un quartier ou point...">
+</div>
+
+<div id="map"></div>
+
+<div id="panel-analyse" class="panel">
+    <h3 style="margin:0 0 10px 0; color:var(--kgm-blue)">Statistiques du Territoire</h3>
+    <div id="stats-text" style="font-weight:bold; margin-bottom:10px;"></div>
     <canvas id="chartTypes"></canvas>
     <canvas id="chartQuartiers"></canvas>
-  </div>
+</div>
 
-  <div id="modalForm" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:2000;justify-content:center;align-items:center;">
-    <div style="background:white;padding:20px;border-radius:10px;width:90%;max-width:400px;max-height:90vh;overflow-y:auto;">
-      <h3 style="margin-top:0;color:#1b5e20;">Nouveau signalement</h3>
-      <label>Titre / Description courte</label>
-      <input type="text" id="titre">
-      <label>Quartier</label>
-      <select id="quartier" onchange="toggleAutreModal(this.value)">
-        <option>Kliklamé</option><option>Bé</option><option>Tokoin</option><option value="Autres">Autres (Préciser...)</option>
-      </select>
-      <div id="divAutreModal" style="display:none; margin-top:5px;"><input type="text" id="modalAutreQuartier" placeholder="Saisir le quartier"></div>
-      <label>Type d’alerte</label>
-      <select id="type"><option value="dechets">Déchets</option><option value="pollution">Pollution</option><option value="securite">Sécurité</option></select>
-      <button style="margin-top:15px;padding:12px;width:100%;border:none;border-radius:8px;background:#1b5e20;color:white;cursor:pointer;" onclick="soumettreForm()">✅ Valider le signalement</button>
-      <button style="margin-top:8px;padding:12px;width:100%;border:none;border-radius:8px;background:#fc3d21;color:white;cursor:pointer;" onclick="fermerForm()">❌ Annuler</button>
+<div id="panel-legende" class="panel">
+    <h3 style="margin:0 0 15px 0; color:var(--kgm-blue)">Légende</h3>
+    <div class="legend-item"><i class="fas fa-trash legend-icon" style="color:var(--kgm-red)"></i><span>Déchets solides</span></div>
+    <div class="legend-item"><i class="fas fa-smog legend-icon" style="color:#007bff"></i><span>Pollution</span></div>
+    <div class="legend-item"><i class="fas fa-exclamation-triangle legend-icon" style="color:#f57c00"></i><span>Sécurité / Risque</span></div>
+    <div class="legend-item"><div style="width:20px; height:10px; border:2px solid var(--kgm-blue); margin-right:10px;"></div><span>Limites Communales</span></div>
+</div>
+
+<div class="ui-controls">
+    <button class="ui-btn" id="addBtnFloating" onclick="ouvrirModal()">➕ Signaler</button>
+    <button class="ui-btn" onclick="togglePanel('panel-analyse')">📊 Analyse</button>
+    <button class="ui-btn" onclick="togglePanel('panel-legende')">🗺️ Légende</button>
+    <button class="ui-btn" onclick="map.locate({setView: true, maxZoom: 15})">📍 Position</button>
+</div>
+
+<div id="modalForm" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:2000;justify-content:center;align-items:center;">
+    <div style="background:white;padding:20px;border-radius:15px;width:90%;max-width:380px;">
+        <h3 style="margin-top:0;color:var(--kgm-blue);">Nouveau Signalement</h3>
+        <label style="font-weight:bold; font-size:14px;">Quartier</label>
+        <select id="quartierSelect" style="width:100%; padding:10px; margin:5px 0 15px 0;" onchange="checkAutre(this.value)">
+            <option>Kliklamé</option><option>Bé</option><option>Tokoin</option><option value="Autres">Autres...</option>
+        </select>
+        <input type="text" id="autreQuartier" placeholder="Nom du quartier" style="display:none; width:100%; padding:10px; margin-bottom:15px;">
+        
+        <label style="font-weight:bold; font-size:14px;">Type d'alerte</label>
+        <select id="typeSelect" style="width:100%; padding:10px; margin:5px 0 15px 0;">
+            <option value="dechets">Déchets</option><option value="pollution">Pollution</option><option value="securite">Sécurité</option>
+        </select>
+        <button style="width:100%; padding:12px; background:var(--kgm-green); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;" onclick="soumettreSignalement()">✅ Valider</button>
+        <button style="width:100%; padding:10px; background:#eee; color:#333; border:none; border-radius:8px; margin-top:8px; cursor:pointer;" onclick="fermerModal()">Annuler</button>
     </div>
-  </div>
+</div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-  var map = L.map('map').setView([6.1319,1.2228],13);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    var map = L.map('map', { zoomControl: false }).setView([6.1319, 1.2228], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-  fetch("communes.geojson")
-    .then(res => res.json())
-    .then(geojson => {
-      L.geoJSON(geojson, {
-        style: {color: "#1b5e20", weight: 2, fillOpacity: 0.05},
-        onEachFeature: function(feature, layer) {
-          if (feature.properties && feature.properties.nom) {
-            layer.bindTooltip(feature.properties.nom, {permanent: true, direction: "center", className: "commune-label"});
-          }
-        }
-      }).addTo(map);
+    var data = [
+        {quartier:'Kliklamé', type:'dechets', desc:'Dépôt sauvage', lat:6.14, lng:1.22, date:'2025-05-09'},
+        {quartier:'Bé', type:'pollution', desc:'Eaux usées', lat:6.13, lng:1.21, date:'2025-05-08'}
+    ];
+
+    var markers = L.layerGroup().addTo(map);
+    var communeLayer;
+    var chart1, chart2;
+
+    // Chargement GéoJSON avec noms des communes (Chirurgical)
+    fetch('./communes.geojson').then(res => res.json()).then(geojson => {
+        communeLayer = L.geoJSON(geojson, {
+            style: { color: "#00264d", weight: 2, fillOpacity: 0.05 },
+            onEachFeature: function (f, l) {
+                // Support des deux noms de propriétés possibles
+                let nom = f.properties.nom || f.properties["Noms des communes"];
+                if(nom) l.bindTooltip(nom, { permanent: true, direction: "center", className: "commune-label" });
+            }
+        }).addTo(map);
     });
 
-  const icons = {
-    dechets: L.divIcon({className:'custom-div-icon', html:'<i class="fas fa-trash" style="color:#fc3d21;font-size:22px"></i>', iconSize:[30,42], iconAnchor:[15,42]}),
-    pollution: L.divIcon({className:'custom-div-icon', html:'<i class="fas fa-smog" style="color:#007bff;font-size:22px"></i>', iconSize:[30,42], iconAnchor:[15,42]}),
-    securite: L.divIcon({className:'custom-div-icon', html:'<i class="fas fa-exclamation-triangle" style="color:#f57c00;font-size:22px"></i>', iconSize:[30,42], iconAnchor:[15,42]})
-  };
+    const icons = {
+        dechets: L.divIcon({ html: '<i class="fas fa-trash" style="color:var(--kgm-red); font-size:20px;"></i>', className:'c-icon' }),
+        pollution: L.divIcon({ html: '<i class="fas fa-smog" style="color:#007bff; font-size:20px;"></i>', className:'c-icon' }),
+        securite: L.divIcon({ html: '<i class="fas fa-exclamation-triangle" style="color:#f57c00; font-size:20px;"></i>', className:'c-icon' })
+    };
 
-  const data = [
-    {quartier:'Kliklamé',type:'dechets',desc:'Tas d’ordures',lat:6.14,lng:1.22,date:'2025-08-23'},
-    {quartier:'Bé',type:'pollution',desc:'Fumée industrielle',lat:6.13,lng:1.21,date:'2025-09-02'},
-    {quartier:'Tokoin',type:'securite',desc:'Décharge sauvage',lat:6.15,lng:1.23,date:'2025-09-05'}
-  ];
+    function refresh() {
+        markers.clearLayers();
+        let counts = {dechets:0, pollution:0, securite:0};
+        let qCounts = {};
 
-  let markers = L.layerGroup().addTo(map);
-  let chart1 = null, chart2 = null;
+        data.forEach(d => {
+            L.marker([d.lat, d.lng], {icon: icons[d.type]}).addTo(markers)
+             .bindPopup(`<b>${d.quartier}</b><br>${d.desc}<br><small>${d.date}</small>`);
+            counts[d.type]++;
+            qCounts[d.quartier] = (qCounts[d.quartier] || 0) + 1;
+        });
 
-  function renderMap(filtered){
-    markers.clearLayers();
-    filtered.forEach(d=>{
-      L.marker([d.lat, d.lng],{icon:icons[d.type]}).addTo(markers).bindPopup(`<b>${d.desc}</b><br><small>${d.quartier} - ${d.date}</small>`);
+        document.getElementById('stats-text').innerText = `${data.length} signalements actifs`;
+        updateCharts(counts, qCounts);
+    }
+
+    function updateCharts(tData, qData) {
+        if(chart1) chart1.destroy(); if(chart2) chart2.destroy();
+        chart1 = new Chart(document.getElementById('chartTypes'), {
+            type:'pie', data:{labels:['Déchets','Pollution','Sécurité'], datasets:[{data:Object.values(tData), backgroundColor:['#fc3d21','#007bff','#f57c00']}]}
+        });
+        chart2 = new Chart(document.getElementById('chartQuartiers'), {
+            type:'bar', data:{labels:Object.keys(qData), datasets:[{label:'Par Quartier', data:Object.values(qData), backgroundColor:'#1b5e20'}]}
+        });
+    }
+
+    function togglePanel(id) {
+        const p = document.getElementById(id);
+        const isActive = p.classList.contains('active');
+        document.querySelectorAll('.panel').forEach(x => x.classList.remove('active'));
+        if(!isActive) p.classList.add('active');
+    }
+
+    function ouvrirModal() { document.getElementById('modalForm').style.display='flex'; }
+    function fermerModal() { document.getElementById('modalForm').style.display='none'; }
+    function checkAutre(v) { document.getElementById('autreQuartier').style.display = (v==='Autres'?'block':'none'); }
+
+    function soumettreSignalement() {
+        let q = document.getElementById('quartierSelect').value;
+        if(q === 'Autres') q = document.getElementById('autreQuartier').value || 'Inconnu';
+        let center = map.getCenter();
+        data.push({
+            quartier: q, type: document.getElementById('typeSelect').value,
+            desc: 'Nouveau point', lat: center.lat, lng: center.lng,
+            date: new Date().toISOString().split('T')[0]
+        });
+        refresh(); fermerModal();
+    }
+
+    // Recherche (Même logique que Pharmacies)
+    document.getElementById('search-input').addEventListener('input', function(e) {
+        let v = e.target.value.toLowerCase();
+        markers.eachLayer(l => {
+            let matches = l.getPopup().getContent().toLowerCase().includes(v);
+            if(matches) l.addTo(map); else map.removeLayer(l);
+        });
     });
-  }
 
-  function updateDashboard(filtered){
-    document.getElementById('stats').innerHTML = `<b>${filtered.length}</b> signalements`;
-    const typeCount={}, quartierCount={};
-    filtered.forEach(d=>{
-      typeCount[d.type]=(typeCount[d.type]||0)+1;
-      quartierCount[d.quartier]=(quartierCount[d.quartier]||0)+1;
-    });
-    if(chart1) chart1.destroy(); if(chart2) chart2.destroy();
-    chart1 = new Chart(document.getElementById('chartTypes'),{type:'pie',data:{labels:Object.keys(typeCount),datasets:[{data:Object.values(typeCount),backgroundColor:['#fc3d21','#007bff','#f57c00']}]}});
-    chart2 = new Chart(document.getElementById('chartQuartiers'),{type:'bar',data:{labels:Object.keys(quartierCount),datasets:[{label:'Signalements',data:Object.values(quartierCount),backgroundColor:'#1b5e20'}]}});
-  }
-
-  function applyFilters(){
-    let q=document.getElementById('filterQuartier').value;
-    if(q==="Autres") q=document.getElementById('filterAutreQuartier').value;
-    const t=document.getElementById('filterType').value;
-    const d=document.getElementById('filterDate').value;
-    const filtered=data.filter(x=>(q==="all"||x.quartier.toLowerCase()===q.toLowerCase())&&(t==="all"||x.type===t)&&(!d||x.date===d));
-    renderMap(filtered); updateDashboard(filtered);
-  }
-
-  function toggleAutreFiltre(val) { document.getElementById('filterAutreQuartier').style.display = (val === "Autres") ? "block" : "none"; }
-  function toggleAutreModal(val) { document.getElementById('divAutreModal').style.display = (val === "Autres") ? "block" : "none"; }
-  function demanderPosition(){ navigator.geolocation.getCurrentPosition(pos => { map.setView([pos.coords.latitude, pos.coords.longitude], 15); L.circle([pos.coords.latitude, pos.coords.longitude], {radius: 50, color: 'blue'}).addTo(map); }, () => alert("Géolocalisation échouée.")); }
-  function fermerForm() { document.getElementById('modalForm').style.display='none'; }
-
-  function soumettreForm(){
-    const titre = document.getElementById('titre').value;
-    const type = document.getElementById('type').value;
-    let q = document.getElementById('quartier').value;
-    if(q === "Autres") q = document.getElementById('modalAutreQuartier').value || "Autre";
-    const center = map.getCenter();
-    data.push({quartier: q, type: type, desc: titre || "Signalement", lat: center.lat, lng: center.lng, date: new Date().toISOString().split('T')[0]});
-    applyFilters(); fermerForm();
-  }
-
-  document.getElementById('addBtn').onclick = () => document.getElementById('modalForm').style.display='flex';
-  applyFilters();
+    refresh();
 </script>
 </body>
 </html>
