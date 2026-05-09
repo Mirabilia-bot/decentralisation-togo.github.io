@@ -15,8 +15,9 @@
     #map { height:50vh; }
     #dashboard { height:50vh; background:white; padding:15px; box-shadow:0 -5px 15px rgba(0,0,0,0.1); overflow:auto; }
     canvas { max-height:200px; margin-top:15px; }
-    #addBtn { display:block; width:90%; margin:10px auto; padding:12px; font-size:1.1em; background:#fc3d21; color:white; border:none; border-radius:8px; }
-    label { font-weight: bold; }
+    #addBtn { display:block; width:90%; margin:10px auto; padding:12px; font-size:1.1em; background:#fc3d21; color:white; border:none; border-radius:8px; cursor:pointer; }
+    label { font-weight: bold; display: block; margin-top: 10px; }
+    input, select, textarea { width: 100%; padding: 8px; box-sizing: border-box; }
   </style>
 </head>
 <body>
@@ -45,6 +46,7 @@
 
   <div id="map"></div>
   <button id="addBtn">➕ Ajouter un point signalé</button>
+
   <div id="dashboard">
     <h3>Tableau de bord</h3>
     <div id="stats"></div>
@@ -53,28 +55,44 @@
   </div>
 
   <div id="modalForm" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:2000;justify-content:center;align-items:center;">
-    <div style="background:white;padding:20px;border-radius:10px;width:90%;max-width:400px;">
+    <div style="background:white;padding:20px;border-radius:10px;width:90%;max-width:400px;max-height:90vh;overflow-y:auto;">
       <h3 style="margin-top:0;color:#1b5e20;">Nouveau signalement</h3>
-      <label>Titre</label><input type="text" id="titre" style="width:100%">
-      <label>Description</label><textarea id="desc" style="width:100%"></textarea>
+      <label>Titre / Description courte</label>
+      <input type="text" id="titre">
+      
       <label>Quartier</label>
-      <select id="quartier" style="width:100%">
-        <option>Kliklamé</option><option>Bé</option><option>Tokoin</option>
+      <select id="quartier" onchange="toggleAutreQuartier(this.value)">
+        <option>Kliklamé</option>
+        <option>Bé</option>
+        <option>Tokoin</option>
+        <option value="Autres">Autres (Préciser...)</option>
       </select>
+      <div id="divAutre" style="display:none; margin-top:5px;">
+        <input type="text" id="autreQuartier" placeholder="Nom du quartier">
+      </div>
+
       <label>Type d’alerte</label>
-      <select id="type" style="width:100%">
+      <select id="type">
         <option value="dechets">Déchets</option>
         <option value="pollution">Pollution</option>
         <option value="securite">Sécurité</option>
       </select>
-      <button style="margin-top:15px;padding:12px;width:100%;border:none;border-radius:8px;background:#1b5e20;color:white;" onclick="alert('Signalement ajouté !')">✅ Ajouter</button>
-      <button style="margin-top:8px;padding:12px;width:100%;border:none;border-radius:8px;background:#fc3d21;color:white;" onclick="document.getElementById('modalForm').style.display='none'">❌ Annuler</button>
+      
+      <button style="margin-top:15px;padding:12px;width:100%;border:none;border-radius:8px;background:#1b5e20;color:white;cursor:pointer;" onclick="soumettreForm()">✅ Valider le signalement</button>
+      <button style="margin-top:8px;padding:12px;width:100%;border:none;border-radius:8px;background:#fc3d21;color:white;cursor:pointer;" onclick="fermerForm()">❌ Annuler</button>
     </div>
   </div>
 
 <script>
   var map = L.map('map').setView([6.1319,1.2228],13);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+  // Intégration du fichier communes.geojson
+  fetch("communes.geojson")
+    .then(res => res.json())
+    .then(geojson => {
+      L.geoJSON(geojson, {style: {color: "#1b5e20", weight: 2, fillOpacity: 0.05}}).addTo(map);
+    }).catch(err => console.log("Fichier geojson introuvable, chargement normal."));
 
   const icons = {
     dechets: L.divIcon({className:'custom-div-icon', html:'<i class="fas fa-trash" style="color:#fc3d21;font-size:22px"></i>', iconSize:[30,42], iconAnchor:[15,42]}),
@@ -93,11 +111,9 @@
 
   function renderMap(filtered){
     markers.clearLayers();
-    let heatPoints = [];
     filtered.forEach(d=>{
       L.marker([d.lat, d.lng],{icon:icons[d.type]}).addTo(markers)
         .bindPopup(`<b>${d.desc}</b><br><small>${d.quartier} - ${d.date}</small>`);
-      heatPoints.push([d.lat, d.lng, 0.5]);
     });
   }
 
@@ -134,13 +150,39 @@
   function demanderPosition(){
     navigator.geolocation.getCurrentPosition(pos => {
       map.setView([pos.coords.latitude, pos.coords.longitude], 15);
-      L.marker([pos.coords.latitude, pos.coords.longitude]).addTo(map).bindPopup("Vous êtes ici").openPopup();
-    }, () => alert("Localisation impossible"));
+      L.circle([pos.coords.latitude, pos.coords.longitude], {radius: 50, color: 'blue'}).addTo(map);
+    }, () => alert("Localisation refusée ou impossible."));
+  }
+
+  function toggleAutreQuartier(val) {
+    document.getElementById('divAutre').style.display = (val === "Autres") ? "block" : "none";
+  }
+
+  function fermerForm() { document.getElementById('modalForm').style.display='none'; }
+
+  function soumettreForm(){
+    const titre = document.getElementById('titre').value;
+    const type = document.getElementById('type').value;
+    let q = document.getElementById('quartier').value;
+    if(q === "Autres") q = document.getElementById('autreQuartier').value || "Inconnu";
+
+    const center = map.getCenter();
+    const nouveauPoint = {
+      quartier: q,
+      type: type,
+      desc: titre || "Signalement sans titre",
+      lat: center.lat,
+      lng: center.lng,
+      date: new Date().toISOString().split('T')[0]
+    };
+
+    data.push(nouveauPoint);
+    applyFilters(); // Rafraîchit tout automatiquement
+    fermerForm();
   }
 
   document.getElementById('addBtn').onclick = () => document.getElementById('modalForm').style.display='flex';
   
-  // Initialisation
   applyFilters();
 </script>
 </body>
