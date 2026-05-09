@@ -61,6 +61,8 @@
     
     .legend-item { display: flex; align-items: center; margin-bottom: 10px; font-size: 14px; }
     .legend-icon { width: 20px; text-align: center; margin-right: 10px; font-size: 18px; }
+    .actions { display: flex; gap: 10px; margin-top: 5px; }
+    .actions i { cursor: pointer; font-size: 16px; }
     #addBtnFloating { background: var(--kgm-red); color: white; }
     canvas { max-height: 180px; margin-top: 10px; }
   </style>
@@ -102,7 +104,8 @@
 
 <div id="modalForm" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:2000;justify-content:center;align-items:center;">
     <div style="background:white;padding:20px;border-radius:15px;width:90%;max-width:380px;">
-        <h3 style="margin-top:0;color:var(--kgm-blue);">Nouveau Signalement</h3>
+        <h3 id="modalTitle" style="margin-top:0;color:var(--kgm-blue);">Nouveau Signalement</h3>
+        <input type="hidden" id="editIndex">
         <label style="font-weight:bold; font-size:14px;">Quartier</label>
         <select id="quartierSelect" style="width:100%; padding:10px; margin:5px 0 10px 0;" onchange="checkAutre(this.value)">
             <option>Kliklamé</option><option>Bé</option><option>Tokoin</option><option value="Autres">Autres...</option>
@@ -136,11 +139,14 @@
     var map = L.map('map', { zoomControl: false }).setView([6.1319, 1.2228], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
+    var userKey = localStorage.getItem('uc_user_key') || 'USER-' + Math.random().toString(36).substr(2, 9);
+    localStorage.setItem('uc_user_key', userKey);
+
     var userPos = null;
     var userCircle = null;
-    var data = [
-        {quartier:'Kliklamé', type:'dechets', desc:'Dépôt sauvage d\'ordures ménagères', lat:6.14, lng:1.22, date:'2025-05-09', heure:'10:30', photo:null},
-        {quartier:'Bé', type:'pollution', desc:'Évacuation d\'eaux usées sur la voie', lat:6.13, lng:1.21, date:'2025-05-08', heure:'14:15', photo:null}
+    var data = JSON.parse(localStorage.getItem('uc_data')) || [
+        {quartier:'Kliklamé', type:'dechets', desc:'Dépôt sauvage d\'ordures ménagères', lat:6.14, lng:1.22, date:'2025-05-09', heure:'10:30', photo:null, userId:'system'},
+        {quartier:'Bé', type:'pollution', desc:'Évacuation d\'eaux usées sur la voie', lat:6.13, lng:1.21, date:'2025-05-08', heure:'14:15', photo:null, userId:'system'}
     ];
 
     var markers = L.layerGroup().addTo(map);
@@ -168,16 +174,25 @@
         let counts = {dechets:0, pollution:0, securite:0};
         let qCounts = {};
 
-        data.forEach(d => {
+        data.forEach((d, index) => {
+            let isMine = (d.userId === userKey);
             let popupContent = `<b style="color:var(--kgm-blue)">${d.quartier}</b><br><i>${d.desc}</i>`;
             if(d.photo) popupContent += `<br><img src="${d.photo}" style="width:150px;margin-top:5px;border-radius:4px">`;
             popupContent += `<br><small><i class="far fa-calendar"></i> ${d.date} | <i class="far fa-clock"></i> ${d.heure}</small>`;
+            
+            if(isMine) {
+                popupContent += `<div class="actions">
+                    <i class="fas fa-edit" style="color:var(--kgm-green)" onclick="editer(${index})"></i>
+                    <i class="fas fa-trash" style="color:var(--kgm-red)" onclick="supprimer(${index})"></i>
+                </div>`;
+            }
 
             L.marker([d.lat, d.lng], {icon: icons[d.type]}).addTo(markers).bindPopup(popupContent);
             counts[d.type]++;
             qCounts[d.quartier] = (qCounts[d.quartier] || 0) + 1;
         });
 
+        localStorage.setItem('uc_data', JSON.stringify(data));
         document.getElementById('stats-text').innerText = `${data.length} signalements enregistrés`;
         updateCharts(counts, qCounts);
     }
@@ -208,10 +223,35 @@
     map.locate({watch: true, enableHighAccuracy: true});
 
     function ouvrirModal() { 
+        document.getElementById('modalTitle').innerText = "Nouveau Signalement";
+        document.getElementById('editIndex').value = "";
         document.getElementById('modalForm').style.display='flex';
         document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
         document.getElementById('heureInput').value = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        document.getElementById('descInput').value = "";
+        document.getElementById('photoInput').value = "";
     }
+    
+    function editer(index) {
+        const d = data[index];
+        document.getElementById('modalTitle').innerText = "Modifier le Signalement";
+        document.getElementById('editIndex').value = index;
+        document.getElementById('quartierSelect').value = d.quartier;
+        document.getElementById('descInput').value = d.desc;
+        document.getElementById('dateInput').value = d.date;
+        document.getElementById('heureInput').value = d.heure;
+        document.getElementById('typeSelect').value = d.type;
+        document.getElementById('modalForm').style.display='flex';
+        map.closePopup();
+    }
+
+    function supprimer(index) {
+        if(confirm("Supprimer définitivement ce signalement ?")) {
+            data.splice(index, 1);
+            refresh();
+        }
+    }
+
     function fermerModal() { document.getElementById('modalForm').style.display='none'; }
     function checkAutre(v) { document.getElementById('autreQuartier').style.display = (v==='Autres'?'block':'none'); }
 
@@ -219,40 +259,40 @@
         let q = document.getElementById('quartierSelect').value;
         if(q === 'Autres') q = document.getElementById('autreQuartier').value || 'Inconnu';
         
-        if (!userPos) {
-            alert("Localisation GPS en cours...");
-            return;
-        }
-        
+        let idx = document.getElementById('editIndex').value;
         const photoInput = document.getElementById('photoInput');
         const file = photoInput.files[0];
         const reader = new FileReader();
 
         reader.onload = function(e) {
-            let newEntry = {
+            let entry = {
                 quartier: q, 
                 type: document.getElementById('typeSelect').value,
                 desc: document.getElementById('descInput').value || 'Pas de description', 
-                lat: userPos.lat, lng: userPos.lng,
+                lat: idx !== "" ? data[idx].lat : userPos.lat,
+                lng: idx !== "" ? data[idx].lng : userPos.lng,
                 date: document.getElementById('dateInput').value,
                 heure: document.getElementById('heureInput').value,
-                photo: e.target.result
+                photo: file ? e.target.result : (idx !== "" ? data[idx].photo : null),
+                userId: userKey
             };
             
-            data.push(newEntry);
+            if (!userPos && idx === "") {
+                alert("Localisation GPS en cours...");
+                return;
+            }
+
+            if(idx !== "") data[idx] = entry; else data.push(entry);
+            
             refresh();
             fermerModal();
-            map.flyTo([newEntry.lat, newEntry.lng], 17, { animate: true, duration: 2 });
+            map.flyTo([entry.lat, entry.lng], 17, { animate: true, duration: 2 });
         };
 
-        if(file) {
-            reader.readAsDataURL(file);
-        } else {
-            reader.onload({target: {result: null}});
-        }
+        if(file) reader.readAsDataURL(file); else reader.onload({target: {result: null}});
     }
 
     refresh();
 </script>
 </body>
-</html>
+</html>```
