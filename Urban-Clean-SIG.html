@@ -124,6 +124,7 @@
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
     var userPos = null;
+    var userCircle = null;
     var data = [
         {quartier:'Kliklamé', type:'dechets', desc:'Dépôt sauvage d\'ordures ménagères', lat:6.14, lng:1.22, date:'2025-05-09', heure:'10:30'},
         {quartier:'Bé', type:'pollution', desc:'Évacuation d\'eaux usées sur la voie', lat:6.13, lng:1.21, date:'2025-05-08', heure:'14:15'}
@@ -182,10 +183,15 @@
         if(!isActive) p.classList.add('active');
     }
 
+    // Gestion de la localisation précise
     map.on('locationfound', function(e) {
         userPos = e.latlng;
-        L.circle(e.latlng, {radius: 50, color: 'blue'}).addTo(map);
+        if (userCircle) map.removeLayer(userCircle);
+        userCircle = L.circle(e.latlng, {radius: 30, color: 'blue', fillOpacity: 0.1}).addTo(map);
     });
+
+    // Activer la localisation en continu pour une précision maximale
+    map.locate({watch: true, enableHighAccuracy: true});
 
     function ouvrirModal() { 
         document.getElementById('modalForm').style.display='flex';
@@ -199,7 +205,7 @@
         let q = document.getElementById('quartierSelect').value;
         if(q === 'Autres') q = document.getElementById('autreQuartier').value || 'Inconnu';
         
-        // Utilisation de la position GPS si détectée, sinon le centre de la carte
+        // Point placé à la position GPS exacte détectée, sinon au centre de la carte
         let loc = userPos || map.getCenter();
         
         data.push({
