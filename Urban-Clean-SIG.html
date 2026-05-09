@@ -20,6 +20,7 @@
     header h1 { margin: 0; font-size: 1.1em; text-transform: uppercase; }
     header p { margin: 4px 0 0; font-size: 0.8em; opacity: 0.9; }
 
+    /* Style chirurgical pour la barre défilante */
     .ticker { 
         position: absolute; top: 75px; left: 0; right: 0; z-index: 1000;
         width: 100%; background: white; padding: 10px 0; overflow: hidden;
@@ -29,7 +30,7 @@
         white-space: nowrap;
         display: inline-block;
         padding-left: 100%;
-        animation: ticker 30s linear infinite;
+        animation: ticker 25s linear infinite;
         font-weight: bold;
         color: var(--kgm-blue);
     }
@@ -116,7 +117,7 @@
           <div style="flex:1;"><label style="font-weight:bold; font-size:12px;">Heure</label><input type="time" id="heureInput" style="width:100%; padding:8px;"></div>
         </div>
 
-        <label style="font-weight:bold; font-size:14px; margin-top:10px; display:block;">Prendre une photo</label>
+        <label style="font-weight:bold; font-size:14px; margin-top:10px; display:block;"><i class="fas fa-camera"></i> Prendre une photo</label>
         <input type="file" id="photoInput" accept="image/*" capture="environment" style="width:100%; margin:5px 0 10px 0;">
 
         <label style="font-weight:bold; font-size:14px; margin-top:10px; display:block;">Type d'alerte</label>
@@ -223,7 +224,8 @@
             return;
         }
         
-        const photoFile = document.getElementById('photoInput').files[0];
+        const photoInput = document.getElementById('photoInput');
+        const file = photoInput.files[0];
         const reader = new FileReader();
 
         reader.onload = function(e) {
@@ -243,8 +245,8 @@
             map.flyTo([newEntry.lat, newEntry.lng], 17, { animate: true, duration: 2 });
         };
 
-        if(photoFile) {
-            reader.readAsDataURL(photoFile);
+        if(file) {
+            reader.readAsDataURL(file);
         } else {
             reader.onload({target: {result: null}});
         }
