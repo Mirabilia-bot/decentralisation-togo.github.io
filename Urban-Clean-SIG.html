@@ -10,10 +10,10 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
   <style>
-    body { margin:0; font-family:'Times New Roman', serif; background:#f4f4f4; }
-    #filters { padding:10px; background:#e8f5e9; display:flex; gap:15px; flex-wrap:wrap; }
-    #map { height:50vh; }
-    #dashboard { height:50vh; background:white; padding:15px; box-shadow:0 -5px 15px rgba(0,0,0,0.1); overflow:auto; }
+    body { margin:0; font-family:'Times New Roman', serif; background:#f4f4f4; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+    #filters { padding:10px; background:#e8f5e9; display:flex; gap:15px; flex-wrap:wrap; z-index: 1001; }
+    #map { height:50vh; width: 100%; position: sticky; top: 0; z-index: 1000; flex-shrink: 0; }
+    #dashboard { flex-grow: 1; background:white; padding:15px; box-shadow:0 -5px 15px rgba(0,0,0,0.1); overflow-y:auto; }
     canvas { max-height:200px; margin-top:15px; }
     #addBtn { display:block; width:90%; margin:10px auto; padding:12px; font-size:1.1em; background:#fc3d21; color:white; border:none; border-radius:8px; cursor:pointer; }
     label { font-weight: bold; display: block; margin-top: 10px; }
@@ -45,9 +45,9 @@
   </div>
 
   <div id="map"></div>
-  <button id="addBtn">➕ Ajouter un point signalé</button>
-
+  
   <div id="dashboard">
+    <button id="addBtn">➕ Ajouter un point signalé</button>
     <h3>Tableau de bord</h3>
     <div id="stats"></div>
     <canvas id="chartTypes"></canvas>
@@ -87,12 +87,18 @@
   var map = L.map('map').setView([6.1319,1.2228],13);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-  // Intégration du fichier communes.geojson
   fetch("communes.geojson")
     .then(res => res.json())
     .then(geojson => {
-      L.geoJSON(geojson, {style: {color: "#1b5e20", weight: 2, fillOpacity: 0.05}}).addTo(map);
-    }).catch(err => console.log("Fichier geojson introuvable, chargement normal."));
+      L.geoJSON(geojson, {
+        style: {color: "#1b5e20", weight: 2, fillOpacity: 0.05},
+        onEachFeature: function(feature, layer) {
+          if (feature.properties && feature.properties.nom) {
+            layer.bindTooltip(feature.properties.nom, {permanent: true, direction: "center", className: "commune-label"}).openTooltip();
+          }
+        }
+      }).addTo(map);
+    }).catch(err => console.log("GéoJSON non chargé."));
 
   const icons = {
     dechets: L.divIcon({className:'custom-div-icon', html:'<i class="fas fa-trash" style="color:#fc3d21;font-size:22px"></i>', iconSize:[30,42], iconAnchor:[15,42]}),
@@ -124,10 +130,8 @@
       typeCount[d.type]=(typeCount[d.type]||0)+1;
       quartierCount[d.quartier]=(quartierCount[d.quartier]||0)+1;
     });
-
     if(chart1) chart1.destroy();
     if(chart2) chart2.destroy();
-
     chart1 = new Chart(document.getElementById('chartTypes'),{
       type:'pie',
       data:{labels:Object.keys(typeCount),datasets:[{data:Object.values(typeCount),backgroundColor:['#fc3d21','#007bff','#f57c00']}]}
@@ -151,7 +155,7 @@
     navigator.geolocation.getCurrentPosition(pos => {
       map.setView([pos.coords.latitude, pos.coords.longitude], 15);
       L.circle([pos.coords.latitude, pos.coords.longitude], {radius: 50, color: 'blue'}).addTo(map);
-    }, () => alert("Localisation refusée ou impossible."));
+    }, () => alert("Géolocalisation échouée."));
   }
 
   function toggleAutreQuartier(val) {
@@ -165,24 +169,18 @@
     const type = document.getElementById('type').value;
     let q = document.getElementById('quartier').value;
     if(q === "Autres") q = document.getElementById('autreQuartier').value || "Inconnu";
-
     const center = map.getCenter();
     const nouveauPoint = {
-      quartier: q,
-      type: type,
-      desc: titre || "Signalement sans titre",
-      lat: center.lat,
-      lng: center.lng,
+      quartier: q, type: type, desc: titre || "Signalement",
+      lat: center.lat, lng: center.lng,
       date: new Date().toISOString().split('T')[0]
     };
-
     data.push(nouveauPoint);
-    applyFilters(); // Rafraîchit tout automatiquement
+    applyFilters();
     fermerForm();
   }
 
   document.getElementById('addBtn').onclick = () => document.getElementById('modalForm').style.display='flex';
-  
   applyFilters();
 </script>
 </body>
