@@ -150,14 +150,10 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    // --- CONFIGURATION FIREBASE (Copiez vos clés ici) ---
+    // --- CONFIGURATION FIREBASE ---
     const firebaseConfig = {
-      apiKey: "VOTRE_API_KEY",
-      authDomain: "VOTRE_PROJECT.firebaseapp.com",
-      projectId: "VOTRE_PROJECT_ID",
-      storageBucket: "VOTRE_PROJECT.appspot.com",
-      messagingSenderId: "VOTRE_SENDER_ID",
-      appId: "VOTRE_APP_ID"
+      projectId: "urban-clean-kgm",
+      authDomain: "urban-clean-kgm.firebaseapp.com"
     };
 
     // Initialisation Firebase
@@ -207,7 +203,7 @@
                 </div>`;
             }
 
-            L.marker([d.lat, d.lng], {icon: icons[d.type]}).addTo(markers).bindPopup(popupContent);
+            if(d.lat && d.lng) L.marker([d.lat, d.lng], {icon: icons[d.type]}).addTo(markers).bindPopup(popupContent);
             counts[d.type]++;
             qCounts[d.quartier] = (qCounts[d.quartier] || 0) + 1;
         });
@@ -275,35 +271,36 @@
         
         document.getElementById('loadingOverlay').style.display = 'flex';
         const file = document.getElementById('photoInput').files[0];
-        let photoBase64 = null;
 
-        if (file) {
-            photoBase64 = await new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.onloadend = () => resolve(reader.result);
-                reader.readAsDataURL(file);
-            });
-        }
+        const envoyerAData = async (photoBase64 = null) => {
+            const entry = {
+                quartier: q, type: document.getElementById('typeSelect').value,
+                desc: document.getElementById('descInput').value || 'Pas de description',
+                lat: editId !== "" ? data.find(x => x.id === editId).lat : userPos.lat,
+                lng: editId !== "" ? data.find(x => x.id === editId).lng : userPos.lng,
+                date: document.getElementById('dateInput').value,
+                heure: document.getElementById('heureInput').value,
+                photo: photoBase64 || (editId !== "" ? data.find(x => x.id === editId).photo : null),
+                userId: userKey
+            };
 
-        const entry = {
-            quartier: q, type: document.getElementById('typeSelect').value,
-            desc: document.getElementById('descInput').value || 'Pas de description',
-            lat: editId !== "" ? data.find(x => x.id === editId).lat : userPos.lat,
-            lng: editId !== "" ? data.find(x => x.id === editId).lng : userPos.lng,
-            date: document.getElementById('dateInput').value,
-            heure: document.getElementById('heureInput').value,
-            photo: photoBase64 || (editId !== "" ? data.find(x => x.id === editId).photo : null),
-            userId: userKey
+            try {
+                if(editId !== "") await db.collection('signalements').doc(editId).update(entry);
+                else await db.collection('signalements').add(entry);
+                fermerModal();
+            } catch(e) { alert("Erreur de synchronisation."); }
+            document.getElementById('loadingOverlay').style.display = 'none';
         };
 
-        try {
-            if(editId !== "") await db.collection('signalements').doc(editId).update(entry);
-            else await db.collection('signalements').add(entry);
-            fermerModal();
-        } catch(e) { alert("Erreur de synchronisation."); }
-        
-        document.getElementById('loadingOverlay').style.display = 'none';
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => envoyerAData(reader.result);
+            reader.readAsDataURL(file);
+        } else {
+            envoyerAData();
+        }
     }
 </script>
 </body>
-</html>
+          </html>
+          
