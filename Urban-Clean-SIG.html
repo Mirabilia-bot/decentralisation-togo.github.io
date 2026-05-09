@@ -6,6 +6,10 @@
   <title>URBAN-CLEAN | KGM Expertise</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+  
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+
   <style>
     :root { --kgm-blue: #00264d; --kgm-green: #1b5e20; --kgm-red: #fc3d21; }
     * { box-sizing: border-box; }
@@ -20,7 +24,6 @@
     header h1 { margin: 0; font-size: 1.1em; text-transform: uppercase; }
     header p { margin: 4px 0 0; font-size: 0.8em; opacity: 0.9; }
 
-    /* Style chirurgical pour la barre défilante */
     .ticker { 
         position: absolute; top: 75px; left: 0; right: 0; z-index: 1000;
         width: 100%; background: white; padding: 10px 0; overflow: hidden;
@@ -65,9 +68,20 @@
     .actions i { cursor: pointer; font-size: 16px; }
     #addBtnFloating { background: var(--kgm-red); color: white; }
     canvas { max-height: 180px; margin-top: 10px; }
+
+    /* Overlay de chargement pour Firestore */
+    #loadingOverlay {
+        display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(255,255,255,0.8); z-index: 3000; justify-content: center; align-items: center; flex-direction: column;
+    }
   </style>
 </head>
 <body>
+
+<div id="loadingOverlay">
+    <i class="fas fa-spinner fa-spin fa-3x" style="color:var(--kgm-blue)"></i>
+    <p style="font-weight:bold; margin-top:10px;">Synchronisation avec KGM Cloud...</p>
+</div>
 
 <header>
     <h1>URBAN-CLEAN | KGM EXPERTISE</h1>
@@ -105,7 +119,7 @@
 <div id="modalForm" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:2000;justify-content:center;align-items:center;">
     <div style="background:white;padding:20px;border-radius:15px;width:90%;max-width:380px;">
         <h3 id="modalTitle" style="margin-top:0;color:var(--kgm-blue);">Nouveau Signalement</h3>
-        <input type="hidden" id="editIndex">
+        <input type="hidden" id="editId">
         <label style="font-weight:bold; font-size:14px;">Quartier</label>
         <select id="quartierSelect" style="width:100%; padding:10px; margin:5px 0 10px 0;" onchange="checkAutre(this.value)">
             <option>Kliklamé</option><option>Bé</option><option>Tokoin</option><option value="Autres">Autres...</option>
@@ -136,6 +150,20 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
+    // --- CONFIGURATION FIREBASE (Copiez vos clés ici) ---
+    const firebaseConfig = {
+      apiKey: "VOTRE_API_KEY",
+      authDomain: "VOTRE_PROJECT.firebaseapp.com",
+      projectId: "VOTRE_PROJECT_ID",
+      storageBucket: "VOTRE_PROJECT.appspot.com",
+      messagingSenderId: "VOTRE_SENDER_ID",
+      appId: "VOTRE_APP_ID"
+    };
+
+    // Initialisation Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
     var map = L.map('map', { zoomControl: false }).setView([6.1319, 1.2228], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
@@ -144,23 +172,15 @@
 
     var userPos = null;
     var userCircle = null;
-    var data = JSON.parse(localStorage.getItem('uc_data')) || [
-        {quartier:'Kliklamé', type:'dechets', desc:'Dépôt sauvage d\'ordures ménagères', lat:6.14, lng:1.22, date:'2025-05-09', heure:'10:30', photo:null, userId:'system'},
-        {quartier:'Bé', type:'pollution', desc:'Évacuation d\'eaux usées sur la voie', lat:6.13, lng:1.21, date:'2025-05-08', heure:'14:15', photo:null, userId:'system'}
-    ];
+    var data = []; // Les données viendront de Firebase
 
     var markers = L.layerGroup().addTo(map);
-    var communeLayer;
     var chart1, chart2;
 
-    fetch('./communes.geojson').then(res => res.json()).then(geojson => {
-        communeLayer = L.geoJSON(geojson, {
-            style: { color: "#00264d", weight: 2, fillOpacity: 0.05 },
-            onEachFeature: function (f, l) {
-                let nom = f.properties["Noms des communes"] || f.properties.nom;
-                if(nom) l.bindTooltip(nom, { permanent: true, direction: "center", className: "commune-label" });
-            }
-        }).addTo(map);
+    // Écoute en temps réel de Firestore
+    db.collection('signalements').onSnapshot((snapshot) => {
+        data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        refresh();
     });
 
     const icons = {
@@ -174,7 +194,7 @@
         let counts = {dechets:0, pollution:0, securite:0};
         let qCounts = {};
 
-        data.forEach((d, index) => {
+        data.forEach((d) => {
             let isMine = (d.userId === userKey);
             let popupContent = `<b style="color:var(--kgm-blue)">${d.quartier}</b><br><i>${d.desc}</i>`;
             if(d.photo) popupContent += `<br><img src="${d.photo}" style="width:150px;margin-top:5px;border-radius:4px">`;
@@ -182,8 +202,8 @@
             
             if(isMine) {
                 popupContent += `<div class="actions">
-                    <i class="fas fa-edit" style="color:var(--kgm-green)" onclick="editer(${index})"></i>
-                    <i class="fas fa-trash" style="color:var(--kgm-red)" onclick="supprimer(${index})"></i>
+                    <i class="fas fa-edit" style="color:var(--kgm-green)" onclick="editer('${d.id}')"></i>
+                    <i class="fas fa-trash" style="color:var(--kgm-red)" onclick="supprimer('${d.id}')"></i>
                 </div>`;
             }
 
@@ -192,19 +212,14 @@
             qCounts[d.quartier] = (qCounts[d.quartier] || 0) + 1;
         });
 
-        localStorage.setItem('uc_data', JSON.stringify(data));
         document.getElementById('stats-text').innerText = `${data.length} signalements enregistrés`;
         updateCharts(counts, qCounts);
     }
 
     function updateCharts(tData, qData) {
         if(chart1) chart1.destroy(); if(chart2) chart2.destroy();
-        chart1 = new Chart(document.getElementById('chartTypes'), {
-            type:'pie', data:{labels:['Déchets','Pollution','Sécurité'], datasets:[{data:[tData.dechets, tData.pollution, tData.securite], backgroundColor:['#fc3d21','#007bff','#f57c00']}]}
-        });
-        chart2 = new Chart(document.getElementById('chartQuartiers'), {
-            type:'bar', data:{labels:Object.keys(qData), datasets:[{label:'Signalements', data:Object.values(qData), backgroundColor:'#1b5e20'}]}
-        });
+        chart1 = new Chart(document.getElementById('chartTypes'), { type:'pie', data:{labels:['Déchets','Pollution','Sécurité'], datasets:[{data:[tData.dechets, tData.pollution, tData.securite], backgroundColor:['#fc3d21','#007bff','#f57c00']}]} });
+        chart2 = new Chart(document.getElementById('chartQuartiers'), { type:'bar', data:{labels:Object.keys(qData), datasets:[{label:'Signalements', data:Object.values(qData), backgroundColor:'#1b5e20'}]} });
     }
 
     function togglePanel(id) {
@@ -214,28 +229,27 @@
         if(!isActive) p.classList.add('active');
     }
 
-    map.on('locationfound', function(e) {
+    map.on('locationfound', (e) => {
         userPos = e.latlng;
         if (userCircle) map.removeLayer(userCircle);
         userCircle = L.circle(e.latlng, {radius: 15, color: 'blue', fillOpacity: 0.1}).addTo(map);
     });
-
     map.locate({watch: true, enableHighAccuracy: true});
 
     function ouvrirModal() { 
         document.getElementById('modalTitle').innerText = "Nouveau Signalement";
-        document.getElementById('editIndex').value = "";
+        document.getElementById('editId').value = "";
         document.getElementById('modalForm').style.display='flex';
         document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
         document.getElementById('heureInput').value = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
         document.getElementById('descInput').value = "";
         document.getElementById('photoInput').value = "";
     }
-    
-    function editer(index) {
-        const d = data[index];
+
+    function editer(id) {
+        const d = data.find(x => x.id === id);
         document.getElementById('modalTitle').innerText = "Modifier le Signalement";
-        document.getElementById('editIndex').value = index;
+        document.getElementById('editId').value = id;
         document.getElementById('quartierSelect').value = d.quartier;
         document.getElementById('descInput').value = d.desc;
         document.getElementById('dateInput').value = d.date;
@@ -245,54 +259,51 @@
         map.closePopup();
     }
 
-    function supprimer(index) {
-        if(confirm("Supprimer définitivement ce signalement ?")) {
-            data.splice(index, 1);
-            refresh();
-        }
+    async function supprimer(id) {
+        if(confirm("Supprimer définitivement ce signalement ?")) await db.collection('signalements').doc(id).delete();
     }
 
     function fermerModal() { document.getElementById('modalForm').style.display='none'; }
     function checkAutre(v) { document.getElementById('autreQuartier').style.display = (v==='Autres'?'block':'none'); }
 
-    function soumettreSignalement() {
+    async function soumettreSignalement() {
         let q = document.getElementById('quartierSelect').value;
         if(q === 'Autres') q = document.getElementById('autreQuartier').value || 'Inconnu';
+        let editId = document.getElementById('editId').value;
         
-        let idx = document.getElementById('editIndex').value;
-        const photoInput = document.getElementById('photoInput');
-        const file = photoInput.files[0];
-        const reader = new FileReader();
+        if (!userPos && editId === "") return alert("GPS en cours...");
+        
+        document.getElementById('loadingOverlay').style.display = 'flex';
+        const file = document.getElementById('photoInput').files[0];
+        let photoBase64 = null;
 
-        reader.onload = function(e) {
-            let entry = {
-                quartier: q, 
-                type: document.getElementById('typeSelect').value,
-                desc: document.getElementById('descInput').value || 'Pas de description', 
-                lat: idx !== "" ? data[idx].lat : userPos.lat,
-                lng: idx !== "" ? data[idx].lng : userPos.lng,
-                date: document.getElementById('dateInput').value,
-                heure: document.getElementById('heureInput').value,
-                photo: file ? e.target.result : (idx !== "" ? data[idx].photo : null),
-                userId: userKey
-            };
-            
-            if (!userPos && idx === "") {
-                alert("Localisation GPS en cours...");
-                return;
-            }
+        if (file) {
+            photoBase64 = await new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.readAsDataURL(file);
+            });
+        }
 
-            if(idx !== "") data[idx] = entry; else data.push(entry);
-            
-            refresh();
-            fermerModal();
-            map.flyTo([entry.lat, entry.lng], 17, { animate: true, duration: 2 });
+        const entry = {
+            quartier: q, type: document.getElementById('typeSelect').value,
+            desc: document.getElementById('descInput').value || 'Pas de description',
+            lat: editId !== "" ? data.find(x => x.id === editId).lat : userPos.lat,
+            lng: editId !== "" ? data.find(x => x.id === editId).lng : userPos.lng,
+            date: document.getElementById('dateInput').value,
+            heure: document.getElementById('heureInput').value,
+            photo: photoBase64 || (editId !== "" ? data.find(x => x.id === editId).photo : null),
+            userId: userKey
         };
 
-        if(file) reader.readAsDataURL(file); else reader.onload({target: {result: null}});
+        try {
+            if(editId !== "") await db.collection('signalements').doc(editId).update(entry);
+            else await db.collection('signalements').add(entry);
+            fermerModal();
+        } catch(e) { alert("Erreur de synchronisation."); }
+        
+        document.getElementById('loadingOverlay').style.display = 'none';
     }
-
-    refresh();
 </script>
 </body>
-</html>```
+</html>
