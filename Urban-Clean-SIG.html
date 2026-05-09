@@ -219,6 +219,10 @@
             date: document.getElementById('dateInput').value,
             heure: document.getElementById('heureInput').value
         });
+
+        // Déplacement doux de la carte vers le nouveau point
+        map.flyTo(userPos, 17, { duration: 1.5 });
+        
         refresh(); fermerModal();
     }
 
