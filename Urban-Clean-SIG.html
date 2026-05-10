@@ -162,30 +162,31 @@
     var markers = L.layerGroup().addTo(map);
     var chart1, chart2;
 
-    fetch('./communes.geojson').then(res => res.json()).then(geojson => {
-       L.geoJSON(geojson, {
-    style: { 
-        color: "#00264d", 
-        weight: 2, 
-        fillOpacity: 0.05,
-        interactive: true // Assurez-vous que les polygones capturent la souris
-    },
-    onEachFeature: (f, l) => {
-    let nom = f.properties["Noms des communes"] || f.properties.nom || f.properties.NOM;
-    if(nom) {
-        l.bindTooltip(nom, { 
-            permanent: false, 
-            direction: "auto", 
-            sticky: true, 
-            className: "commune-label",
-            offset: [0, -15] 
-        });
-    }
-}
-
-}).addTo(map);
-              
+        fetch('./communes.geojson').then(res => res.json()).then(geojson => {
+        L.geoJSON(geojson, {
+            style: { 
+                color: "#00264d", 
+                weight: 2, 
+                fillOpacity: 0.05,
+                interactive: true 
+            },
+            onEachFeature: (f, l) => {
+                // Utilisation de la clé exacte trouvée dans votre fichier
+                let nom = f.properties["Noms des communes"]; 
+                
+                if(nom) {
+                    l.bindTooltip(nom, { 
+                        permanent: false, 
+                        direction: "auto", 
+                        sticky: true, 
+                        className: "commune-label",
+                        offset: [0, -15] 
+                    });
+                }
+            }
+        }).addTo(map);
     });
+
 
     auth.onAuthStateChanged((user) => {
         currentUser = user;
