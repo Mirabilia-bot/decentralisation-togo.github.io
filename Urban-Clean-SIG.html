@@ -78,7 +78,7 @@
     <button class="ui-btn" id="addBtnFloating" onclick="ouvrirModal()">➕ Signaler</button>
     <button class="ui-btn" onclick="togglePanel('panel-analyse')">📊 Analyse</button>
     <button class="ui-btn" onclick="togglePanel('panel-legende')">🗺️ Légende</button>
-    <button class="ui-btn" onclick="map.locate({setView: true, maxZoom: 15})">📍 Position</button>
+    <button class="ui-btn" onclick="map.locate({setView: false, maxZoom: 15})">📍 Position</button>
 </div>
 
 <div id="modalForm" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:2000;justify-content:center;align-items:center;">
@@ -133,6 +133,7 @@
 
     var currentUser = null;
     var userPos = null;
+    var userCircle = null;
     var data = [];
     var markers = L.layerGroup().addTo(map);
     var chart1, chart2;
@@ -158,12 +159,17 @@
     });
 
     function connexion() {
-        const mode = confirm("OK pour se connecter, ANNULER pour créer un compte.");
-        const email = prompt("Email :");
-        const pass = prompt("Mot de passe :");
+        const mode = confirm("Cliquez sur OK pour vous CONNECTER.\nCliquez sur ANNULER pour CRÉER UN COMPTE.");
+        const email = prompt("Veuillez saisir votre email :");
+        const pass = prompt("Veuillez saisir votre mot de passe :");
         if(email && pass) {
-            if(mode) auth.signInWithEmailAndPassword(email, pass).catch(e => alert(e.message));
-            else auth.createUserWithEmailAndPassword(email, pass).catch(e => alert(e.message));
+            if(mode) {
+                auth.signInWithEmailAndPassword(email, pass).catch(e => alert("Erreur : " + e.message));
+            } else {
+                auth.createUserWithEmailAndPassword(email, pass).then(() => {
+                    alert("Compte KGM créé avec succès !");
+                }).catch(e => alert("Erreur lors de la création : " + e.message));
+            }
         }
     }
     function deconnexion() { auth.signOut(); }
@@ -191,7 +197,7 @@
             counts[d.type]++;
             qCounts[d.quartier] = (qCounts[d.quartier] || 0) + 1;
         });
-        document.getElementById('stats-text').innerText = `${data.length} signalements`;
+        document.getElementById('stats-text').innerText = `${data.length} signalements enregistrés`;
         updateCharts(counts, qCounts);
     }
 
@@ -205,7 +211,12 @@
         }
     }
 
-    map.on('locationfound', e => userPos = e.latlng);
+    map.on('locationfound', e => {
+        userPos = e.latlng;
+        if (userCircle) map.removeLayer(userCircle);
+        userCircle = L.circle(e.latlng, {radius: 15, color: 'blue', fillOpacity: 0.1}).addTo(map);
+    });
+    
     map.locate({watch: true, enableHighAccuracy: true});
 
     function ouvrirModal() { 
@@ -217,7 +228,7 @@
     function checkAutre(v) { document.getElementById('autreQuartier').style.display = (v==='Autres'?'block':'none'); }
 
     async function soumettreSignalement() {
-        if(!userPos) return alert("Position GPS non trouvée.");
+        if(!userPos) return alert("Position GPS non trouvée. Veuillez autoriser la localisation.");
         document.getElementById('loadingOverlay').style.display = 'flex';
         let q = document.getElementById('quartierSelect').value === 'Autres' ? document.getElementById('autreQuartier').value : document.getElementById('quartierSelect').value;
         
@@ -242,7 +253,8 @@
                 userId: currentUser.uid
             });
             fermerModal();
-        } catch(e) { alert("Erreur d'envoi. Vérifiez vos règles Firebase."); }
+            map.flyTo([userPos.lat, userPos.lng], 16);
+        } catch(e) { alert("Erreur d'envoi. Vérifiez la connexion."); }
         document.getElementById('loadingOverlay').style.display = 'none';
     }
 
@@ -251,4 +263,5 @@
     }
 </script>
 </body>
-</html>
+                                                                                           </html>
+                                                                                           
