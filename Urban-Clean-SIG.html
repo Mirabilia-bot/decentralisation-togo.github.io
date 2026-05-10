@@ -88,14 +88,16 @@
         <h3 style="color:var(--kgm-blue);margin-top:0;">Espace Membre KGM</h3>
         <p style="font-size:0.9em;margin-bottom:20px;">Veuillez choisir une option pour continuer</p>
         <button class="ui-btn" style="width:100%;background:var(--kgm-blue);color:white;margin-bottom:10px;padding:12px;" onclick="gererAuth('login')">Se Connecter</button>
-        <button class="ui-btn" style="width:100%;background:var(--kgm-green);color:white;margin-bottom:15px;padding:12px;" onclick="gererAuth('signup')">S'inscrire (Nouveau Compte)</button>
-        <button style="background:none;border:none;color:#666;cursor:pointer;text-decoration:underline;" onclick="fermerAuth()">Annuler</button>
+        <button class="ui-btn" style="width:100%;background:var(--kgm-green);color:white;margin-bottom:10px;padding:12px;" onclick="gererAuth('signup')">S'inscrire (Nouveau Compte)</button>
+        <button style="background:none;border:none;color:var(--kgm-red);cursor:pointer;text-decoration:underline;display:block;margin:5px auto;" onclick="recupererPass()">Mot de passe oublié ?</button>
+        <button style="background:none;border:none;color:#666;cursor:pointer;text-decoration:underline;margin-top:10px;" onclick="fermerAuth()">Annuler</button>
     </div>
 </div>
 
 <div id="modalForm" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:2000;justify-content:center;align-items:center;">
     <div style="background:white;padding:20px;border-radius:15px;width:90%;max-width:380px;">
         <h3 id="modalTitle" style="margin-top:0;color:var(--kgm-blue);">Nouveau Signalement</h3>
+        <input type="hidden" id="editId">
         <label style="font-weight:bold; font-size:14px;">Quartier</label>
         <select id="quartierSelect" style="width:100%; padding:10px; margin:5px 0 10px 0;" onchange="checkAutre(this.value)">
             <option>Kliklamé</option><option>Bé</option><option>Tokoin</option><option value="Autres">Autres...</option>
@@ -189,6 +191,15 @@
         }
     }
 
+    function recupererPass() {
+        const email = prompt("Entrez votre email pour recevoir le lien de réinitialisation :");
+        if(email) {
+            auth.sendPasswordResetEmail(email)
+                .then(() => alert("Email envoyé ! Vérifiez votre boîte de réception."))
+                .catch(e => alert("Erreur : " + e.message));
+        }
+    }
+
     function deconnexion() { auth.signOut(); }
 
     db.collection('signalements').onSnapshot(snap => {
@@ -213,6 +224,7 @@
             
             if(currentUser && d.userId === currentUser.uid) {
                 popupContent += `<div class="actions">
+                    <i class="fas fa-edit" style="color:var(--kgm-green)" onclick="editerDoc('${d.id}')"></i>
                     <i class="fas fa-trash" style="color:var(--kgm-red)" onclick="supprimerDoc('${d.id}')"></i>
                 </div>`;
             }
@@ -229,6 +241,20 @@
         if(confirm("Supprimer définitivement ce signalement ?")) {
             db.collection('signalements').doc(id).delete();
         }
+    }
+
+    function editerDoc(id) {
+        const d = data.find(item => item.id === id);
+        if(!d) return;
+        document.getElementById('modalTitle').innerText = "Modifier le Signalement";
+        document.getElementById('editId').value = id;
+        document.getElementById('quartierSelect').value = d.quartier;
+        document.getElementById('descInput').value = d.desc;
+        document.getElementById('dateInput').value = d.date;
+        document.getElementById('heureInput').value = d.heure;
+        document.getElementById('typeSelect').value = d.type;
+        document.getElementById('modalForm').style.display = 'flex';
+        map.closePopup();
     }
 
     function updateCharts(tData, qData) {
@@ -250,15 +276,20 @@
     map.locate({watch: true, enableHighAccuracy: true});
 
     function ouvrirModal() { 
+        document.getElementById('modalTitle').innerText = "Nouveau Signalement";
+        document.getElementById('editId').value = "";
         document.getElementById('modalForm').style.display='flex';
         document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
         document.getElementById('heureInput').value = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        document.getElementById('descInput').value = "";
     }
     function fermerModal() { document.getElementById('modalForm').style.display='none'; }
     function checkAutre(v) { document.getElementById('autreQuartier').style.display = (v==='Autres'?'block':'none'); }
 
     async function soumettreSignalement() {
-        if(!userPos) return alert("Position GPS non trouvée. Veuillez autoriser la localisation.");
+        let editId = document.getElementById('editId').value;
+        if(!userPos && !editId) return alert("Position GPS non trouvée. Veuillez autoriser la localisation.");
+        
         document.getElementById('loadingOverlay').style.display = 'flex';
         let q = document.getElementById('quartierSelect').value === 'Autres' ? document.getElementById('autreQuartier').value : document.getElementById('quartierSelect').value;
         
@@ -270,20 +301,32 @@
                 reader.onload = e => resolve(e.target.result);
                 reader.readAsDataURL(photoFile);
             });
+        } else if (editId) {
+            photoBase64 = data.find(item => item.id === editId).photo;
+        }
+
+        const signalementData = {
+            quartier: q, type: document.getElementById('typeSelect').value,
+            desc: document.getElementById('descInput').value,
+            date: document.getElementById('dateInput').value,
+            heure: document.getElementById('heureInput').value,
+            photo: photoBase64,
+            userId: currentUser.uid
+        };
+
+        if(!editId) {
+            signalementData.lat = userPos.lat;
+            signalementData.lng = userPos.lng;
         }
 
         try {
-            await db.collection('signalements').add({
-                quartier: q, type: document.getElementById('typeSelect').value,
-                desc: document.getElementById('descInput').value,
-                date: document.getElementById('dateInput').value,
-                heure: document.getElementById('heureInput').value,
-                photo: photoBase64,
-                lat: userPos.lat, lng: userPos.lng,
-                userId: currentUser.uid
-            });
+            if(editId) {
+                await db.collection('signalements').doc(editId).update(signalementData);
+            } else {
+                await db.collection('signalements').add(signalementData);
+            }
             fermerModal();
-            map.flyTo([userPos.lat, userPos.lng], 16);
+            if(!editId) map.flyTo([userPos.lat, userPos.lng], 16);
         } catch(e) { alert("Erreur d'envoi. Vérifiez la connexion."); }
         document.getElementById('loadingOverlay').style.display = 'none';
     }
@@ -293,5 +336,5 @@
     }
 </script>
 </body>
-  </html>
-  
+      </html>
+          
