@@ -127,9 +127,14 @@
         <input type="file" id="photoInput" accept="image/*" capture="environment" style="width:100%; margin:5px 0 10px 0;">
 
         <label style="font-weight:bold; font-size:14px; margin-top:10px; display:block;">Type d'alerte</label>
-        <select id="typeSelect" style="width:100%; padding:10px; margin:5px 0 15px 0;">
-            <option value="dechets">Déchets</option><option value="pollution">Pollution</option><option value="securite">Sécurité</option><option value="Autres">Autres...</option>
-        </select>
+<select id="typeSelect" style="width:100%; padding:10px; margin:5px 0 10px 0;" onchange="checkAutreType(this.value)">
+    <option value="dechets">Déchets</option>
+    <option value="pollution">Pollution</option>
+    <option value="securite">Sécurité</option>
+    <option value="Autres">Autres...</option>
+</select>
+<input type="text" id="autreType" placeholder="Précisez le type d'alerte" style="display:none; width:100%; padding:10px; margin-bottom:10px;">
+
 
         <button style="width:100%; padding:12px; background:var(--kgm-green); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;" onclick="soumettreSignalement()">✅ Valider</button>
         <button style="width:100%; padding:10px; background:#eee; color:#333; border:none; border-radius:8px; margin-top:8px; cursor:pointer;" onclick="fermerModal()">Annuler</button>
