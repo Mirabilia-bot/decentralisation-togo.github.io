@@ -170,7 +170,18 @@
     var data = [];
 
     var markers = L.layerGroup().addTo(map);
+    var communeLayer;
     var chart1, chart2;
+
+    fetch('./communes.geojson').then(res => res.json()).then(geojson => {
+        communeLayer = L.geoJSON(geojson, {
+            style: { color: "#00264d", weight: 2, fillOpacity: 0.05 },
+            onEachFeature: function (f, l) {
+                let nom = f.properties["Noms des communes"] || f.properties.nom;
+                if(nom) l.bindTooltip(nom, { permanent: true, direction: "center", className: "commune-label" });
+            }
+        }).addTo(map);
+    });
 
     db.collection('signalements').onSnapshot((snapshot) => {
         data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
