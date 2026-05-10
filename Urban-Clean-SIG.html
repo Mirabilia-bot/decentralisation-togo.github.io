@@ -342,4 +342,8 @@
     }
 
     function togglePanel(id) {
-        document.querySelectorAll('.
+        document.querySelectorAll('.panel').forEach(p => p.id === id ? p.classList.toggle('active') : p.classList.remove('active'));
+    }
+</script>
+</body>
+</html>
