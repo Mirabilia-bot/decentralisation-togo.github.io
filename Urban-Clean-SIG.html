@@ -90,7 +90,7 @@
     <button class="ui-btn" id="addBtnFloating" onclick="ouvrirModal()">➕ Signaler</button>
     <button class="ui-btn" onclick="togglePanel('panel-analyse')">📊 Analyse</button>
     <button class="ui-btn" onclick="togglePanel('panel-legende')">🗺️ Légende</button>
-    <button class="ui-btn" onclick="map.locate({setView: false, maxZoom: 15})">📍 Position</button>
+    <button class="ui-btn" onclick="map.locate({setView: true, maxZoom: 15})">📍 Position</button>
 </div>
 
 <div id="authModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:3000;justify-content:center;align-items:center;">
@@ -288,10 +288,19 @@
         }
     }
 
+        // Gestionnaire de succès de localisation
     map.on('locationfound', e => {
         userPos = e.latlng;
         if (userCircle) map.removeLayer(userCircle);
         userCircle = L.circle(e.latlng, {radius: 15, color: 'blue', fillOpacity: 0.1}).addTo(map);
+        
+        // Ajout du centrage fluide lors du clic sur le bouton
+        map.flyTo(e.latlng, 16); 
+    });
+
+    // AJOUTEZ CECI : Gestionnaire d'erreur (si le GPS est coupé)
+    map.on('locationerror', e => {
+        alert("Erreur de localisation : " + e.message + ". Assurez-vous d'être en HTTPS et d'avoir activé le GPS.");
     });
     
     map.locate({watch: true, enableHighAccuracy: true});
