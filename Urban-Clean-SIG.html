@@ -110,7 +110,7 @@
         <input type="hidden" id="editId">
         <label style="font-weight:bold; font-size:14px;">Quartier</label>
         <select id="quartierSelect" style="width:100%; padding:10px; margin:5px 0 10px 0;" onchange="checkAutre(this.value)">
-            <option>Kliklamé</option><option>Bé</option><option>Tokoin</option><option value="Autres">Autres...</option>
+            <option>Kliklamé</option><option>Bè</option><option>Tokoin</option><option value="Autres">Autres...</option>
         </select>
         <input type="text" id="autreQuartier" placeholder="Nom du quartier" style="display:none; width:100%; padding:10px; margin-bottom:10px;">
         
@@ -163,14 +163,27 @@
     var chart1, chart2;
 
     fetch('./communes.geojson').then(res => res.json()).then(geojson => {
-        L.geoJSON(geojson, {
-            style: { color: "#00264d", weight: 2, fillOpacity: 0.05 },
-                        onEachFeature: (f, l) => {
-                let nom = f.properties["Noms des communes"] || f.properties.nom || f.properties.NOM;
-                                if(nom) l.bindTooltip(nom, { permanent: true, direction: "center", className: "commune-label", sticky: true });
-            }
-        }).addTo(map);
-
+       L.geoJSON(geojson, {
+    style: { 
+        color: "#00264d", 
+        weight: 2, 
+        fillOpacity: 0.05,
+        interactive: true // Assurez-vous que les polygones capturent la souris
+    },
+    onEachFeature: (f, l) => {
+        let nom = f.properties["Noms des communes"] || f.properties.nom || f.properties.NOM;
+        if(nom) {
+            l.bindTooltip(nom, { 
+                permanent: true, 
+                direction: "auto", // Changez "center" par "auto"
+                sticky: true, 
+                className: "commune-label",
+                offset: [0, 0] 
+            });
+        }
+    }
+}).addTo(map);
+              
     });
 
     auth.onAuthStateChanged((user) => {
