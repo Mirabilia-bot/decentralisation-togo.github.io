@@ -31,6 +31,8 @@
     .commune-label { background: transparent; border: none; box-shadow: none; color: var(--kgm-blue); font-weight: bold; font-size: 11px; text-shadow: 1px 1px 2px white; pointer-events: none; }
     #addBtnFloating { background: var(--kgm-red); color: white; display: none; }
     #loadingOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 3000; justify-content: center; align-items: center; flex-direction: column; }
+    .legend-item { display: flex; align-items: center; margin-bottom: 10px; font-size: 14px; }
+    .legend-icon { width: 20px; text-align: center; margin-right: 10px; font-size: 18px; }
   </style>
 </head>
 <body>
@@ -52,7 +54,7 @@
 </header>
 
 <div class="ticker">
-    <div class="ticker-text">🌿 <strong>Marre des tas d’ordures ?</strong> Signalez les zones insalubres pour un environnement propre et sain avec URBAN-CLEAN de KGM Expertise. 🌿</div>
+    <div class="ticker-text">🌿 <strong>Marre des tas d’ordures ?</strong> Nous vous aidons à signaler via l'application les zones insalubres pour qu'elles soient nettoyées. La mairie reçoit l'information instantanément. Avec URBAN-CLEAN DE KGM Expertise, rendons notre environnement propre et sain ! Signalez les tas d'ordures et autres nuisances en moins de 2 minutes. Pour que nos enfants vivent en bonne santé. 🌿</div>
 </div>
 
 <div id="map"></div>
@@ -66,12 +68,10 @@
 
 <div id="panel-legende" class="panel">
     <h3 style="margin:0 0 15px 0; color:var(--kgm-blue)">Légende</h3>
-    <div style="font-size:14px;">
-        <p><i class="fas fa-trash" style="color:var(--kgm-red)"></i> Déchets</p>
-        <p><i class="fas fa-smog" style="color:#007bff"></i> Pollution</p>
-        <p><i class="fas fa-exclamation-triangle" style="color:#f57c00"></i> Sécurité</p>
-        <p><span style="border:2px solid var(--kgm-blue); padding:0 5px;"></span> Limites Communales</p>
-    </div>
+    <div class="legend-item"><i class="fas fa-trash legend-icon" style="color:var(--kgm-red)"></i><span>Déchets solides</span></div>
+    <div class="legend-item"><i class="fas fa-smog legend-icon" style="color:#007bff"></i><span>Pollution</span></div>
+    <div class="legend-item"><i class="fas fa-exclamation-triangle legend-icon" style="color:#f57c00"></i><span>Sécurité / Risque</span></div>
+    <div class="legend-item"><div style="width:20px; height:10px; border:2px solid var(--kgm-blue); margin-right:10px;"></div><span>Limites Communales</span></div>
 </div>
 
 <div class="ui-controls">
@@ -83,24 +83,37 @@
 
 <div id="modalForm" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:2000;justify-content:center;align-items:center;">
     <div style="background:white;padding:20px;border-radius:15px;width:90%;max-width:380px;">
-        <h3 style="margin:top:0;color:var(--kgm-blue);">Nouveau Signalement</h3>
-        <select id="quartierSelect" style="width:100%; padding:10px; margin-bottom:10px;" onchange="checkAutre(this.value)">
+        <h3 id="modalTitle" style="margin-top:0;color:var(--kgm-blue);">Nouveau Signalement</h3>
+        <label style="font-weight:bold; font-size:14px;">Quartier</label>
+        <select id="quartierSelect" style="width:100%; padding:10px; margin:5px 0 10px 0;" onchange="checkAutre(this.value)">
             <option>Kliklamé</option><option>Bé</option><option>Tokoin</option><option value="Autres">Autres...</option>
         </select>
         <input type="text" id="autreQuartier" placeholder="Nom du quartier" style="display:none; width:100%; padding:10px; margin-bottom:10px;">
-        <textarea id="descInput" placeholder="Description..." style="width:100%; padding:10px; height:60px; margin-bottom:10px;"></textarea>
-        <select id="typeSelect" style="width:100%; padding:10px; margin-bottom:15px;">
+        
+        <label style="font-weight:bold; font-size:14px;">Description</label>
+        <textarea id="descInput" placeholder="Détails du problème..." style="width:100%; padding:10px; margin:5px 0 10px 0; font-family:serif; height:60px;"></textarea>
+
+        <div style="display:flex; gap:10px;">
+          <div style="flex:1;"><label style="font-weight:bold; font-size:12px;">Date</label><input type="date" id="dateInput" style="width:100%; padding:8px;"></div>
+          <div style="flex:1;"><label style="font-weight:bold; font-size:12px;">Heure</label><input type="time" id="heureInput" style="width:100%; padding:8px;"></div>
+        </div>
+
+        <label style="font-weight:bold; font-size:14px; margin-top:10px; display:block;"><i class="fas fa-camera"></i> Prendre une photo</label>
+        <input type="file" id="photoInput" accept="image/*" capture="environment" style="width:100%; margin:5px 0 10px 0;">
+
+        <label style="font-weight:bold; font-size:14px; margin-top:10px; display:block;">Type d'alerte</label>
+        <select id="typeSelect" style="width:100%; padding:10px; margin:5px 0 15px 0;">
             <option value="dechets">Déchets</option><option value="pollution">Pollution</option><option value="securite">Sécurité</option>
         </select>
-        <button style="width:100%; padding:12px; background:var(--kgm-green); color:white; border:none; border-radius:8px; font-weight:bold;" onclick="soumettreSignalement()">✅ Valider</button>
-        <button style="width:100%; padding:10px; background:#eee; margin-top:8px; border:none; border-radius:8px; width:100%;" onclick="fermerModal()">Annuler</button>
+
+        <button style="width:100%; padding:12px; background:var(--kgm-green); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;" onclick="soumettreSignalement()">✅ Valider</button>
+        <button style="width:100%; padding:10px; background:#eee; color:#333; border:none; border-radius:8px; margin-top:8px; cursor:pointer;" onclick="fermerModal()">Annuler</button>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    // CONFIGURATION CHIRURGICALE : Vos clés réelles injectées
     const firebaseConfig = {
       apiKey: "AIzaSyAsA9pypTsCogmSq_OdDXr5KPAgVi4ncm4",
       authDomain: "urban-clean-kgm.firebaseapp.com",
@@ -124,7 +137,6 @@
     var markers = L.layerGroup().addTo(map);
     var chart1, chart2;
 
-    // RÉTABLISSEMENT DE LA COUCHE COMMUNES
     fetch('./communes.geojson').then(res => res.json()).then(geojson => {
         L.geoJSON(geojson, {
             style: { color: "#00264d", weight: 2, fillOpacity: 0.05 },
@@ -133,7 +145,7 @@
                 if(nom) l.bindTooltip(nom, { permanent: true, direction: "center", className: "commune-label" });
             }
         }).addTo(map);
-    }).catch(e => console.error("Fichier communes.geojson introuvable"));
+    });
 
     auth.onAuthStateChanged((user) => {
         currentUser = user;
@@ -172,7 +184,10 @@
         let counts = {dechets:0, pollution:0, securite:0};
         let qCounts = {};
         data.forEach(d => {
-            if(d.lat && d.lng) L.marker([d.lat, d.lng], {icon: icons[d.type]}).addTo(markers).bindPopup(`<b>${d.quartier}</b><br>${d.desc}`);
+            let popupContent = `<b>${d.quartier}</b><br>${d.desc}`;
+            if(d.photo) popupContent += `<br><img src="${d.photo}" style="width:150px;margin-top:5px;border-radius:4px">`;
+            popupContent += `<br><small>${d.date} | ${d.heure}</small>`;
+            if(d.lat && d.lng) L.marker([d.lat, d.lng], {icon: icons[d.type]}).addTo(markers).bindPopup(popupContent);
             counts[d.type]++;
             qCounts[d.quartier] = (qCounts[d.quartier] || 0) + 1;
         });
@@ -193,7 +208,11 @@
     map.on('locationfound', e => userPos = e.latlng);
     map.locate({watch: true, enableHighAccuracy: true});
 
-    function ouvrirModal() { document.getElementById('modalForm').style.display='flex'; }
+    function ouvrirModal() { 
+        document.getElementById('modalForm').style.display='flex';
+        document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
+        document.getElementById('heureInput').value = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    }
     function fermerModal() { document.getElementById('modalForm').style.display='none'; }
     function checkAutre(v) { document.getElementById('autreQuartier').style.display = (v==='Autres'?'block':'none'); }
 
@@ -201,12 +220,26 @@
         if(!userPos) return alert("Position GPS non trouvée.");
         document.getElementById('loadingOverlay').style.display = 'flex';
         let q = document.getElementById('quartierSelect').value === 'Autres' ? document.getElementById('autreQuartier').value : document.getElementById('quartierSelect').value;
+        
+        const photoFile = document.getElementById('photoInput').files[0];
+        let photoBase64 = null;
+        if(photoFile) {
+            const reader = new FileReader();
+            photoBase64 = await new Promise(resolve => {
+                reader.onload = e => resolve(e.target.result);
+                reader.readAsDataURL(photoFile);
+            });
+        }
+
         try {
             await db.collection('signalements').add({
                 quartier: q, type: document.getElementById('typeSelect').value,
                 desc: document.getElementById('descInput').value,
+                date: document.getElementById('dateInput').value,
+                heure: document.getElementById('heureInput').value,
+                photo: photoBase64,
                 lat: userPos.lat, lng: userPos.lng,
-                userId: currentUser.uid, date: new Date().toLocaleDateString()
+                userId: currentUser.uid
             });
             fermerModal();
         } catch(e) { alert("Erreur d'envoi. Vérifiez vos règles Firebase."); }
