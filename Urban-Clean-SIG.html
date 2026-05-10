@@ -16,10 +16,20 @@
     * { box-sizing: border-box; }
     body, html { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; font-family: 'Times New Roman', serif; background: #eee; }
     #map { position: absolute; top: 0; bottom: 0; width: 100%; z-index: 1; }
-    header { position: absolute; top: 0; left: 0; right: 0; z-index: 1000; background: rgba(0,38,77,0.9); color: white; padding: 10px; text-align: center; }
-    header h1 { margin: 0; font-size: 1.1em; text-transform: uppercase; }
-    header p { margin: 4px 0 0; font-size: 0.8em; opacity: 0.9; }
-    #auth-bar { position: fixed; top: 10px; right: 10px; z-index: 2000; }
+    
+    header { position: absolute; top: 0; left: 0; right: 0; z-index: 1000; background: rgba(0,38,77,0.9); color: white; padding: 10px; text-align: center; min-height: 70px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+    header h1 { margin: 0; font-size: 1.1em; text-transform: uppercase; width: 70%; }
+    header p { margin: 4px 0 0; font-size: 0.8em; opacity: 0.9; width: 70%; }
+    
+    #auth-bar { position: fixed; top: 10px; right: 10px; z-index: 2000; display: flex; align-items: center; gap: 5px; }
+    #userDisplay { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    @media (max-width: 600px) {
+        header h1 { font-size: 0.9em; width: 60%; margin-left: -40px; }
+        header p { font-size: 0.7em; width: 60%; margin-left: -40px; }
+        .ui-btn { padding: 8px 12px; font-size: 11px; }
+    }
+
     .ticker { position: absolute; top: 75px; left: 0; right: 0; z-index: 1000; width: 100%; background: white; padding: 10px 0; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
     .ticker-text { white-space: nowrap; display: inline-block; padding-left: 100%; animation: ticker 25s linear infinite; font-weight: bold; color: var(--kgm-blue); }
     @keyframes ticker { 0% { transform: translate(0, 0); } 100% { transform: translate(-100%, 0); } }
@@ -45,7 +55,7 @@
 </div>
 
 <div id="auth-bar">
-    <span id="userDisplay" style="color:white; display:none; margin-right:10px; font-size: 0.8em; text-shadow: 1px 1px 2px black;"></span>
+    <span id="userDisplay" style="color:white; display:none; font-size: 0.7em; text-shadow: 1px 1px 2px black;"></span>
     <button id="loginBtn" class="ui-btn" onclick="ouvrirAuth()">🔑 Accès</button>
     <button id="logoutBtn" class="ui-btn" onclick="deconnexion()" style="display:none;">🚪 Quitter</button>
 </div>
@@ -332,9 +342,4 @@
     }
 
     function togglePanel(id) {
-        document.querySelectorAll('.panel').forEach(p => p.id === id ? p.classList.toggle('active') : p.classList.remove('active'));
-    }
-</script>
-</body>
-      </html>
-          
+        document.querySelectorAll('.
