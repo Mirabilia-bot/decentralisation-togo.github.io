@@ -33,6 +33,8 @@
     #loadingOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 3000; justify-content: center; align-items: center; flex-direction: column; }
     .legend-item { display: flex; align-items: center; margin-bottom: 10px; font-size: 14px; }
     .legend-icon { width: 20px; text-align: center; margin-right: 10px; font-size: 18px; }
+    .actions { display: flex; gap: 10px; margin-top: 5px; }
+    .actions i { cursor: pointer; font-size: 16px; }
   </style>
 </head>
 <body>
@@ -44,7 +46,7 @@
 
 <div id="auth-bar">
     <span id="userDisplay" style="color:white; display:none; margin-right:10px; font-size: 0.8em; text-shadow: 1px 1px 2px black;"></span>
-    <button id="loginBtn" class="ui-btn" onclick="connexion()">🔑 Accès</button>
+    <button id="loginBtn" class="ui-btn" onclick="ouvrirAuth()">🔑 Accès</button>
     <button id="logoutBtn" class="ui-btn" onclick="deconnexion()" style="display:none;">🚪 Quitter</button>
 </div>
 
@@ -79,6 +81,16 @@
     <button class="ui-btn" onclick="togglePanel('panel-analyse')">📊 Analyse</button>
     <button class="ui-btn" onclick="togglePanel('panel-legende')">🗺️ Légende</button>
     <button class="ui-btn" onclick="map.locate({setView: false, maxZoom: 15})">📍 Position</button>
+</div>
+
+<div id="authModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:3000;justify-content:center;align-items:center;">
+    <div style="background:white;padding:25px;border-radius:15px;width:90%;max-width:350px;text-align:center;">
+        <h3 style="color:var(--kgm-blue);margin-top:0;">Espace Membre KGM</h3>
+        <p style="font-size:0.9em;margin-bottom:20px;">Veuillez choisir une option pour continuer</p>
+        <button class="ui-btn" style="width:100%;background:var(--kgm-blue);color:white;margin-bottom:10px;padding:12px;" onclick="gererAuth('login')">Se Connecter</button>
+        <button class="ui-btn" style="width:100%;background:var(--kgm-green);color:white;margin-bottom:15px;padding:12px;" onclick="gererAuth('signup')">S'inscrire (Nouveau Compte)</button>
+        <button style="background:none;border:none;color:#666;cursor:pointer;text-decoration:underline;" onclick="fermerAuth()">Annuler</button>
+    </div>
 </div>
 
 <div id="modalForm" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:2000;justify-content:center;align-items:center;">
@@ -158,20 +170,25 @@
         refresh();
     });
 
-    function connexion() {
-        const mode = confirm("Cliquez sur OK pour vous CONNECTER.\nCliquez sur ANNULER pour CRÉER UN COMPTE.");
+    function ouvrirAuth() { document.getElementById('authModal').style.display = 'flex'; }
+    function fermerAuth() { document.getElementById('authModal').style.display = 'none'; }
+
+    function gererAuth(type) {
         const email = prompt("Veuillez saisir votre email :");
         const pass = prompt("Veuillez saisir votre mot de passe :");
         if(email && pass) {
-            if(mode) {
-                auth.signInWithEmailAndPassword(email, pass).catch(e => alert("Erreur : " + e.message));
+            if(type === 'login') {
+                auth.signInWithEmailAndPassword(email, pass)
+                    .then(() => fermerAuth())
+                    .catch(e => alert("Erreur : " + e.message));
             } else {
-                auth.createUserWithEmailAndPassword(email, pass).then(() => {
-                    alert("Compte KGM créé avec succès !");
-                }).catch(e => alert("Erreur lors de la création : " + e.message));
+                auth.createUserWithEmailAndPassword(email, pass)
+                    .then(() => { alert("Compte KGM créé avec succès !"); fermerAuth(); })
+                    .catch(e => alert("Erreur lors de la création : " + e.message));
             }
         }
     }
+
     function deconnexion() { auth.signOut(); }
 
     db.collection('signalements').onSnapshot(snap => {
@@ -190,15 +207,28 @@
         let counts = {dechets:0, pollution:0, securite:0};
         let qCounts = {};
         data.forEach(d => {
-            let popupContent = `<b>${d.quartier}</b><br>${d.desc}`;
+            let popupContent = `<b style="color:var(--kgm-blue)">${d.quartier}</b><br><i>${d.desc}</i>`;
             if(d.photo) popupContent += `<br><img src="${d.photo}" style="width:150px;margin-top:5px;border-radius:4px">`;
-            popupContent += `<br><small>${d.date} | ${d.heure}</small>`;
+            popupContent += `<br><small><i class="far fa-calendar"></i> ${d.date} | <i class="far fa-clock"></i> ${d.heure}</small>`;
+            
+            if(currentUser && d.userId === currentUser.uid) {
+                popupContent += `<div class="actions">
+                    <i class="fas fa-trash" style="color:var(--kgm-red)" onclick="supprimerDoc('${d.id}')"></i>
+                </div>`;
+            }
+
             if(d.lat && d.lng) L.marker([d.lat, d.lng], {icon: icons[d.type]}).addTo(markers).bindPopup(popupContent);
             counts[d.type]++;
             qCounts[d.quartier] = (qCounts[d.quartier] || 0) + 1;
         });
         document.getElementById('stats-text').innerText = `${data.length} signalements enregistrés`;
         updateCharts(counts, qCounts);
+    }
+
+    function supprimerDoc(id) {
+        if(confirm("Supprimer définitivement ce signalement ?")) {
+            db.collection('signalements').doc(id).delete();
+        }
     }
 
     function updateCharts(tData, qData) {
@@ -263,5 +293,4 @@
     }
 </script>
 </body>
-                                                                                           </html>
-                                                                                           
+</html>
