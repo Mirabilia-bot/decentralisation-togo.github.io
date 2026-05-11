@@ -14,59 +14,38 @@
   <style>
     :root { --kgm-blue: #00264d; --kgm-green: #1b5e20; --kgm-red: #fc3d21; }
     * { box-sizing: border-box; }
+    body, html { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; font-family: 'Times New Roman', serif; background: #eee; }
+    #map { position: absolute; top: 0; bottom: 0; width: 100%; z-index: 1; }
     
-    /* FIX CHIRURGICAL : On force le corps de la page à ne pas défiler */
-    body, html { 
-        margin: 0; padding: 0; 
-        height: 100vh; width: 100vw; 
-        overflow: hidden; 
-        font-family: 'Times New Roman', serif; 
-    }
-
-    /* La carte doit être en position ABSOLUTE pour rester fixe derrière */
-    #map { 
-        position: absolute; 
-        top: 0; left: 0; 
-        width: 100%; height: 100%; 
-        z-index: 1; 
-    }
+    header { position: absolute; top: 0; left: 0; right: 0; z-index: 1000; background: rgba(0,38,77,0.9); color: white; padding: 10px; text-align: center; min-height: 70px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+    header h1 { margin: 0; font-size: 1.1em; text-transform: uppercase; width: 70%; }
+    header p { margin: 4px 0 0; font-size: 0.8em; opacity: 0.9; width: 70%; }
     
-    header { 
-        position: absolute; top: 0; left: 0; right: 0; 
-        z-index: 1000; background: rgba(0,38,77,0.9); 
-        color: white; padding: 10px; text-align: center; 
+    #auth-bar { position: fixed; top: 10px; right: 10px; z-index: 2000; display: flex; align-items: center; gap: 5px; }
+    #userDisplay { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    @media (max-width: 600px) {
+        header h1 { font-size: 0.9em; width: 60%; margin-left: -40px; }
+        header p { font-size: 0.7em; width: 60%; margin-left: -40px; }
+        .ui-btn { padding: 8px 12px; font-size: 11px; }
     }
 
-    .ticker { 
-        position: absolute; top: 75px; left: 0; right: 0; 
-        z-index: 1000; background: white; 
-    }
-
-    /* Ajustement des panneaux pour qu'ils flottent sur la carte */
-    .panel { 
-        position: absolute; 
-        bottom: 100px; left: 50%; 
-        transform: translateX(-50%); 
-        z-index: 1001; 
-        background: white; 
-        border-radius: 15px; 
-        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    }
-
-    /* VERSION ORDINATEUR : On stabilise tout */
-    @media (min-width: 1024px) {
-        .panel { 
-            width: 450px !important; 
-            bottom: 110px !important; 
-        }
-        #modalForm > div { 
-            width: 500px !important; 
-            padding: 30px !important; 
-        }
-        header h1 { font-size: 2em; }
-    }
-</style>
-
+    .ticker { position: absolute; top: 75px; left: 0; right: 0; z-index: 1000; width: 100%; background: white; padding: 10px 0; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+    .ticker-text { white-space: nowrap; display: inline-block; padding-left: 100%; animation: ticker 30s linear infinite; font-weight: bold; color: var(--kgm-blue); }
+    @keyframes ticker { 0% { transform: translate(0, 0); } 100% { transform: translate(-100%, 0); } }
+    .ui-controls { position: absolute; bottom: 25px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; gap: 8px; width: auto; }
+    .ui-btn { background: white; color: var(--kgm-blue); border: none; padding: 10px 15px; border-radius: 25px; font-weight: bold; font-size: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; }
+    .panel { position: absolute; bottom: 85px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 380px; background: white; border-radius: 15px; padding: 20px; display: none; z-index: 1001; border-top: 6px solid var(--kgm-green); box-shadow: 0 -5px 20px rgba(0,0,0,0.2); max-height: 60vh; overflow-y: auto; }
+    .panel.active { display: block; animation: slideUp 0.3s ease-out; }
+    @keyframes slideUp { from { bottom: 50px; opacity: 0; } to { bottom: 85px; opacity: 1; } }
+    .commune-label { background: transparent; border: none; box-shadow: none; color: var(--kgm-blue); font-weight: bold; font-size: 15px; text-shadow: 2px 2px 4px white; pointer-events: none; }
+    #addBtnFloating { background: var(--kgm-red); color: white; display: none; }
+    #loadingOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 3000; justify-content: center; align-items: center; flex-direction: column; }
+    .legend-item { display: flex; align-items: center; margin-bottom: 10px; font-size: 14px; }
+    .legend-icon { width: 20px; text-align: center; margin-right: 10px; font-size: 18px; }
+    .actions { display: flex; gap: 10px; margin-top: 5px; }
+    .actions i { cursor: pointer; font-size: 16px; }
+  </style>
 </head>
 <body>
 
@@ -145,12 +124,12 @@
         </div>
 
         <label style="font-weight:bold; font-size:14px; margin-top:10px; display:block;"><i class="fas fa-camera"></i> Prendre une photo</label>
-        <div style="display:flex; gap:5px; align-items:center; margin:5px 0 10px 0;">
-            <input type="file" id="photoInput" accept="image/*" capture="environment" style="flex:1;">
-            <button type="button" onclick="effacerPhotoSelectionnee()" style="background:var(--kgm-red); color:white; border:none; border-radius:5px; padding:5px 10px; cursor:pointer;" title="Supprimer la photo choisie">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
+<div style="display:flex; gap:5px; align-items:center; margin:5px 0 10px 0;">
+    <input type="file" id="photoInput" accept="image/*" capture="environment" style="flex:1;">
+    <button type="button" onclick="effacerPhotoSelectionnee()" style="background:var(--kgm-red); color:white; border:none; border-radius:5px; padding:5px 10px; cursor:pointer;" title="Supprimer la photo choisie">
+        <i class="fas fa-times"></i>
+    </button>
+</div>
 
         <label style="font-weight:bold; font-size:14px; margin-top:10px; display:block;">Type d'alerte</label>
         <select id="typeSelect" style="width:100%; padding:10px; margin:5px 0 10px 0;" onchange="checkAutreType(this.value)">
@@ -160,6 +139,7 @@
             <option value="Autres">Autres...</option>
         </select>
         <input type="text" id="autreType" placeholder="Précisez le type d'alerte" style="display:none; width:100%; padding:10px; margin-bottom:10px;">
+
 
         <button style="width:100%; padding:12px; background:var(--kgm-green); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;" onclick="soumettreSignalement()">✅ Valider</button>
         <button style="width:100%; padding:10px; background:#eee; color:#333; border:none; border-radius:8px; margin-top:8px; cursor:pointer;" onclick="fermerModal()">Annuler</button>
@@ -184,7 +164,7 @@
     const auth = firebase.auth();
     const IMGBB_API_KEY = "875aae76099064e2af713abc4a051601";
 
-    var map = L.map('map', { zoomControl: false, attributionControl: false }).setView([6.1319, 1.2228], 13);
+    var map = L.map('map', { zoomControl: false }).setView([6.1319, 1.2228], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
     var currentUser = null;
@@ -231,11 +211,18 @@
         }
     }
 
-    function deconnexion() { 
-        if(confirm("Êtes-vous sûr de vouloir vous déconnecter d'URBAN-CLEAN ?")) {
-            auth.signOut(); 
+    function recupererPass() {
+        const email = prompt("Entrez votre email pour recevoir le lien de réinitialisation :");
+        if(email) {
+            auth.sendPasswordResetEmail(email).then(() => alert("Email envoyé ! Vérifiez votre boîte de réception.")).catch(e => alert("Erreur : " + e.message));
         }
     }
+
+    function deconnexion() { 
+    if(confirm("Êtes-vous sûr de vouloir vous déconnecter d'URBAN-CLEAN ?")) {
+        auth.signOut(); 
+    }
+}
 
     db.collection('signalements').onSnapshot(snap => {
         data = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -304,6 +291,7 @@
         document.getElementById('modalForm').style.display = 'flex';
         map.closePopup();
     }
+  
 
     function updateCharts(tData, qData) {
         if(chart1) chart1.destroy(); if(chart2) chart2.destroy();
@@ -320,6 +308,10 @@
         if (userCircle) map.removeLayer(userCircle);
         userCircle = L.circle(e.latlng, { radius: 10, color: '#007bff', fillColor: '#007bff', fillOpacity: 0.5 }).addTo(map);
         map.flyTo(e.latlng, 16, { animate: true, duration: 1.9 });
+    });
+
+    map.on('locationerror', e => {
+        alert("Position introuvable. Vérifiez que le GPS est actif et que vous êtes en HTTPS.");
     });
 
     function ouvrirModal() { 
@@ -417,10 +409,10 @@
     function togglePanel(id) {
         document.querySelectorAll('.panel').forEach(p => p.id === id ? p.classList.toggle('active') : p.classList.remove('active'));
     }
-    
-    function effacerPhotoSelectionnee() {
-        document.getElementById('photoInput').value = ""; 
-    }
+  function effacerPhotoSelectionnee() {
+    document.getElementById('photoInput').value = ""; // Réinitialise le sélecteur de fichier
+  }
+  
 </script>
 </body>
 </html>
