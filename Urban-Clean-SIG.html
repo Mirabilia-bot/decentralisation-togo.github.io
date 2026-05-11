@@ -249,7 +249,7 @@
         let qCounts = {};
         data.forEach(d => {
             let popupContent = `<b style="color:var(--kgm-blue)">${d.quartier}</b><br><i>${d.desc}</i>`;
-            if(d.photo) popupContent += `<br><img src="${d.photo}" style="width:150px;margin-top:5px;border-radius:4px">`;
+            if(d.photo) popupContent += `<br><img src="${d.photo}" style="width:100%;height:auto;margin-top:5px;border-radius:4px">`;
             popupContent += `<br><small><i class="far fa-calendar"></i> ${d.date} | <i class="far fa-clock"></i> ${d.heure}</small>`;
             
             if(currentUser && d.userId === currentUser.uid) {
@@ -321,7 +321,7 @@
         alert("Position introuvable. Vérifiez que le GPS est actif et que vous êtes en HTTPS.");
     });
 
-    function ouvrirModal() { 
+   function ouvrirModal() { 
         document.getElementById('modalTitle').innerText = "Nouveau Signalement";
         document.getElementById('editId').value = "";
         document.getElementById('modalForm').style.display='flex';
