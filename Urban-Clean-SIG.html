@@ -249,7 +249,7 @@
         let qCounts = {};
         data.forEach(d => {
             let popupContent = `<b style="color:var(--kgm-blue)">${d.quartier}</b><br><i>${d.desc}</i>`;
-            if(d.photo) popupContent += `<br><img src="${d.photo}" style="width:100%;height:auto;margin-top:5px;border-radius:4px">`;
+            if(d.photo) popupContent += `<br><img src="${d.photo}" style="width:100%; height:auto; margin-top:5px; border-radius:4px">`;
             popupContent += `<br><small><i class="far fa-calendar"></i> ${d.date} | <i class="far fa-clock"></i> ${d.heure}</small>`;
             
             if(currentUser && d.userId === currentUser.uid) {
@@ -260,7 +260,9 @@
             }
 
             if(d.lat && d.lng) L.marker([d.lat, d.lng], {icon: icons[d.type] || icons.Autres}).addTo(markers).bindPopup(popupContent);
-            counts[d.type] = (counts[d.type] || 0) + 1;
+            
+            let typeNormalise = (d.type === 'Autres' || d.type === 'autres') ? 'Autres' : d.type;
+            counts[typeNormalise] = (counts[typeNormalise] || 0) + 1;
             qCounts[d.quartier] = (qCounts[d.quartier] || 0) + 1;
         });
         document.getElementById('stats-text').innerText = `${data.length} signalements enregistrés`;
@@ -305,7 +307,20 @@
         const ctx1 = document.getElementById('chartTypes');
         const ctx2 = document.getElementById('chartQuartiers');
         if(ctx1 && ctx2) {
-            chart1 = new Chart(ctx1, { type:'pie', data:{labels:['Déchets','Pollution','Sécurité','Autres'], datasets:[{data:[tData.dechets || 0, tData.pollution || 0, tData.securite || 0, tData.Autres || 0], backgroundColor:['#fc3d21','#007bff','#f57c00','#6c757d']}]} });
+            chart1 = new Chart(ctx1, { 
+                type:'pie', 
+                data:{
+                    labels:['Déchets','Pollution','Sécurité','Autres'], 
+                    datasets:[{
+                        data:[tData.dechets || 0, tData.pollution || 0, tData.securite || 0, tData.Autres || 0], 
+                        backgroundColor:['#fc3d21','#007bff','#f57c00','#6c757d']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
             chart2 = new Chart(ctx2, { type:'bar', data:{labels:Object.keys(qData), datasets:[{label:'Signalements', data:Object.values(qData), backgroundColor:'#1b5e20'}]} });
         }
     }
