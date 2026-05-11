@@ -31,7 +31,7 @@
     }
 
     .ticker { position: absolute; top: 75px; left: 0; right: 0; z-index: 1000; width: 100%; background: white; padding: 10px 0; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-    .ticker-text { white-space: nowrap; display: inline-block; padding-left: 100%; animation: ticker 30s linear infinite; font-weight: bold; color: var(--kgm-blue); }
+    .ticker-text { white-space: nowrap; display: inline-block; padding-left: 100%; animation: ticker 40s linear infinite; font-weight: bold; color: var(--kgm-blue); }
     @keyframes ticker { 0% { transform: translate(0, 0); } 100% { transform: translate(-100%, 0); } }
     .ui-controls { position: absolute; bottom: 25px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; gap: 8px; width: auto; }
     .ui-btn { background: white; color: var(--kgm-blue); border: none; padding: 10px 15px; border-radius: 25px; font-weight: bold; font-size: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; }
@@ -45,6 +45,14 @@
     .legend-icon { width: 20px; text-align: center; margin-right: 10px; font-size: 18px; }
     .actions { display: flex; gap: 10px; margin-top: 5px; }
     .actions i { cursor: pointer; font-size: 16px; }
+
+    /* Ajustements pour ordinateurs (écrans larges) */
+    @media (min-width: 1024px) {
+        .panel { width: 450px; max-width: 500px; padding: 30px; bottom: 100px; font-size: 1.1em; }
+        #modalForm > div { max-width: 500px !important; padding: 30px !important; }
+        .ui-btn { padding: 12px 25px; font-size: 14px; }
+        header h1 { font-size: 1.8em; }
+    }
   </style>
 </head>
 <body>
@@ -124,12 +132,12 @@
         </div>
 
         <label style="font-weight:bold; font-size:14px; margin-top:10px; display:block;"><i class="fas fa-camera"></i> Prendre une photo</label>
-<div style="display:flex; gap:5px; align-items:center; margin:5px 0 10px 0;">
-    <input type="file" id="photoInput" accept="image/*" capture="environment" style="flex:1;">
-    <button type="button" onclick="effacerPhotoSelectionnee()" style="background:var(--kgm-red); color:white; border:none; border-radius:5px; padding:5px 10px; cursor:pointer;" title="Supprimer la photo choisie">
-        <i class="fas fa-times"></i>
-    </button>
-</div>
+        <div style="display:flex; gap:5px; align-items:center; margin:5px 0 10px 0;">
+            <input type="file" id="photoInput" accept="image/*" capture="environment" style="flex:1;">
+            <button type="button" onclick="effacerPhotoSelectionnee()" style="background:var(--kgm-red); color:white; border:none; border-radius:5px; padding:5px 10px; cursor:pointer;" title="Supprimer la photo choisie">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
 
         <label style="font-weight:bold; font-size:14px; margin-top:10px; display:block;">Type d'alerte</label>
         <select id="typeSelect" style="width:100%; padding:10px; margin:5px 0 10px 0;" onchange="checkAutreType(this.value)">
@@ -139,7 +147,6 @@
             <option value="Autres">Autres...</option>
         </select>
         <input type="text" id="autreType" placeholder="Précisez le type d'alerte" style="display:none; width:100%; padding:10px; margin-bottom:10px;">
-
 
         <button style="width:100%; padding:12px; background:var(--kgm-green); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;" onclick="soumettreSignalement()">✅ Valider</button>
         <button style="width:100%; padding:10px; background:#eee; color:#333; border:none; border-radius:8px; margin-top:8px; cursor:pointer;" onclick="fermerModal()">Annuler</button>
@@ -164,7 +171,7 @@
     const auth = firebase.auth();
     const IMGBB_API_KEY = "875aae76099064e2af713abc4a051601";
 
-    var map = L.map('map', { zoomControl: false }).setView([6.1319, 1.2228], 13);
+    var map = L.map('map', { zoomControl: false, attributionControl: false }).setView([6.1319, 1.2228], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
     var currentUser = null;
@@ -211,18 +218,11 @@
         }
     }
 
-    function recupererPass() {
-        const email = prompt("Entrez votre email pour recevoir le lien de réinitialisation :");
-        if(email) {
-            auth.sendPasswordResetEmail(email).then(() => alert("Email envoyé ! Vérifiez votre boîte de réception.")).catch(e => alert("Erreur : " + e.message));
+    function deconnexion() { 
+        if(confirm("Êtes-vous sûr de vouloir vous déconnecter d'URBAN-CLEAN ?")) {
+            auth.signOut(); 
         }
     }
-
-    function deconnexion() { 
-    if(confirm("Êtes-vous sûr de vouloir vous déconnecter d'URBAN-CLEAN ?")) {
-        auth.signOut(); 
-    }
-}
 
     db.collection('signalements').onSnapshot(snap => {
         data = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -291,7 +291,6 @@
         document.getElementById('modalForm').style.display = 'flex';
         map.closePopup();
     }
-  
 
     function updateCharts(tData, qData) {
         if(chart1) chart1.destroy(); if(chart2) chart2.destroy();
@@ -308,10 +307,6 @@
         if (userCircle) map.removeLayer(userCircle);
         userCircle = L.circle(e.latlng, { radius: 10, color: '#007bff', fillColor: '#007bff', fillOpacity: 0.5 }).addTo(map);
         map.flyTo(e.latlng, 16, { animate: true, duration: 1.9 });
-    });
-
-    map.on('locationerror', e => {
-        alert("Position introuvable. Vérifiez que le GPS est actif et que vous êtes en HTTPS.");
     });
 
     function ouvrirModal() { 
@@ -409,34 +404,10 @@
     function togglePanel(id) {
         document.querySelectorAll('.panel').forEach(p => p.id === id ? p.classList.toggle('active') : p.classList.remove('active'));
     }
-  function effacerPhotoSelectionnee() {
-    document.getElementById('photoInput').value = ""; // Réinitialise le sélecteur de fichier
-  }
-  /* Ajustements pour ordinateurs (écrans larges) */
-@media (min-width: 1024px) {
-    .panel {
-        width: 450px; /* Plus large sur PC */
-        max-width: 500px;
-        padding: 30px;
-        bottom: 100px; /* Un peu plus haut */
-        font-size: 1.1em; /* Texte plus grand */
+    
+    function effacerPhotoSelectionnee() {
+        document.getElementById('photoInput').value = ""; 
     }
-
-    #modalForm div {
-        max-width: 500px !important; /* Agrandit la boîte de signalement */
-        padding: 30px !important;
-    }
-
-    .ui-btn {
-        padding: 12px 25px; /* Boutons plus imposants */
-        font-size: 14px;
-    }
-
-    header h1 {
-        font-size: 1.8em; /* Titre plus visible */
-    }
-  }
-  
 </script>
 </body>
 </html>
