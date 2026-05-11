@@ -35,10 +35,33 @@
     @keyframes ticker { 0% { transform: translate(0, 0); } 100% { transform: translate(-100%, 0); } }
     .ui-controls { position: absolute; bottom: 25px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; gap: 8px; width: auto; }
     .ui-btn { background: white; color: var(--kgm-blue); border: none; padding: 10px 15px; border-radius: 25px; font-weight: bold; font-size: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; }
-    .panel { position: absolute; bottom: 85px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 380px; background: white; border-radius: 15px; padding: 15px; display: none; z-index: 1001; border-top: 6px solid var(--kgm-green); box-shadow: 0 -5px 20px rgba(0,0,0,0.2); max-height: 70vh; overflow-y: auto; }
+        .panel { 
+        position: absolute; 
+        bottom: 85px; 
+        left: 50%; 
+        transform: translateX(-50%); 
+        width: 95%; 
+        max-width: 380px; 
+        background: white; 
+        border-radius: 15px; 
+        padding: 15px; 
+        display: none; 
+        z-index: 1001; 
+        border-top: 6px solid var(--kgm-green); 
+        box-shadow: 0 -5px 20px rgba(0,0,0,0.2); 
+        max-height: 55vh; 
+        overflow-y: auto; 
+    }
+
     .panel.active { display: block; animation: slideUp 0.3s ease-out; }
     @keyframes slideUp { from { bottom: 50px; opacity: 0; } to { bottom: 85px; opacity: 1; } }
-    .chart-container { position: relative; height: 220px; width: 100%; margin-bottom: 20px; }
+        .chart-container { 
+        position: relative; 
+        height: 180px; 
+        width: 100%; 
+        margin-bottom: 15px; 
+    }
+
     .commune-label { background: transparent; border: none; box-shadow: none; color: var(--kgm-blue); font-weight: bold; font-size: 15px; text-shadow: 2px 2px 4px white; pointer-events: none; }
     #addBtnFloating { background: var(--kgm-red); color: white; display: none; }
     #loadingOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 3000; justify-content: center; align-items: center; flex-direction: column; }
