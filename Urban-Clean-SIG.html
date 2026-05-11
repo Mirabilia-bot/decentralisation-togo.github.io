@@ -14,8 +14,8 @@
   <style>
     :root { --kgm-blue: #00264d; --kgm-green: #1b5e20; --kgm-red: #fc3d21; }
     * { box-sizing: border-box; }
-    body, html { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; font-family: 'Times New Roman', serif; background: #eee; }
-    #map { position: absolute; top: 0; bottom: 0; width: 100%; z-index: 1; }
+    body, html { margin: 0; padding: 0; height: 100vh; width: 100vw; overflow: hidden; font-family: 'Times New Roman', serif; background: #eee; }
+    #map { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
     
     header { position: absolute; top: 0; left: 0; right: 0; z-index: 1000; background: rgba(0,38,77,0.9); color: white; padding: 10px; text-align: center; min-height: 70px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
     header h1 { margin: 0; font-size: 1.1em; text-transform: uppercase; width: 70%; }
@@ -45,6 +45,13 @@
     .legend-icon { width: 20px; text-align: center; margin-right: 10px; font-size: 18px; }
     .actions { display: flex; gap: 10px; margin-top: 5px; }
     .actions i { cursor: pointer; font-size: 16px; }
+
+    @media (min-width: 1024px) {
+        .panel { width: 450px !important; max-width: 500px !important; bottom: 100px !important; padding: 30px !important; }
+        #modalForm > div { width: 500px !important; max-width: 550px !important; padding: 35px !important; }
+        .ui-btn { padding: 12px 25px !important; font-size: 14px !important; }
+        header h1 { font-size: 2em !important; }
+    }
   </style>
 </head>
 <body>
@@ -164,7 +171,7 @@
     const auth = firebase.auth();
     const IMGBB_API_KEY = "875aae76099064e2af713abc4a051601";
 
-    var map = L.map('map', { zoomControl: false }).setView([6.1319, 1.2228], 13);
+    var map = L.map('map', { zoomControl: false, attributionControl: false }).setView([6.1319, 1.2228], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
     var currentUser = null;
@@ -410,7 +417,7 @@
         document.querySelectorAll('.panel').forEach(p => p.id === id ? p.classList.toggle('active') : p.classList.remove('active'));
     }
   function effacerPhotoSelectionnee() {
-    document.getElementById('photoInput').value = ""; // Réinitialise le sélecteur de fichier
+    document.getElementById('photoInput').value = ""; 
   }
   
 </script>
