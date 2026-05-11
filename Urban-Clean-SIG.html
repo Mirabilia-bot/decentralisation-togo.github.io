@@ -307,7 +307,7 @@
         userPos = e.latlng;
         if (userCircle) map.removeLayer(userCircle);
         userCircle = L.circle(e.latlng, { radius: 10, color: '#007bff', fillColor: '#007bff', fillOpacity: 0.5 }).addTo(map);
-        map.flyTo(e.latlng, 16, { animate: true, duration: 1.5 });
+        map.flyTo(e.latlng, 16, { animate: true, duration: 1.9 });
     });
 
     map.on('locationerror', e => {
