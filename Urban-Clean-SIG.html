@@ -124,7 +124,12 @@
         </div>
 
         <label style="font-weight:bold; font-size:14px; margin-top:10px; display:block;"><i class="fas fa-camera"></i> Prendre une photo</label>
-        <input type="file" id="photoInput" accept="image/*" capture="environment" style="width:100%; margin:5px 0 10px 0;">
+<div style="display:flex; gap:5px; align-items:center; margin:5px 0 10px 0;">
+    <input type="file" id="photoInput" accept="image/*" capture="environment" style="flex:1;">
+    <button type="button" onclick="effacerPhotoSelectionnee()" style="background:var(--kgm-red); color:white; border:none; border-radius:5px; padding:5px 10px; cursor:pointer;" title="Supprimer la photo choisie">
+        <i class="fas fa-times"></i>
+    </button>
+</div>
 
         <label style="font-weight:bold; font-size:14px; margin-top:10px; display:block;">Type d'alerte</label>
         <select id="typeSelect" style="width:100%; padding:10px; margin:5px 0 10px 0;" onchange="checkAutreType(this.value)">
@@ -400,6 +405,10 @@
     function togglePanel(id) {
         document.querySelectorAll('.panel').forEach(p => p.id === id ? p.classList.toggle('active') : p.classList.remove('active'));
     }
+  function effacerPhotoSelectionnee() {
+    document.getElementById('photoInput').value = ""; // Réinitialise le sélecteur de fichier
+  }
+  
 </script>
 </body>
 </html>
