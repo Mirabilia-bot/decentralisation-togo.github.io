@@ -412,6 +412,30 @@
   function effacerPhotoSelectionnee() {
     document.getElementById('photoInput').value = ""; // Réinitialise le sélecteur de fichier
   }
+  /* Ajustements pour ordinateurs (écrans larges) */
+@media (min-width: 1024px) {
+    .panel {
+        width: 450px; /* Plus large sur PC */
+        max-width: 500px;
+        padding: 30px;
+        bottom: 100px; /* Un peu plus haut */
+        font-size: 1.1em; /* Texte plus grand */
+    }
+
+    #modalForm div {
+        max-width: 500px !important; /* Agrandit la boîte de signalement */
+        padding: 30px !important;
+    }
+
+    .ui-btn {
+        padding: 12px 25px; /* Boutons plus imposants */
+        font-size: 14px;
+    }
+
+    header h1 {
+        font-size: 1.8em; /* Titre plus visible */
+    }
+  }
   
 </script>
 </body>
