@@ -68,7 +68,7 @@
 </header>
 
 <div class="ticker">
-    <div class="ticker-text">🌿 <strong>Stop à l’insalubrité !</strong> Devenez acteur de la propreté de votre quartier en signalant les zones critiques via notre portail. Vos alertes sont transmises instantanément à la mairie pour une intervention rapide. Avec URBAN-CLEAN de KGM Expertise, quelques minutes suffisent pour protéger notre santé et assainir notre cadre de vie. Ensemble, rendons nos communes exemplaires ! 🌿</div>
+    <div class="ticker-text">🌿 <strong>Stop à l’insalubrité !</strong> Devenez acteur de la propreté de votre quartier en signalant les zones critiques via notre portail. Vos alertes sont transmises instantanément à la mairie pour une intervention rapide. Avec URBAN-CLEAN de KGM Expertise, quelques minutes suffisent pour protéger notre santé et assainir our cadre de vie. Ensemble, rendons nos communes exemplaires ! 🌿</div>
 </div>
   
 <div id="map"></div>
@@ -111,9 +111,10 @@
         <h3 id="modalTitle" style="margin-top:0;color:var(--kgm-blue);">Nouveau Signalement</h3>
         <input type="hidden" id="editId">
         <label style="font-weight:bold; font-size:14px;">Quartier</label>
-        <select id="quartierSelect" style="width:100%; padding:10px; margin:5px 0 10px 0;">
-            <option>Kliklamé</option><option>Bè</option><option>Tokoin</option>
+        <select id="quartierSelect" style="width:100%; padding:10px; margin:5px 0 10px 0;" onchange="checkAutre(this.value)">
+            <option>Kliklamé</option><option>Bè</option><option>Tokoin</option><option value="Autres">Autres...</option>
         </select>
+        <input type="text" id="autreQuartier" placeholder="Nom du quartier" style="display:none; width:100%; padding:10px; margin-bottom:10px;">
         
         <label style="font-weight:bold; font-size:14px;">Description</label>
         <textarea id="descInput" placeholder="Détails du problème..." style="width:100%; padding:10px; margin:5px 0 10px 0; font-family:serif; height:60px;"></textarea>
@@ -274,6 +275,12 @@
         document.getElementById('heureInput').value = d.heure;
         document.getElementById('typeSelect').value = d.type;
 
+        if (document.getElementById('quartierSelect').value !== d.quartier) {
+            document.getElementById('quartierSelect').value = "Autres";
+            document.getElementById('autreQuartier').value = d.quartier;
+        }
+        checkAutre(document.getElementById('quartierSelect').value);
+
         document.getElementById('modalForm').style.display = 'flex';
         map.closePopup();
     }
@@ -310,6 +317,7 @@
         document.getElementById('descInput').value = "";
     }
     function fermerModal() { document.getElementById('modalForm').style.display='none'; }
+    function checkAutre(v) { document.getElementById('autreQuartier').style.display = (v==='Autres'?'block':'none'); }
 
     async function compresserImage(file) {
         return new Promise((resolve) => {
@@ -339,7 +347,7 @@
         if(!userPos && !editId) return alert("Position GPS non trouvée. Veuillez autoriser la localisation.");
         
         document.getElementById('loadingOverlay').style.display = 'flex';
-        let q = document.getElementById('quartierSelect').value;
+        let q = document.getElementById('quartierSelect').value === 'Autres' ? document.getElementById('autreQuartier').value : document.getElementById('quartierSelect').value;
         let t = document.getElementById('typeSelect').value;
         
         const photoFile = document.getElementById('photoInput').files[0];
