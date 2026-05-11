@@ -10,6 +10,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-storage-compat.js"></script>
 
   <style>
     :root { --kgm-blue: #00264d; --kgm-green: #1b5e20; --kgm-red: #fc3d21; }
@@ -157,6 +158,7 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const auth = firebase.auth();
+    const storage = firebase.storage();
 
     var map = L.map('map', { zoomControl: false }).setView([6.1319, 1.2228], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
@@ -256,7 +258,7 @@
         }
     }
 
-        function editerDoc(id) {
+    function editerDoc(id) {
         const d = data.find(item => item.id === id);
         if(!d) return;
         document.getElementById('modalTitle').innerText = "Modifier le Signalement";
@@ -267,7 +269,6 @@
         document.getElementById('heureInput').value = d.heure;
         document.getElementById('typeSelect').value = d.type;
 
-        // --- AJOUT CHIRURGICAL ICI ---
         if (document.getElementById('quartierSelect').value !== d.quartier) {
             document.getElementById('quartierSelect').value = "Autres";
             document.getElementById('autreQuartier').value = d.quartier;
@@ -278,11 +279,10 @@
         }
         checkAutre(document.getElementById('quartierSelect').value);
         checkAutreType(document.getElementById('typeSelect').value);
-        // ------------------------------
 
         document.getElementById('modalForm').style.display = 'flex';
         map.closePopup();
-        }
+    }
   
 
     function updateCharts(tData, qData) {
@@ -318,6 +318,29 @@
     function checkAutre(v) { document.getElementById('autreQuartier').style.display = (v==='Autres'?'block':'none'); }
     function checkAutreType(v) { document.getElementById('autreType').style.display = (v==='Autres'?'block':'none'); }
 
+    async function compresserImage(file) {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    MAX_WIDTH = 1200;
+                    let width = img.width;
+                    let height = img.height;
+                    if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    canvas.toBlob((blob) => { resolve(blob); }, 'image/jpeg', 0.7);
+                };
+            };
+        });
+    }
+
     async function soumettreSignalement() {
         let editId = document.getElementById('editId').value;
         if(!userPos && !editId) return alert("Position GPS non trouvée. Veuillez autoriser la localisation.");
@@ -327,33 +350,34 @@
         let t = document.getElementById('typeSelect').value === 'Autres' ? document.getElementById('autreType').value : document.getElementById('typeSelect').value;
         
         const photoFile = document.getElementById('photoInput').files[0];
-        let photoBase64 = null;
-        if(photoFile) {
-            const reader = new FileReader();
-            photoBase64 = await new Promise(resolve => {
-                reader.onload = e => resolve(e.target.result);
-                reader.readAsDataURL(photoFile);
-            });
-        } else if (editId) {
-            photoBase64 = data.find(item => item.id === editId).photo;
-        }
+        let photoUrl = null;
 
-        const signalementData = {
-            quartier: q, 
-            type: t,
-            desc: document.getElementById('descInput').value,
-            date: document.getElementById('dateInput').value,
-            heure: document.getElementById('heureInput').value,
-            photo: photoBase64,
-            userId: currentUser.uid
-        };
+        try {
+            if(photoFile) {
+                const imageCompressee = await compresserImage(photoFile);
+                const storageRef = storage.ref(`photos/${Date.now()}_urban_clean.jpg`);
+                await storageRef.put(imageCompressee);
+                photoUrl = await storageRef.getDownloadURL();
+            } else if (editId) {
+                const doc = data.find(item => item.id === editId);
+                photoUrl = doc ? doc.photo : null;
+            }
 
-        if(!editId) {
-            signalementData.lat = userPos.lat;
-            signalementData.lng = userPos.lng;
-        }
+            const signalementData = {
+                quartier: q, 
+                type: t,
+                desc: document.getElementById('descInput').value,
+                date: document.getElementById('dateInput').value,
+                heure: document.getElementById('heureInput').value,
+                photo: photoUrl,
+                userId: currentUser.uid
+            };
 
-         try {
+            if(!editId) {
+                signalementData.lat = userPos.lat;
+                signalementData.lng = userPos.lng;
+            }
+
             if(editId) {
                 await db.collection('signalements').doc(editId).update(signalementData);
             } else {
@@ -361,7 +385,11 @@
             }
             fermerModal();
             if(!editId) map.flyTo([userPos.lat, userPos.lng], 16);
-        } catch(e) { alert("Erreur d'envoi. Vérifiez la connexion."); }
+            document.getElementById('photoInput').value = "";
+        } catch(e) { 
+            console.error(e);
+            alert("Erreur lors de l'envoi. Vérifiez votre connexion."); 
+        }
         document.getElementById('loadingOverlay').style.display = 'none';
     }
 
