@@ -218,7 +218,11 @@
         }
     }
 
-    function deconnexion() { auth.signOut(); }
+    function deconnexion() { 
+    if(confirm("Êtes-vous sûr de vouloir vous déconnecter d'URBAN-CLEAN ?")) {
+        auth.signOut(); 
+    }
+}
 
     db.collection('signalements').onSnapshot(snap => {
         data = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
