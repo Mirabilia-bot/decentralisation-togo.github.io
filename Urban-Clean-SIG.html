@@ -48,11 +48,41 @@
 
     /* Ajustements pour ordinateurs (écrans larges) */
     @media (min-width: 1024px) {
-        .panel { width: 450px; max-width: 500px; padding: 30px; bottom: 100px; font-size: 1.1em; }
-        #modalForm > div { max-width: 500px !important; padding: 30px !important; }
-        .ui-btn { padding: 12px 25px; font-size: 14px; }
-        header h1 { font-size: 1.8em; }
+    /* On agrandit les panneaux pour qu'ils soient lisibles sur PC */
+    .panel {
+        width: 500px !important; 
+        max-width: 600px !important;
+        padding: 35px !important;
+        bottom: 120px !important;
+        font-size: 1.2em !important; /* Texte plus grand pour le confort */
     }
+
+    /* On agrandit la boîte de signalement (le modal) */
+    #modalForm > div {
+        max-width: 600px !important;
+        padding: 40px !important;
+        border-radius: 20px !important;
+    }
+
+    /* On agrandit les champs de saisie pour qu'ils ne soient pas minuscules */
+    input, select, textarea {
+        font-size: 16px !important;
+        padding: 12px !important;
+    }
+
+    /* On rend les boutons de contrôle plus imposants */
+    .ui-btn {
+        padding: 15px 30px !important;
+        font-size: 15px !important;
+        border-radius: 30px !important;
+    }
+
+    /* Le titre devient plus majestueux */
+    header h1 {
+        font-size: 2.2em !important;
+    }
+}
+
   </style>
 </head>
 <body>
