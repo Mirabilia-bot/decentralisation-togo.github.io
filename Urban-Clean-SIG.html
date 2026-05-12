@@ -60,9 +60,11 @@
     #loadingOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 3000; justify-content: center; align-items: center; flex-direction: column; }
     .legend-item { display: flex; align-items: center; margin-bottom: 10px; font-size: 14px; }
     .legend-icon { width: 20px; text-align: center; margin-right: 10px; font-size: 18px; }
-    .actions { display: flex; gap: 10px; margin-top: 5px; }
-    .actions i { cursor: pointer; font-size: 16px; }
-    .leaflet-popup-content { margin: 10px; line-height: 1.4; }
+    
+    /* CORRECTIF CHIRURGICAL : CONTENEUR ACTIONS POPUP */
+    .popup-actions { display: flex; gap: 15px; margin-top: 10px; border-top: 1px solid #eee; padding-top: 8px; justify-content: flex-end; }
+    .popup-actions i { cursor: pointer; font-size: 16px; }
+
     #homeBtn { position: fixed; top: 15px; left: 15px; z-index: 2500; background: white; color: var(--kgm-blue); border: none; width: 40px; height: 40px; border-radius: 50%; box-shadow: 0 2px 10px rgba(0,0,0,0.3); cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 1.2em; }
     #homeBtn:hover { background: #f0f0f0; }
     .popup-img { cursor: zoom-in; transition: transform 0.2s; }
@@ -279,8 +281,10 @@
             let popupContent = `<div style="min-width:180px;"><b style="color:var(--kgm-blue)">${d.quartier}</b><br><i>${d.desc}</i>`;
             if(d.photo) popupContent += `<br><img src="${d.photo}" class="popup-img" style="width:100%;max-height:150px;object-fit:cover;margin-top:5px;border-radius:4px" onclick="window.open('${d.photo}', '_blank')">`;
             popupContent += `<br><small><i class="far fa-calendar"></i> ${d.date} | <i class="far fa-clock"></i> ${d.heure}</small></div>`;
+            
+            // CORRECTIF CHIRURGICAL : BLOC ACTIONS RÉORDONNÉ
             if(currentUser && d.userId === currentUser.uid) {
-                popupContent += `<div class="actions">
+                popupContent += `<div class="popup-actions">
                     <i class="fas fa-edit" style="color:var(--kgm-green)" onclick="editerDoc('${d.id}')"></i>
                     <i class="fas fa-trash" style="color:var(--kgm-red)" onclick="supprimerDoc('${d.id}')"></i>
                 </div>`;
@@ -337,6 +341,7 @@
     function fermerModal() { document.getElementById('modalForm').style.display='none'; }
     function checkAutre(v) { document.getElementById('autreQuartier').style.display = (v==='Autres'?'block':'none'); }
 
+    /* CORRECTIF CHIRURGICAL : FONCTION DE COMPRESSION */
     async function compressImage(file) {
         return new Promise((resolve) => {
             const reader = new FileReader(); reader.readAsDataURL(file);
@@ -365,6 +370,7 @@
         let photoUrl = null;
         try {
             if(photoFile) {
+                /* CORRECTIF CHIRURGICAL : UTILISATION DE LA COMPRESSION */
                 const compressedBlob = await compressImage(photoFile);
                 let formData = new FormData(); formData.append("image", compressedBlob);
                 const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: "POST", body: formData });
