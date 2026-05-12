@@ -122,6 +122,8 @@
         font-size: 1.2em;
     }
     #homeBtn:hover { background: #f0f0f0; }
+    .popup-img { cursor: zoom-in; transition: transform 0.2s; }
+    .popup-img:hover { transform: scale(1.02); }
     
   </style>
 </head>
@@ -318,7 +320,7 @@
         let qCounts = {};
         data.forEach(d => {
             let popupContent = `<div style="min-width:180px;"><b style="color:var(--kgm-blue)">${d.quartier}</b><br><i>${d.desc}</i>`;
-            if(d.photo) popupContent += `<br><img src="${d.photo}" style="width:100%;max-height:150px;object-fit:cover;margin-top:5px;border-radius:4px">`;
+            if(d.photo) popupContent += `<br><img src="${d.photo}" class="popup-img" style="width:100%;max-height:150px;object-fit:cover;margin-top:5px;border-radius:4px" onclick="window.open('${d.photo}', '_blank')">`;
             popupContent += `<br><small><i class="far fa-calendar"></i> ${d.date} | <i class="far fa-clock"></i> ${d.heure}</small></div>`;
             
             if(currentUser && d.userId === currentUser.uid) {
