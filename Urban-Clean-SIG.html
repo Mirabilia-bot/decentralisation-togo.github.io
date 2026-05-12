@@ -157,6 +157,7 @@
 <div id="auth-bar">
     <span id="userDisplay" style="color:white; display:none; font-size: 0.7em; text-shadow: 1px 1px 2px black;"></span>
     <button id="loginBtn" class="ui-btn" onclick="ouvrirAuth()">🔑 Accès</button>
+    <button id="delAccBtn" class="ui-btn" onclick="supprimerCompte()" style="display:none; background:var(--kgm-red); color:white;">🗑️ Supprimer Compte</button>
     <button id="logoutBtn" class="ui-btn" onclick="deconnexion()" style="display:none;">🚪 Quitter</button>
 </div>
 
@@ -200,7 +201,6 @@
         <button class="ui-btn" style="width:100%;background:var(--kgm-blue);color:white;margin-bottom:10px;padding:12px;" onclick="gererAuth('login')">Se Connecter</button>
         <button class="ui-btn" style="width:100%;background:var(--kgm-green);color:white;margin-bottom:10px;padding:12px;" onclick="gererAuth('signup')">S'inscrire (Nouveau Compte)</button>
         <button style="background:none;border:none;color:var(--kgm-red);cursor:pointer;text-decoration:underline;display:block;margin:5px auto;" onclick="recupererPass()">Mot de passe oublié ? (Vérifiez vos spams)</button>
-        <button style="background:none;border:none;color:var(--kgm-red);cursor:pointer;text-decoration:underline;margin-top:10px;display:block;width:100%;" onclick="supprimerCompte()">Supprimer mon compte</button>
         <button style="background:none;border:none;color:#666;cursor:pointer;text-decoration:underline;margin-top:10px;" onclick="fermerAuth()">Annuler</button>
     </div>
 </div>
@@ -295,6 +295,7 @@
         currentUser = user;
         document.getElementById('loginBtn').style.display = user ? 'none' : 'inline';
         document.getElementById('logoutBtn').style.display = user ? 'inline' : 'none';
+        document.getElementById('delAccBtn').style.display = user ? 'inline' : 'none';
         document.getElementById('userDisplay').style.display = user ? 'inline' : 'none';
         if(user) document.getElementById('userDisplay').innerHTML = '<i class="fas fa-user-circle"></i> Connecté';
 
@@ -355,7 +356,7 @@
         securite: L.divIcon({ html: '<i class="fas fa-exclamation-triangle" style="color:#f57c00; font-size:20px;"></i>', className:'c-icon' })
     };
 
-    function refresh() {
+        function refresh() {
         markers.clearLayers();
         let counts = {dechets:0, pollution:0, securite:0};
         let qCounts = {};
