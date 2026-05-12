@@ -321,8 +321,9 @@
                     showFlash("✅ Vous êtes connecté");
                 }).catch(e => alert("Erreur : " + e.message));
             } else {
-                auth.createUserWithEmailAndPassword(email, pass).then(() => { 
-                    showFlash("🎉 Compte créé avec succès !"); 
+                auth.createUserWithEmailAndPassword(email, pass).then((userCredential) => { 
+                    userCredential.user.sendEmailVerification();
+                    alert("Compte créé avec succès ! Un e-mail de confirmation provenant de 'noreply@urban-clean-kgm.firebaseapp.com' vous a été envoyé. Vérifiez vos SPAMS, il est possible qu'il soit en anglais.");
                     fermerAuth(); 
                 }).catch(e => alert("Erreur lors de la création : " + e.message));
             }
