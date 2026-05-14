@@ -121,11 +121,12 @@
     });
 
     var pharmacyLayer, communeLayer, influenceCircle;
-    // SOLUTION PERFECTION : On désactive les clusters dès le zoom 15 pour forcer l'affichage individuel
+    // Perfection : Spiderfy forcé pour les points superposés
     var markers = L.markerClusterGroup({ 
-        disableClusteringAtZoom: 15,
+        disableClusteringAtZoom: 16,
         spiderfyOnMaxZoom: true,
-        showCoverageOnHover: false
+        showCoverageOnHover: false,
+        maxClusterRadius: 40 
     });
 
     fetch('./communes.geojson').then(res => res.json()).then(data => {
@@ -144,16 +145,17 @@
                 return L.marker(latlng, { icon: L.divIcon({ className: 'pharmacy-icon', html: '+', iconSize: [22, 22] }) });
             },
             onEachFeature: function (f, l) {
-                // APPLICATION SYSTÉMATIQUE DU CLICK POUR CHAQUE POINT
                 l.on('click', function(e) {
-                    // Zone tampon systématique
                     if (influenceCircle) map.removeLayer(influenceCircle);
                     influenceCircle = L.circle(e.latlng, { radius: 1000, color: '#28a745', fillOpacity: 0.15, weight: 2 }).addTo(map);
                     influenceCircle.bindTooltip("10-15 min à pied", {permanent: true, direction: 'bottom', className: 'proximity-label'}).openTooltip();
                     
                     var p = f.properties;
                     var dest = e.latlng.lat + "," + e.latlng.lng;
-                    var routeUrl = userLatLng ? `https://www.google.com/maps/dir/?api=1&origin=${userLatLng.lat},${userLatLng.lng}&destination=${dest}&travelmode=driving` : `https://www.google.com/maps/search/?api=1&query=${dest}`;
+                    // API Officielle Google Maps pour itinéraire parfait
+                    var routeUrl = userLatLng ? 
+                        `https://www.google.com/maps/dir/?api=1&origin=${userLatLng.lat},${userLatLng.lng}&destination=${dest}&travelmode=driving` : 
+                        `https://www.google.com/maps/search/?api=1&query=${dest}`;
 
                     var content = `
                         <div style="min-width:200px; padding:5px;">
@@ -161,7 +163,7 @@
                             <hr style="border:0; border-top:1px solid #eee; margin:8px 0;">
                             <span style="font-size:12px;">🏥 <b>Type:</b> ${p.pharmacie_type}</span><br>
                             <span style="font-size:12px;">📍 <b>Commune:</b> ${p.commune_nom_bdd}</span><br>
-                            <a href="${routeUrl}" target="_blank" style="display:block; margin-top:12px; background:var(--kgm-green); color:white; text-align:center; padding:10px; border-radius:5px; text-decoration:none; font-weight:bold;">🚀 Itinéraire (Google Maps)</a>
+                            <a href="${routeUrl}" target="_blank" style="display:block; margin-top:12px; background:var(--kgm-green); color:white; text-align:center; padding:10px; border-radius:5px; text-decoration:none; font-weight:bold;">🚀 Itinéraire (Maps)</a>
                         </div>`;
                     l.bindPopup(content).openPopup();
                 });
@@ -170,31 +172,31 @@
         });
         map.addLayer(markers);
 
-        // Statistiques dynamiques fluides
         map.on('moveend', function() {
             var count = 0;
             markers.eachLayer(l => { if (map.getBounds().contains(l.getLatLng())) count++; });
             document.getElementById('count-visible').innerText = count;
         });
 
-        // Recherche chirurgicale avec zoom forcé
         document.getElementById('search-input').addEventListener('input', function(e) {
             var val = e.target.value.toLowerCase().trim();
             if(val.length < 3) return;
 
             pharmacyLayer.eachLayer(l => {
                 if(l.feature.properties.pharmacie_nom?.toLowerCase().includes(val)) {
-                    map.setView(l.getLatLng(), 17); // Zoom maximum pour casser les clusters
+                    map.setView(l.getLatLng(), 17);
                     l.fire('click');
                 }
             });
+            // Correction chirurgicale du nom de la propriété commune
             communeLayer.eachLayer(l => {
-                if(l.feature.properties["Noms des communes"]?.toLowerCase().includes(val)) map.fitBounds(l.getBounds());
+                var cName = l.feature.properties.commune_nom_bdd || l.feature.properties.nom || "";
+                if(cName.toLowerCase().includes(val)) map.fitBounds(l.getBounds());
             });
         });
     });
-
     window.addEventListener('resize', function() { map.invalidateSize(); });
 </script>
+
 </body>
 </html>
