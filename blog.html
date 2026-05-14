@@ -47,14 +47,20 @@
         .blog-header { background: #1a3a5f; color: white; padding: 60px 20px; text-align: center; }
         .blog-header h1 { font-family: 'Crimson Pro', serif; font-size: 2.8rem; margin-bottom: 10px; white-space: nowrap; }
         
-        /* --- LA GRILLE SÉCURISÉE --- */
+        /* SYSTÈME DE FILTRAGE */
+        .filter-container { text-align: center; margin: 30px 0; padding: 0 20px; }
+        .filter-btn {
+            background: white; border: 1px solid #ddd; padding: 8px 18px; margin: 5px; border-radius: 50px;
+            cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: 0.3s; color: var(--primary);
+        }
+        .filter-btn.active, .filter-btn:hover { background: var(--secondary); color: white; border-color: var(--secondary); }
+
         .container { 
             max-width: 1100px; 
-            margin: 40px auto; 
+            margin: 0 auto 40px; 
             padding: 0 20px; 
             display: grid; 
-            /* On force 3 colonnes de 320px sur grand écran pour que tout rentre dans les 1100px */
-            grid-template-columns: repeat(3, 320px); 
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); 
             gap: 30px; 
             justify-content: center; 
         }
@@ -62,10 +68,19 @@
         .card { 
             background: white; border-radius: 12px; padding: 25px; 
             box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #eee; 
-            display: flex; flex-direction: column; transition: 0.4s; 
+            border-top: 5px solid var(--secondary);
+            display: flex; flex-direction: column; transition: 0.4s ease; 
             height: 100%;
         }
-        .card:hover { transform: translateY(-5px); border-top: 4px solid var(--secondary); }
+        .card:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
+        
+        /* BADGES DE CATÉGORIE */
+        .category-badge {
+            display: inline-block; background: #e8f5e9; color: #2e7d32;
+            padding: 4px 12px; border-radius: 50px; font-size: 0.7rem;
+            font-weight: 800; text-transform: uppercase; margin-bottom: 15px; width: fit-content;
+        }
+
         .card h3 { font-family: 'Crimson Pro', serif; color: #1a3a5f; font-size: 1.4rem; margin-bottom: 15px; }
         .card-link { color: #006a4e; font-weight: bold; text-decoration: none; border-bottom: 2px solid #fecb00; align-self: flex-start; margin-top: auto; }
 
@@ -79,15 +94,8 @@
         .contact-link { color: var(--primary); text-decoration: none; font-weight: bold; }
         footer { background: var(--primary); color: #fff; padding: 40px 8% 20px; text-align: center; width: 100%; }
 
-        /* --- RESPONSIVE : ADAPTATION SELON LA TAILLE --- */
-        @media (max-width: 1050px) {
-            .container { grid-template-columns: repeat(2, 320px); } /* 2 colonnes si l'écran rétrécit */
-        }
-
         @media (max-width: 768px) { 
-            .container { 
-                grid-template-columns: 1fr; /* 1 seule colonne sur mobile pour éviter le débordement */
-            }
+            .container { grid-template-columns: 1fr; }
             nav { flex-direction: column !important; align-items: flex-start !important; padding: 15px 5% !important; gap: 12px !important; } 
             .nav-links { display: flex !important; flex-direction: row !important; gap: 8px !important; width: 100% !important; overflow-x: auto; padding-bottom: 5px; }
             .nav-links a { font-size: 0.92rem !important; font-weight: 600 !important; white-space: nowrap !important; padding: 5px 8px !important; background: #f0f4f7; border-radius: 4px; }
@@ -146,67 +154,74 @@
             <p>Analyses territoriales et guide pratique sur la gouvernance et le développement des territoires.</p>
         </header>
 
+        <div class="filter-container">
+            <button class="filter-btn active" onclick="filterAnalyses('all')">Tous</button>
+            <button class="filter-btn" onclick="filterAnalyses('JURIDIQUE')">Droit & Juridique</button>
+            <button class="filter-btn" onclick="filterAnalyses('SIG')">SIG & Cartographie</button>
+            <button class="filter-btn" onclick="filterAnalyses('ENVIRONNEMENT')">Environnement</button>
+        </div>
+
         <div class="container">
             <div class="card">
-                <span style="color: #006a4e; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; margin-bottom: 12px;">Analyse</span>
+                <span class="category-badge">Analyse</span>
                 <h3>L'impact des SIG dans la gestion territoriale</h3>
                 <p style="color: #666; font-size: 0.95rem; margin-bottom: 20px;">Comment l'outil cartographique révolutionne la levée de l'impôt foncier et la planification urbaine au Togo...</p>
                 <a href="article-sig-gestion.html" class="card-link">Lire l'article</a>
             </div>
 
             <div class="card">
-                <span style="color: #006a4e; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; margin-bottom: 12px;">Guide</span>
+                <span class="category-badge">Guide</span>
                 <h3>Réussir son PDC (Plan de Développement Communal)</h3>
                 <p style="color: #666; font-size: 0.95rem; margin-bottom: 20px;">Les 5 étapes clés pour une planification stratégique efficace au service des citoyens.</p>
                 <a href="article-pdc-communal.html" class="card-link">Lire le guide</a>
             </div>
 
             <div class="card">
-                <span style="color: #006a4e; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; margin-bottom: 12px;">Juridique</span>
+                <span class="category-badge">Juridique</span>
                 <h3>L’impact de la Loi n° 2019-006 sur la gouvernance locale</h3>
                 <p style="color: #666; font-size: 0.95rem; margin-bottom: 20px;">Analyse approfondie du nouveau cadre législatif et des défis de l'autonomie financière des collectivités locales.</p>
                 <a href="article-loi-2019.html" class="card-link">Lire l'analyse</a>
             </div>
             <div class="card">
-    <span style="color: #006a4e; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; margin-bottom: 12px;">Environnement</span>
+    <span class="category-badge">Environnement</span>
     <h3>Gestion des déchets à Agoè-Nyivé 1 : Défis et Perspectives</h3>
     <p style="color: #666; font-size: 0.95rem; margin-bottom: 20px;">Diagnostic des failles structurelles et financières de la gestion des déchets solides ménagers...</p>
     <a href="article-gestion-dechets-agoe.html" class="card-link">Lire l'article</a>
             </div>
           <div class="card">
-    <span style="color: #006a4e; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; margin-bottom: 12px;">Droit & Territoire</span>
+    <span class="category-badge">Droit & Territoire</span>
     <h3>La délimitation des communes : Entre imprécision textuelle et rigueur cartographique</h3>
     <p style="color: #666; font-size: 0.95rem; margin-bottom: 20px;">Analyse des enjeux juridiques et techniques de la définition des ressorts territoriaux au Togo. Comment le SIG sécurise l'action publique...</p>
     <a href="delimitation-territoriale-togo.html" class="card-link">Lire l'article</a>
           </div> 
                         <div class="card">
-                <span style="color: #006a4e; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; margin-bottom: 12px;">Gouvernance & SIG</span>
+                <span class="category-badge">Gouvernance & SIG</span>
                 <h3>L'Inventaire Numérique du Patrimoine : Levier Oublié de la Décentralisation</h3>
                 <p style="color: #666; font-size: 0.95rem; margin-bottom: 20px;">Analyse sur la sécurisation du domaine public au Togo. Pourquoi le SIG est la clé d'une souveraineté financière locale.</p>
                 <a href="gestion-patrimoine-communal-sig-togo.html" class="card-link">Lire l'article</a>
                         </div>
 
             <div class="card">
-    <span style="color: #006a4e; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; margin-bottom: 12px;">Gouvernance & Droit</span>
+    <span class="category-badge">Gouvernance & Droit</span>
     <h3>La Maîtrise d’Ouvrage Communale au Togo</h3>
     <p style="color: #666; font-size: 0.95rem; margin-bottom: 20px;">Analyse critique sur le transfert de compétences et l'impératif de performance pour les nouveaux exécutifs locaux...</p>
     <a href="maitrise-ouvrage-communale.html" class="card-link">Lire l'analyse</a>
             </div>
           <div class="card">
-    <span style="color: #006a4e; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; margin-bottom: 12px;">Risques & SIG</span>
+    <span class="category-badge">Risques & SIG</span>
     <h3>Inondations à Lomé : Sortir de la fatalité</h3>
     <p style="color: #666; font-size: 0.95rem; margin-bottom: 20px;">Comment l'intelligence spatiale et le SIG peuvent remplacer le pompage d'urgence pour une résilience durable...</p>
     <a href="gestion-inondations-lome.html" class="card-link">Lire l'article</a>
           </div>
             <div class="card">
-    <span style="color: #006a4e; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; margin-bottom: 12px;">Environnement</span>
+    <span class="category-badge">Environnement</span>
     <h3>Vers la Ville Durable Togolaise</h3>
     <p style="color: #666; font-size: 0.95rem; margin-bottom: 20px;">Réconcilier croissance urbaine et équilibre écologique : les défis de la transition verte au Togo...</p>
     <a href="villes-durables-togo.html" class="card-link">Lire l'analyse</a>
             </div>
 
             <div class="card">
-    <span style="color: #006a4e; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; margin-bottom: 12px;">Gouvernance & Droit</span>
+    <span class="category-badge">Gouvernance & Droit</span>
     <h3>Le Budget Participatif au Togo</h3>
     <p style="color: #666; font-size: 0.95rem; margin-bottom: 20px;">Le Budget Participatif comme levier de refondation de l'action publique locale, adossé à la Loi n°2019-006...</p>
     <a href="budget-participatif-togo-kgm.html" class="card-link">Lire l'analyse</a>
@@ -234,5 +249,21 @@
         </div>
     </footer>
 
+    <script>
+    function filterAnalyses(category) {
+        const cards = document.querySelectorAll('.card');
+        const buttons = document.querySelectorAll('.filter-btn');
+        buttons.forEach(btn => btn.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+        cards.forEach(card => {
+            const badgeText = card.querySelector('.category-badge').innerText.toUpperCase();
+            if (category === 'all' || badgeText.includes(category)) {
+                card.style.display = "flex";
+            } else {
+                card.style.display = "none";
+            }
+        });
+    }
+    </script>
 </body>
 </html>
