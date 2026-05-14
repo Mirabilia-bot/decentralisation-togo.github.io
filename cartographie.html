@@ -10,63 +10,62 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
     
     <style>
-        :root { --kgm-blue: #00264d; --kgm-green: #28a745; --kgm-dark: #1a1a1a; }
-        * { box-sizing: border-box; }
+        :root { --kgm-blue: #00264d; --kgm-green: #28a745; --kgm-dark: #1a1a1a; --glass: rgba(255, 255, 255, 0.95); }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
-        body, html { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; font-family: 'Inter', sans-serif; background: var(--kgm-dark); }
-        #map { position: absolute; top: 0; bottom: 0; width: 100%; z-index: 1; background: var(--kgm-dark); }
+        body, html { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; font-family: 'Inter', system-ui, -apple-system, sans-serif; background: var(--kgm-dark); }
+        #map { position: absolute; top: 0; bottom: 0; width: 100%; z-index: 1; }
         
         header { 
             position: absolute; top: 0; left: 0; right: 0; z-index: 1000;
-            background: rgba(0,38,77,0.95); color: white; padding: 12px; text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3); border-bottom: 2px solid var(--kgm-green);
+            background: linear-gradient(to bottom, rgba(0,38,77,1), rgba(0,38,77,0.9)); color: white; padding: 15px; text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4); border-bottom: 3px solid var(--kgm-green);
         }
-        header h1 { margin: 0; font-size: 1.1em; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; }
-        header p { margin: 4px 0 0; font-size: 0.85em; font-style: italic; opacity: 0.9; }
+        header h1 { margin: 0; font-size: 1.2em; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 900; }
         
         .top-ui-layer {
-            position: absolute; top: 85px; left: 50%; transform: translateX(-50%);
-            z-index: 1000; width: 90%; max-width: 500px; display: flex; flex-direction: column; gap: 10px;
+            position: absolute; top: 90px; left: 50%; transform: translateX(-50%);
+            z-index: 1000; width: 92%; max-width: 550px; display: flex; flex-direction: column; gap: 12px;
         }
         #search-input { 
-            width: 100%; padding: 14px 25px; border: none; border-radius: 30px; 
-            box-shadow: 0 8px 25px rgba(0,0,0,0.4); outline: none; font-size: 16px;
-            background: rgba(255,255,255,0.95);
+            width: 100%; padding: 16px 28px; border: 2px solid transparent; border-radius: 50px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); outline: none; font-size: 16px;
+            background: var(--glass); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
+        #search-input:focus { border-color: var(--kgm-green); transform: scale(1.02); }
 
         .stats-overlay {
-            background: rgba(0,38,77,0.9); color: white; padding: 10px 15px;
-            border-radius: 25px; font-size: 0.75rem; border-left: 4px solid var(--kgm-green);
-            backdrop-filter: blur(5px); text-align: center; pointer-events: none;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            background: rgba(0,38,77,0.85); color: white; padding: 12px 20px;
+            border-radius: 50px; font-size: 0.8rem; border-left: 5px solid var(--kgm-green);
+            backdrop-filter: blur(8px); text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
 
         .ui-controls {
             position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
-            z-index: 1000; display: flex; gap: 10px; width: 95%; justify-content: center; flex-wrap: wrap;
+            z-index: 1000; display: flex; gap: 12px; width: 95%; justify-content: center;
         }
         .ui-btn {
-            background: white; color: var(--kgm-blue); border: none; padding: 10px 18px;
-            border-radius: 25px; font-weight: bold; font-size: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); cursor: pointer;
-            transition: 0.3s; display: flex; align-items: center; gap: 6px;
+            background: var(--glass); color: var(--kgm-blue); border: none; padding: 12px 22px;
+            border-radius: 50px; font-weight: 800; font-size: 13px; box-shadow: 0 6px 20px rgba(0,0,0,0.4); 
+            cursor: pointer; transition: 0.3s ease; display: flex; align-items: center; gap: 8px;
         }
+        .ui-btn:active { transform: translateY(2px); }
 
         .panel {
-            position: absolute; bottom: 95px; left: 50%; transform: translateX(-50%);
-            width: 92%; max-width: 400px; background: white; border-radius: 15px;
-            padding: 25px; display: none; z-index: 1001; border-top: 6px solid var(--kgm-green);
-            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%);
+            width: 92%; max-width: 450px; background: white; border-radius: 20px;
+            padding: 25px; display: none; z-index: 1001; border-top: 8px solid var(--kgm-green);
+            box-shadow: 0 15px 50px rgba(0,0,0,0.6);
         }
-        .panel.active { display: block; animation: slideUp 0.3s ease-out; }
-        @keyframes slideUp { from { bottom: 60px; opacity: 0; } to { bottom: 95px; opacity: 1; } }
+        .panel.active { display: block; animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes slideUp { from { transform: translate(-50%, 30px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
 
-        .pharmacy-icon { background: var(--kgm-green); color: white; border: 2px solid white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
-        .btn-retour { position: absolute; top: 12px; left: 15px; z-index: 1001; color: white; text-decoration: none; font-weight: bold; font-size: 1.4em; }
+        .pharmacy-icon { background: var(--kgm-green); color: white; border: 2.5px solid white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; box-shadow: 0 4px 10px rgba(0,0,0,0.4); }
+        .btn-retour { position: absolute; top: 15px; left: 20px; z-index: 1001; color: white; text-decoration: none; font-size: 1.6em; }
 
-        @media (max-width: 480px) {
-            header h1 { font-size: 0.9em; }
-            .top-ui-layer { top: 75px; }
-        }
+        .custom-popup .leaflet-popup-content-wrapper { border-radius: 12px; padding: 5px; }
+        .route-btn { display: block; margin-top: 15px; background: var(--kgm-green); color: white; text-align: center; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: bold; transition: 0.3s; }
+        .route-btn:hover { background: #1e7e34; }
     </style>
 </head>
 <body>
@@ -74,122 +73,167 @@
 <a href="index.html" class="btn-retour">←</a>
 <header>
     <h1>KGM EXPERTISE - SIG</h1>
-    <p>Cliquez sur une commune pour zoomer ou sur un symbole (+) pour les infos</p>
 </header>
 
 <div class="top-ui-layer">
-    <input type="text" id="search-input" placeholder="Rechercher une pharmacie ou commune...">
-    <div class="stats-overlay" id="stats-box">
-        Analyse en temps réel : <span id="count-visible">0</span> points détectés
+    <input type="text" id="search-input" placeholder="Rechercher pharmacie ou commune...">
+    <div class="stats-overlay">
+        📡 Diagnostic spatial : <span id="count-visible">0</span> points actifs dans le champ
     </div>
 </div>
 
 <div id="map"></div>
 
 <div id="panel-analyse" class="panel">
-    <h3 style="margin:0 0 15px 0; color:var(--kgm-blue)">Analyses Spatiales</h3>
-    <p style="font-size:14px; line-height: 1.6; color: #444;">
-        <b>Densité :</b> Forte concentration observée dans le Grand Lomé, indiquant une polarisation des services de santé.<br><br>
-        <b>Maillage :</b> Couverture optimisée le long de la RN1 et des axes structurants.<br><br>
-        <b>Fiabilité :</b> Taux de disponibilité territoriale de 85%, assurant une continuité de service public et privé.
-    </p>
+    <h3 style="margin:0 0 15px 0; color:var(--kgm-blue)">Expertise Territoriale</h3>
+    <div style="font-size:14px; color: #444; line-height: 1.6;">
+        <b>• Analyse de Densité :</b> Polarisation majeure sur Lomé Aflao/Golfe.<br>
+        <b>• Accessibilité :</b> Rayon théorique de 1km (15min marche) par officine.<br>
+        <b>• Note :</b> Le cercle en pointillés indique la zone de chalandise prioritaire.
+    </div>
 </div>
 
 <div class="ui-controls">
-    <button class="ui-btn" onclick="togglePanel('panel-analyse')">📊 Analyse</button>
-    <button class="ui-btn" onclick="map.locate({setView: true, maxZoom: 16})">🧭 Ma Position</button>
+    <button class="ui-btn" onclick="togglePanel('panel-analyse')">📊 ANALYSE</button>
+    <button class="ui-btn" onclick="map.locate({setView: true, maxZoom: 16})">🎯 MA POSITION</button>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
 
 <script>
-    var dark = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png');
-    var map = L.map('map', { zoomControl: false, layers: [dark] }).setView([8.6195, 1.1414], 7);
-    var userLatLng = null;
+    // Configuration Expert : Séparation des couches et gestion mémoire
+    const CONFIG = {
+        center: [8.6195, 1.1414],
+        zoom: 7,
+        bufferColor: '#28a745',
+        maxZoom: 18
+    };
 
-    function togglePanel(id) {
-        const target = document.getElementById(id);
-        target.classList.toggle('active');
-    }
+    const map = L.map('map', { zoomControl: false }).setView(CONFIG.center, CONFIG.zoom);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { attribution: '© KGM Expertise' }).addTo(map);
 
-    map.on('locationfound', function(e) {
-        userLatLng = e.latlng;
-        L.circleMarker(e.latlng, {radius: 10, fillColor: "#007bff", color: "#fff", weight: 3, fillOpacity: 0.8}).addTo(map);
-    });
+    let userLatLng = null;
+    let influenceCircle = null;
+    let pharmacyLayer, communeLayer;
 
-    var pharmacyLayer, communeLayer, influenceCircle;
-    var markers = L.markerClusterGroup({ 
+    const markers = L.markerClusterGroup({ 
         disableClusteringAtZoom: 16,
         spiderfyOnMaxZoom: true,
         showCoverageOnHover: false,
-        maxClusterRadius: 40 
+        maxClusterRadius: 45
     });
 
-    fetch('./communes.geojson').then(res => res.json()).then(data => {
-        communeLayer = L.geoJSON(data, {
-            style: { color: "#006a4e", weight: 1, fillOpacity: 0.05 },
-            onEachFeature: function (f, l) {
-                l.on('click', function() { map.fitBounds(l.getBounds()); });
-            }
-        }).addTo(map);
-        return fetch('./pharmacies.geojson');
-    })
-    .then(res => res.json())
-    .then(data => {
-        pharmacyLayer = L.geoJSON(data, {
-            pointToLayer: function (f, latlng) {
-                return L.marker(latlng, { icon: L.divIcon({ className: 'pharmacy-icon', html: '+', iconSize: [22, 22] }) });
-            },
-            onEachFeature: function (f, l) {
-                l.on('click', function(e) {
-                    if (influenceCircle) map.removeLayer(influenceCircle);
-                    influenceCircle = L.circle(e.latlng, { radius: 1000, color: '#28a745', fillOpacity: 0.1, weight: 1, dashArray: '5, 10' }).addTo(map);
-                    
-                    var p = f.properties;
-                    var dest = e.latlng.lat + "," + e.latlng.lng;
-                    var routeUrl = userLatLng ? 
-                        `https://www.google.com/maps/dir/?api=1&origin=${userLatLng.lat},${userLatLng.lng}&destination=${dest}` : 
-                        `https://www.google.com/maps/search/?api=1&query=${dest}`;
+    function togglePanel(id) {
+        document.getElementById(id).classList.toggle('active');
+    }
 
-                    var content = `
-                        <div style="min-width:200px; padding:5px;">
-                            <b style="color:var(--kgm-blue); font-size:16px;">${p.pharmacie_nom || "Pharmacie"}</b><br>
-                            <hr style="border:0; border-top:1px solid #eee; margin:8px 0;">
-                            <span style="font-size:12px;">🏥 <b>Type:</b> ${p.pharmacie_type}</span><br>
-                            <span style="font-size:12px;">📍 <b>Commune:</b> ${p.commune_nom_bdd}</span><br>
-                            <a href="${routeUrl}" target="_blank" style="display:block; margin-top:12px; background:var(--kgm-green); color:white; text-align:center; padding:10px; border-radius:5px; text-decoration:none; font-weight:bold;">🚀 Itinéraire (Maps)</a>
-                        </div>`;
-                    l.bindPopup(content).openPopup();
-                });
-                markers.addLayer(l);
-            }
-        });
-        map.addLayer(markers);
+    map.on('locationfound', (e) => {
+        userLatLng = e.latlng;
+        L.circleMarker(e.latlng, {radius: 9, fillColor: "#007bff", color: "#fff", weight: 3, fillOpacity: 1}).addTo(map);
+    });
 
-        map.on('moveend', function() {
-            var count = 0;
-            markers.eachLayer(l => { if (map.getBounds().contains(l.getLatLng())) count++; });
-            document.getElementById('count-visible').innerText = count;
-        });
+    // Moteur de chargement asynchrone parallélisé
+    async function initKGM() {
+        try {
+            const [resCommunes, resPharmacies] = await Promise.all([
+                fetch('./communes.geojson'),
+                fetch('./pharmacies.geojson')
+            ]);
 
-        document.getElementById('search-input').addEventListener('input', function(e) {
-            var val = e.target.value.toLowerCase().trim();
-            if(val.length < 3) return;
+            const dataCommunes = await resCommunes.json();
+            const dataPharmacies = await resPharmacies.json();
 
-            pharmacyLayer.eachLayer(l => {
-                if(l.feature.properties.pharmacie_nom?.toLowerCase().includes(val)) {
-                    map.setView(l.getLatLng(), 17);
-                    l.fire('click');
+            // Couche Administrative
+            communeLayer = L.geoJSON(dataCommunes, {
+                style: { color: "#006a4e", weight: 1.5, fillOpacity: 0.03 },
+                onEachFeature: (f, l) => {
+                    l.on('click', () => map.fitBounds(l.getBounds()));
+                }
+            }).addTo(map);
+
+            // Couche Pharmacies
+            pharmacyLayer = L.geoJSON(dataPharmacies, {
+                pointToLayer: (f, latlng) => L.marker(latlng, { 
+                    icon: L.divIcon({ className: 'pharmacy-icon', html: '+', iconSize: [24, 24] }) 
+                }),
+                onEachFeature: (f, l) => {
+                    l.on('click', (e) => handlePharmacyClick(e, f.properties, l));
+                    markers.addLayer(l);
                 }
             });
-            communeLayer.eachLayer(l => {
-                var cName = l.feature.properties.commune_nom_bdd || l.feature.properties.nom || "";
-                if(cName.toLowerCase().includes(val)) map.fitBounds(l.getBounds());
+
+            map.addLayer(markers);
+            updateStats();
+
+        } catch (err) {
+            console.error("Erreur critique SIG:", err);
+        }
+    }
+
+    function handlePharmacyClick(e, props, layer) {
+        // Nettoyage et création Zone Tampon (Buffer)
+        if (influenceCircle) map.removeLayer(influenceCircle);
+        influenceCircle = L.circle(e.latlng, { 
+            radius: 1000, color: CONFIG.bufferColor, fillOpacity: 0.08, weight: 2, dashArray: '8, 8' 
+        }).addTo(map);
+
+        const lat = e.latlng.lat, lng = e.latlng.lng;
+        const googleUrl = userLatLng ? 
+            `https://www.google.com/maps/dir/?api=1&origin=${userLatLng.lat},${userLatLng.lng}&destination=${lat},${lng}&travelmode=driving` :
+            `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+
+        const popupContent = `
+            <div class="custom-popup" style="min-width:220px">
+                <h3 style="margin:0 0 10px 0; color:var(--kgm-blue); border-bottom:2px solid var(--kgm-green); padding-bottom:5px;">
+                    ${props.pharmacie_nom || 'Officine'}
+                </h3>
+                <div style="font-size:13px; line-height:1.5">
+                    <b>🏥 Type :</b> ${props.pharmacie_type || 'N/A'}<br>
+                    <b>🏙️ Commune :</b> ${props.commune_nom_bdd || 'N/A'}<br>
+                    <b>🕒 Secteur :</b> ${props.pharmacie_secteur || 'Privé'}
+                </div>
+                <a href="${googleUrl}" target="_blank" class="route-btn">🚀 LANCER L'ITINÉRAIRE</a>
+            </div>`;
+        
+        layer.bindPopup(popupContent, { className: 'custom-popup', offset: [0, -10] }).openPopup();
+    }
+
+    function updateStats() {
+        const count = markers.getLayers().filter(l => map.getBounds().contains(l.getLatLng())).length;
+        document.getElementById('count-visible').innerText = count;
+    }
+
+    // Recherche haute performance avec Debouncing
+    let searchTimer;
+    document.getElementById('search-input').addEventListener('input', (e) => {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(() => {
+            const val = e.target.value.toLowerCase().trim();
+            if (val.length < 3) return;
+
+            let found = false;
+            pharmacyLayer.eachLayer(l => {
+                if (!found && l.feature.properties.pharmacie_nom?.toLowerCase().includes(val)) {
+                    map.setView(l.getLatLng(), 17);
+                    l.fire('click');
+                    found = true;
+                }
             });
-        });
+
+            if (!found) {
+                communeLayer.eachLayer(l => {
+                    const cName = l.feature.properties.commune_nom_bdd || l.feature.properties.nom || "";
+                    if (cName.toLowerCase().includes(val)) map.fitBounds(l.getBounds());
+                });
+            }
+        }, 400);
     });
-    window.addEventListener('resize', function() { map.invalidateSize(); });
+
+    map.on('moveend', updateStats);
+    window.addEventListener('resize', () => map.invalidateSize());
+
+    initKGM();
 </script>
 </body>
 </html>
