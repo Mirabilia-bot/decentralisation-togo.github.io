@@ -60,19 +60,24 @@
             max-width: 1200px; /* Aligne sur le reste du site */
             margin: 0 auto;    /* Garde le centrage parfait sur PC */
          }
-                .card { 
+                        .card { 
             background: white; 
             padding: 30px 20px; 
             border-radius: 12px; 
             border: 1px solid #eee; 
+            border-top: 4px solid var(--secondary); 
             transition: 0.4s;
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
             height: auto; 
             min-height: 220px; 
-                }
-        .card:hover { box-shadow: 0 15px 35px rgba(0,0,0,0.1); border-top: 4px solid var(--secondary); }
+        }
+        .card:hover { 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1); 
+            transform: translateY(-5px);
+        }
+
         .card h3 { color: var(--secondary); margin-bottom: 15px; }
 
         .res-item { 
