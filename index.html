@@ -220,35 +220,42 @@
     /* On force la grille à se comporter correctement */
     .analyses-grid {
     display: grid;
-    /* Crée des colonnes d'au moins 300px qui s'adaptent à la largeur de l'écran */
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 24px;
     width: 100%;
 }
 
-.card {
+.analyse-card {
     display: flex;
     flex-direction: column;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    padding: 25px;
+    transition: all 0.3s ease;
+    border: 1px solid #f0f0f0;
     height: 100%;
-    background: white;
 }
-    
-    /* On définit la taille des blocs pour le 2x2 */
-    .analyse-card {
-        /* On prend 50% de la largeur moins l'espace du gap */
-        flex: 1 1 calc(50% - 20px); 
-        
-        /* On empêche les blocs de devenir trop petits ou trop grands */
-        max-width: 500px;
-        min-width: 300px; 
-        
-        /* Pour l'esthétique professionnelle */
-        background: #ffffff;
-        border-radius: 12px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        padding: 15px;
-        transition: transform 0.3s ease;
-    }
+
+.analyse-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.1);
+    border-color: var(--secondary);
+}
+
+.analyse-card span {
+    display: inline-block;
+    background: #e8f5e9;
+    color: #2e7d32;
+    padding: 4px 12px;
+    border-radius: 50px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin-bottom: 15px;
+    width: fit-content;
+}
+
 
     /* Sur petit mobile (téléphone vertical), on passe à 1 seul bloc par ligne */
     @media (max-width: 650px) {
