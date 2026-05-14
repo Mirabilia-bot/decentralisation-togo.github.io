@@ -33,14 +33,20 @@
     
     #auth-bar { position: fixed; top: 15px; right: 15px; z-index: 2000; display: flex; align-items: center; gap: 10px; }
     
-    .auth-actions { display: flex; gap: 5px; align-items: center; }
+    /* STYLE CHIRURGICAL : BARRE DE MENU LATERALE */
+    #side-menu { position: fixed; top: 0; right: -250px; width: 250px; height: 100%; background: var(--kgm-blue); z-index: 4000; transition: 0.3s; padding-top: 60px; box-shadow: -5px 0 15px rgba(0,0,0,0.3); }
+    #side-menu.active { right: 0; }
+    .menu-item { padding: 15px 25px; color: white; display: flex; align-items: center; gap: 15px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: bold; }
+    .menu-item:hover { background: rgba(255,255,255,0.1); }
+    .menu-close { position: absolute; top: 15px; left: 15px; color: white; font-size: 20px; cursor: pointer; }
+    #overlay-menu { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3999; }
+    #overlay-menu.active { display: block; }
 
     @media (max-width: 600px) {
         header h1 { font-size: 0.9em; width: 60%; margin-left: -40px; }
         header p { font-size: 0.7em; width: 60%; margin-left: -40px; }
         .ui-btn { padding: 8px 10px; font-size: 10px; }
         #auth-bar { top: 10px; right: 10px; gap: 5px; flex-direction: column; align-items: flex-end; }
-        .auth-actions { flex-direction: row; }
     }
 
     .ticker { position: absolute; top: 75px; left: 0; right: 0; z-index: 1000; width: 100%; background: white; padding: 10px 0; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
@@ -83,10 +89,14 @@
 
 <div id="auth-bar">
     <button id="loginBtn" class="ui-btn" onclick="ouvrirAuth()">🔑 Accès</button>
-    <div class="auth-actions">
-        <button id="delAccBtn" class="ui-btn" onclick="supprimerCompte()" style="display:none; background:var(--kgm-red); color:white; border-radius:50%; width:35px; height:35px; padding:0; justify-content:center; align-items:center;" title="Supprimer mon compte"><i class="fas fa-user-times"></i></button>
-        <button id="logoutBtn" class="ui-btn" onclick="deconnexion()" style="display:none;">🚪 Quitter</button>
-    </div>
+    <button id="menuBtn" class="ui-btn" onclick="toggleSideMenu()" style="display:none; background:white; color:var(--kgm-blue);"><i class="fas fa-bars"></i> Menu</button>
+</div>
+
+<div id="overlay-menu" onclick="toggleSideMenu()"></div>
+<div id="side-menu">
+    <i class="fas fa-times menu-close" onclick="toggleSideMenu()"></i>
+    <div class="menu-item" onclick="deconnexion()"><i class="fas fa-sign-out-alt"></i> Quitter</div>
+    <div class="menu-item" onclick="supprimerCompte()" style="color:#ff4d4d;"><i class="fas fa-user-slash"></i> Supprimer le compte</div>
 </div>
 
 <header>
@@ -214,8 +224,7 @@
     auth.onAuthStateChanged((user) => {
         currentUser = user;
         document.getElementById('loginBtn').style.display = user ? 'none' : 'inline';
-        document.getElementById('logoutBtn').style.display = user ? 'inline' : 'none';
-        document.getElementById('delAccBtn').style.display = user ? 'flex' : 'none';
+        document.getElementById('menuBtn').style.display = user ? 'inline' : 'none';
         document.getElementById('addBtnFloating').style.display = user ? 'block' : 'none';
         refresh();
     });
@@ -249,7 +258,6 @@
         }
     }
 
-    /* CORRECTIF CHIRURGICAL : FONCTION MOT DE PASSE OUBLIÉ */
     function recupererPass() {
         const email = prompt("Entrez votre email pour recevoir le lien de réinitialisation :");
         if(email) {
@@ -259,7 +267,18 @@
         }
     }
 
-    function deconnexion() { if(confirm("Se déconnecter ?")) { auth.signOut(); } }
+    /* FONCTION CHIRURGICALE : GESTION DU MENU LATERAL */
+    function toggleSideMenu() {
+        document.getElementById('side-menu').classList.toggle('active');
+        document.getElementById('overlay-menu').classList.toggle('active');
+    }
+
+    function deconnexion() { 
+        if(confirm("Se déconnecter ?")) { 
+            auth.signOut(); 
+            toggleSideMenu();
+        } 
+    }
 
     function supprimerCompte() {
         const user = auth.currentUser;
