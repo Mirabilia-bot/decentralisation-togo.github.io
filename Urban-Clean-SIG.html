@@ -33,7 +33,6 @@
     
     #auth-bar { position: fixed; top: 15px; right: 15px; z-index: 2000; display: flex; align-items: center; gap: 10px; }
     
-    /* STYLE CHIRURGICAL : BARRE DE MENU LATERALE */
     #side-menu { position: fixed; top: 0; right: -250px; width: 250px; height: 100%; background: var(--kgm-blue); z-index: 4000; transition: 0.3s; padding-top: 60px; box-shadow: -5px 0 15px rgba(0,0,0,0.3); }
     #side-menu.active { right: 0; }
     .menu-item { padding: 15px 25px; color: white; display: flex; align-items: center; gap: 15px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: bold; }
@@ -199,8 +198,9 @@
     const auth = firebase.auth();
     const IMGBB_API_KEY = "875aae76099064e2af713abc4a051601";
 
-    var map = L.map('map', { zoomControl: false, attributionControl: false }).setView([6.1319, 1.2228], 13);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    /* CORRECTIF CHIRURGICAL : OPTIMISATION DU ZOOM */
+    var map = L.map('map', { zoomControl: false, attributionControl: false, maxZoom: 22 }).setView([6.1319, 1.2228], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 22, maxNativeZoom: 19 }).addTo(map);
 
     var currentUser = null;
     var userPos = null;
@@ -267,7 +267,6 @@
         }
     }
 
-    /* FONCTION CHIRURGICALE : GESTION DU MENU LATERAL */
     function toggleSideMenu() {
         document.getElementById('side-menu').classList.toggle('active');
         document.getElementById('overlay-menu').classList.toggle('active');
@@ -349,11 +348,12 @@
         }
     }
 
+    /* CORRECTIF CHIRURGICAL : NIVEAU DE ZOOM LORS DE LA LOCALISATION */
     map.on('locationfound', e => {
         userPos = e.latlng;
         if (userCircle) map.removeLayer(userCircle);
         userCircle = L.circle(e.latlng, { radius: 10, color: '#007bff', fillColor: '#007bff', fillOpacity: 0.5 }).addTo(map);
-        map.flyTo(e.latlng, 16);
+        map.flyTo(e.latlng, 18);
     });
 
    function ouvrirModal() { 
