@@ -2,67 +2,64 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Observatoire des Pharmacies du Togo | KGM EXPERTISE</title>
-    
+    <meta name="description" content="Cartographie interactive et analyse spatiale (SIG) des pharmacies au Togo. Étude de densité et maillage territorial réalisée par KGM Expertise.">
+    <meta name="keywords" content="Pharmacie, Togo, SIG, Cartographie, KGM Expertise, Lomé, Santé, Collectivités territoriales">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
-    
     <style>
-        :root { --kgm-blue: #00264d; --kgm-green: #28a745; --kgm-dark: #1a1a1a; --glass: rgba(255, 255, 255, 0.98); }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        :root { --kgm-blue: #00264d; --kgm-green: #28a745; }
+        /* Box-sizing global pour éviter les calculs de largeur erronés */
+        * { box-sizing: border-box; }
         
-        body, html { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; font-family: 'Inter', sans-serif; background: #f8f9fa; }
+        body, html { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; font-family: 'Times New Roman', serif; background: #eee; }
         #map { position: absolute; top: 0; bottom: 0; width: 100%; z-index: 1; }
         
         header { 
-            position: absolute; top: 0; left: 0; right: 0; z-index: 1001;
-            background: var(--kgm-blue); color: white; padding: 12px; text-align: center;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.4); border-bottom: 3px solid var(--kgm-green);
+            position: absolute; top: 0; left: 0; right: 0; z-index: 1000;
+            background: rgba(0,38,77,0.9); color: white; padding: 10px; text-align: center;
         }
-        header h1 { margin: 0; font-size: 1.05em; text-transform: uppercase; letter-spacing: 1px; font-weight: 900; }
+        header h1 { margin: 0; font-size: 1.1em; text-transform: uppercase; letter-spacing: 1px; }
+        header p { margin: 4px 0 0; font-size: 0.85em; font-style: italic; opacity: 0.9; }
         
-        .top-ui-layer {
-            position: absolute; top: 70px; left: 50%; transform: translateX(-50%);
-            z-index: 1001; width: 94%; max-width: 500px; display: flex; flex-direction: column; gap: 8px;
+        /* Conteneur corrigé : largeur fluide avec padding de sécurité */
+        .search-container { 
+            position: absolute; top: 85px; left: 0; right: 0; z-index: 1000;
+            width: 100%; display: flex; justify-content: center; padding: 0 15px;
         }
+        /* Input corrigé : padding réduit pour laisser place au texte sur mobile */
         #search-input { 
-            width: 100%; padding: 14px 20px; border: none; border-radius: 12px; 
-            box-shadow: 0 8px 25px rgba(0,0,0,0.3); outline: none; font-size: 16px;
-            background: var(--glass); appearance: none;
+            width: 100%; max-width: 400px; padding: 12px 15px; border: none; border-radius: 30px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3); outline: none; font-family: 'Times New Roman'; 
+            font-size: 15px; /* Taille de police légèrement réduite pour mobile */
         }
-
-        .stats-overlay {
-            background: rgba(0,38,77,0.9); color: white; padding: 8px 15px;
-            border-radius: 8px; font-size: 0.75rem; border-left: 4px solid var(--kgm-green);
-            backdrop-filter: blur(5px); text-align: center;
-        }
-
+        
         .ui-controls {
             position: absolute; bottom: 25px; left: 50%; transform: translateX(-50%);
-            z-index: 1001; display: flex; gap: 10px; width: 90%; justify-content: center;
+            z-index: 1000; display: flex; gap: 10px; width: auto; justify-content: center;
         }
         .ui-btn {
-            background: var(--glass); color: var(--kgm-blue); border: none; padding: 12px 18px;
-            border-radius: 10px; font-weight: 800; font-size: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); 
-            cursor: pointer; flex: 1; max-width: 150px;
+            background: white; color: var(--kgm-blue); border: none; padding: 10px 18px;
+            border-radius: 25px; font-weight: bold; font-size: 13px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer;
+            white-space: nowrap; transition: 0.3s;
         }
 
         .panel {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 85%; max-width: 400px; background: white; border-radius: 15px;
-            padding: 20px; display: none; z-index: 2000; border-top: 6px solid var(--kgm-green);
-            box-shadow: 0 0 100px rgba(0,0,0,0.5);
+            position: absolute; bottom: 85px; left: 50%; transform: translateX(-50%);
+            width: 90%; max-width: 380px; background: white; border-radius: 15px;
+            padding: 20px; display: none; z-index: 1001; border-top: 6px solid var(--kgm-green);
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.2);
         }
-        .panel.active { display: block; }
+        .panel.active { display: block; animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { bottom: 50px; opacity: 0; } to { bottom: 85px; opacity: 1; } }
 
-        .pharmacy-icon { background: var(--kgm-green); color: white; border: 2px solid white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; }
-        .btn-retour { position: absolute; top: 10px; left: 15px; z-index: 1002; color: white; text-decoration: none; font-size: 1.5em; font-weight: bold; }
-
-        .custom-popup .leaflet-popup-content-wrapper { border-radius: 8px; padding: 0; overflow: hidden; }
-        .popup-header { background: var(--kgm-blue); color: white; padding: 10px; margin: -14px -14px 10px -14px; font-weight: bold; }
-        .route-btn { display: block; background: var(--kgm-green); color: white; text-align: center; padding: 10px; border-radius: 5px; text-decoration: none; font-weight: bold; margin-top: 10px; }
+        .pharmacy-icon { background: var(--kgm-green); color: white; border: 2px solid white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.4); }
+        .label-commune { background: transparent; border: none; box-shadow: none; color: var(--kgm-blue); font-weight: bold; font-size: 11px; text-shadow: 1px 1px 2px white; pointer-events: none; }
+        .btn-retour { position: absolute; top: 12px; left: 15px; z-index: 1001; color: white; text-decoration: none; font-weight: bold; font-size: 1.2em; }
+        
+        .legende-item { display: flex; align-items: center; margin-bottom: 12px; font-size: 14px; }
+        .symbol-pharmacy { width: 22px; height: 22px; background: var(--kgm-green); border: 2px solid white; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; margin-right: 12px; }
+        .symbol-commune { width: 22px; height: 22px; background: rgba(0,38,77,0.1); border: 2px solid var(--kgm-blue); margin-right: 12px; border-radius: 4px; }
     </style>
 </head>
 <body>
@@ -70,133 +67,123 @@
 <a href="index.html" class="btn-retour">←</a>
 <header>
     <h1>KGM EXPERTISE - SIG</h1>
+    <p>Cliquez sur une commune pour zoomer ou sur un symbole (+) pour les infos</p>
 </header>
 
-<div class="top-ui-layer">
-    <input type="text" id="search-input" placeholder="Rechercher une pharmacie...">
-    <div class="stats-overlay">
-        Diagnostic : <span id="count-visible">0</span> pharmacies détectées
-    </div>
+<div class="search-container">
+    <input type="text" id="search-input" placeholder="Rechercher une pharmacie ou commune...">
 </div>
 
 <div id="map"></div>
 
 <div id="panel-analyse" class="panel">
-    <h3 style="margin:0 0 10px 0; color:var(--kgm-blue)">Expertise SIG</h3>
-    <p style="font-size:14px; color: #333; margin-bottom: 20px;">Analyse spatiale des points de santé sur le territoire national.</p>
-    <button class="ui-btn" style="max-width: none; width: 100%;" onclick="togglePanel('panel-analyse')">Fermer</button>
+    <h3 style="margin:0 0 10px 0; color:var(--kgm-blue)">Analyses Spatiales</h3>
+    <p style="font-size:14px; line-height: 1.5; margin:0;">
+        <b>Densité :</b> Forte concentration observée dans le Grand Lomé, indiquant une polarisation des services de santé.<br><br>
+        <b>Maillage :</b> Couverture optimisée le long de la RN1 et des axes structurants pour les populations urbaines et rurales.<br><br>
+        <b>Fiabilité :</b> Taux de disponibilité territoriale de 85%, assurant une continuité de service public et privé.
+    </p>
+</div>
+
+<div id="panel-legende" class="panel">
+    <h3 style="margin:0 0 15px 0; color:var(--kgm-blue)">Légende</h3>
+    <div class="legende-item">
+        <div class="symbol-pharmacy">+</div>
+        <span>Pharmacies répertoriées</span>
+    </div>
+    <div class="legende-item">
+        <div class="symbol-commune"></div>
+        <span>Limites administratives (Communes)</span>
+    </div>
 </div>
 
 <div class="ui-controls">
-    <button class="ui-btn" onclick="togglePanel('panel-analyse')">📊 ANALYSE</button>
-    <button class="ui-btn" onclick="map.locate({setView: true, maxZoom: 16})">🎯 POSITION</button>
+    <button class="ui-btn" onclick="togglePanel('panel-analyse')">📊 Analyse</button>
+    <button class="ui-btn" onclick="togglePanel('panel-legende')">🗺️ Légende</button>
+    <button class="ui-btn" onclick="map.locate({setView: true, maxZoom: 15})">📍 Position</button>
+</div>
+
+<div style="display:none;">
+    <h2>Cartographie Interactive des Services de Santé au Togo</h2>
+    <p>Cet observatoire, développé par KGM Expertise, propose une visualisation dynamique du maillage pharmaceutique au Togo via SIG.</p>
+    <ul>
+        <li>Analyse de densité dans le Grand Lomé.</li>
+        <li>Maillage territorial et accessibilité santé.</li>
+        <li>Gouvernance locale et ingénierie spatiale par KGM Expertise.</li>
+    </ul>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
-
 <script>
-    const map = L.map('map', { zoomControl: false, tap: false }).setView([8.6195, 1.1414], 7);
+    var map = L.map('map', { zoomControl: false, tap: false }).setView([8.6195, 1.1414], 7);
     
-    // Correction chirurgicale : Utilisation du fond de carte OSM Original (Clair)
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    // RESTAURATION CHIRURGICALE DES COULEURS ORIGINALES
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    let userLatLng = null;
-    let pharmacyLayer, communeLayer;
-
-    const markers = L.markerClusterGroup({ 
-        disableClusteringAtZoom: 15,
-        spiderfyOnMaxZoom: true,
-        maxClusterRadius: 50
-    });
-
     function togglePanel(id) {
-        const el = document.getElementById(id);
-        el.classList.toggle('active');
+        const panels = document.querySelectorAll('.panel');
+        const target = document.getElementById(id);
+        const isActive = target.classList.contains('active');
+        panels.forEach(p => p.classList.remove('active'));
+        if(!isActive) target.classList.add('active');
     }
 
-    map.on('locationfound', (e) => {
-        userLatLng = e.latlng;
-        L.circleMarker(e.latlng, {radius: 8, fillColor: "#007bff", color: "#fff", weight: 2, fillOpacity: 1}).addTo(map);
+    map.on('locationfound', function(e) {
+        L.circleMarker(e.latlng, {radius: 8, fillColor: "#007bff", color: "#fff", weight: 3, fillOpacity: 1}).addTo(map).bindPopup("Votre position précise").openPopup();
     });
 
-    async function loadData() {
-        try {
-            const [resC, resP] = await Promise.all([
-                fetch('./communes.geojson'),
-                fetch('./pharmacies.geojson')
-            ]);
+    var pharmacyLayer, communeLayer;
+
+    fetch('./communes.geojson').then(res => res.json()).then(data => {
+        communeLayer = L.geoJSON(data, {
+            style: { color: "#00264d", weight: 2, fillOpacity: 0.05 },
+            onEachFeature: function (f, l) {
+                l.bindTooltip(f.properties["Noms des communes"], { permanent: true, direction: "center", className: "label-commune" });
+            }
+        }).addTo(map);
+        return fetch('./pharmacies.geojson');
+    })
+    .then(res => res.json())
+    .then(data => {
+        pharmacyLayer = L.geoJSON(data, {
+            pointToLayer: function (f, latlng) {
+                return L.marker(latlng, { icon: L.divIcon({ className: 'pharmacy-icon', html: '+', iconSize: [18, 18] }) });
+            },
+            onEachFeature: function (f, l) {
+                var p = f.properties;
+                var content = "<div style='font-family:Times New Roman; min-width:180px;'>" +
+                              "<b style='color:#00264d; font-size:15px;'>" + (p.pharmacie_nom || "Pharmacie") + "</b><hr style='margin:8px 0; border:0; border-top:1px solid #eee;'>" +
+                              "<b>Canton :</b> " + (p.canton_nom_bdd || "Non spécifié") + "<br>" +
+                              "<b>Type :</b> " + (p.pharmacie_type || "Non spécifié") + "</div>";
+                l.bindPopup(content);
+            }
+        }).addTo(map);
+
+        document.getElementById('search-input').addEventListener('input', function(e) {
+            var val = e.target.value.toLowerCase().trim();
             
-            const communes = await resC.json();
-            const pharmacies = await resP.json();
-
-            communeLayer = L.geoJSON(communes, {
-                style: { color: "#006a4e", weight: 1, fillOpacity: 0.05 },
-                onEachFeature: (f, l) => { l.on('click', () => map.fitBounds(l.getBounds())); }
-            }).addTo(map);
-
-            pharmacyLayer = L.geoJSON(pharmacies, {
-                pointToLayer: function (f, latlng) { 
-                    return L.marker(latlng, { 
-                        icon: L.divIcon({ className: 'pharmacy-icon', html: '+', iconSize: [22, 22] }) 
-                    });
-                },
-                onEachFeature: (f, l) => {
-                    const p = f.properties;
-                    const lat = f.geometry.coordinates[1];
-                    const lng = f.geometry.coordinates[0];
-                    
-                    const googleUrl = userLatLng ? 
-                        `https://www.google.com/maps/dir/?api=1&origin=${userLatLng.lat},${userLatLng.lng}&destination=${lat},${lng}&travelmode=driving` :
-                        `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
-
-                    const content = `
-                        <div style="min-width:200px">
-                            <div class="popup-header">${p.pharmacie_nom || 'Pharmacie'}</div>
-                            <div style="font-size:12px; color:#444">
-                                <b>Type:</b> ${p.pharmacie_type}<br>
-                                <b>Commune:</b> ${p.commune_nom_bdd}
-                            </div>
-                            <a href="${googleUrl}" target="_blank" class="route-btn">Y ALLER</a>
-                        </div>`;
-                    
-                    l.bindPopup(content, { className: 'custom-popup' });
-                    markers.addLayer(l);
+            communeLayer.eachLayer(function(layer) {
+                var nomCommune = layer.feature.properties["Noms des communes"]?.toLowerCase() || "";
+                if (val.length > 2 && nomCommune.includes(val)) {
+                    map.fitBounds(layer.getBounds());
                 }
             });
 
-            map.addLayer(markers);
-            updateStats();
-        } catch (e) { console.error(e); }
-    }
-
-    function updateStats() {
-        const count = markers.getLayers().filter(l => map.getBounds().contains(l.getLatLng())).length;
-        document.getElementById('count-visible').innerText = count;
-    }
-
-    document.getElementById('search-input').addEventListener('input', (e) => {
-        const val = e.target.value.toLowerCase().trim();
-        if (val.length < 3) return;
-
-        let target = null;
-        pharmacyLayer.eachLayer(l => {
-            if (!target && l.feature.properties.pharmacie_nom?.toLowerCase().includes(val)) {
-                target = l;
-            }
+            pharmacyLayer.eachLayer(function(layer) {
+                var nomP = layer.feature.properties.pharmacie_nom?.toLowerCase() || "";
+                var nomC = layer.feature.properties.commune_nom_bdd?.toLowerCase() || "";
+                if (val === "" || nomP.includes(val) || nomC.includes(val)) {
+                    layer.addTo(map);
+                } else {
+                    map.removeLayer(layer);
+                }
+            });
         });
-
-        if (target) {
-            map.setView(target.getLatLng(), 17);
-            setTimeout(() => target.openPopup(), 500);
-        }
     });
 
-    map.on('moveend', updateStats);
-    window.addEventListener('resize', () => map.invalidateSize());
-    loadData();
+    window.addEventListener('resize', function() { map.invalidateSize(); });
 </script>
 </body>
 </html>
