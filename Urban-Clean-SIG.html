@@ -352,11 +352,13 @@
         userPos = e.latlng;
         userAccuracy = e.accuracy;
         if (userCircle) map.removeLayer(userCircle);
-        userCircle = L.circle(e.latlng, { radius: e.accuracy, color: e.accuracy < 30 ? '#1b5e20' : '#fc3d21', fillColor: e.accuracy < 30 ? '#1b5e20' : '#fc3d21', fillOpacity: 0.2 }).addTo(map);
-        userCircle.bindPopup(`<b>Position actuelle</b><br>Précision : ±${Math.round(e.accuracy)}m`, { closeButton: true });
+        userCircle = L.circle(e.latlng, { radius: e.accuracy, color: e.accuracy < 20 ? '#1b5e20' : '#fc3d21', fillColor: e.accuracy < 20 ? '#1b5e20' : '#fc3d21', fillOpacity: 0.2 }).addTo(map);
+        userCircle.bindPopup(`<b>Position actuelle</b><br>Précision : ±${Math.round(e.accuracy)}m`, { closeButton: true }).openPopup();
+        if(e.accuracy < 25) map.flyTo(e.latlng, 18);
     });
 
    function ouvrirModal() { 
+        map.locate({enableHighAccuracy: true, maximumAge: 0, timeout: 10000});
         document.getElementById('editId').value = "";
         document.getElementById('modalForm').style.display='flex';
         document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
@@ -413,4 +415,3 @@
 </script>
 </body>
 </html>
-            
