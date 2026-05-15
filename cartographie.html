@@ -13,7 +13,7 @@
         :root { --kgm-blue: #00264d; --kgm-green: #28a745; --kgm-dark: #1a1a1a; --glass: rgba(255, 255, 255, 0.98); }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
-        body, html { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; font-family: 'Inter', system-ui, sans-serif; background: var(--kgm-dark); }
+        body, html { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; font-family: 'Inter', sans-serif; background: var(--kgm-dark); }
         #map { position: absolute; top: 0; bottom: 0; width: 100%; z-index: 1; }
         
         header { 
@@ -98,7 +98,9 @@
 
 <script>
     const map = L.map('map', { zoomControl: false, tap: false }).setView([8.6195, 1.1414], 7);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
 
     let userLatLng = null;
     let pharmacyLayer, communeLayer;
@@ -135,9 +137,11 @@
             }).addTo(map);
 
             pharmacyLayer = L.geoJSON(pharmacies, {
-                pointToLayer: (f, latlng) => L.marker(latlng, { 
-                    icon: L.divIcon({ className: 'pharmacy-icon', html: '+', iconSize: [22, 22] }) 
-                }),
+                pointToLayer: function (f, latlng) { 
+                    return L.marker(latlng, { 
+                        icon: L.divIcon({ className: 'pharmacy-icon', html: '+', iconSize: [22, 22] }) 
+                    });
+                },
                 onEachFeature: (f, l) => {
                     const p = f.properties;
                     const lat = f.geometry.coordinates[1];
