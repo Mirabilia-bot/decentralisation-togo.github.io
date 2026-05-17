@@ -220,11 +220,24 @@
         }).addTo(map);
     });
 
-    auth.onAuthStateChanged((user) => {
-        currentUser = user;
-        document.getElementById('loginBtn').style.display = user ? 'none' : 'inline';
-        document.getElementById('menuBtn').style.display = user ? 'inline' : 'none';
-        document.getElementById('addBtnFloating').style.display = user ? 'block' : 'none';
+        auth.onAuthStateChanged((user) => {
+        // Le compte n'est considéré comme actif que si l'e-mail est vérifié
+        if (user && user.emailVerified) {
+            currentUser = user;
+            document.getElementById('loginBtn').style.display = 'none';
+            document.getElementById('menuBtn').style.display = 'inline';
+            document.getElementById('addBtnFloating').style.display = 'block';
+        } else {
+            // Si l'utilisateur est connecté mais n'a pas validé son mail
+            if (user && !user.emailVerified) {
+                showFlash("⚠️ Compte inactif : Veuillez valider le lien envoyé par e-mail.");
+                auth.signOut(); // Déconnexion automatique pour forcer la validation
+            }
+            currentUser = null;
+            document.getElementById('loginBtn').style.display = 'inline';
+            document.getElementById('menuBtn').style.display = 'none';
+            document.getElementById('addBtnFloating').style.display = 'none';
+        }
         refresh();
     });
 
