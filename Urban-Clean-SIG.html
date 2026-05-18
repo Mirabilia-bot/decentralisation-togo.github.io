@@ -52,8 +52,9 @@
         #auth-bar { top: 10px; right: 10px; gap: 8px; flex-direction: column; align-items: flex-end; }
     }
 
+    /* CONTENEUR ET ANIMATION DU TICKER OPTIMISÉS POUR FLUIDITÉ ET AFFICHAGE COMPLET */
     .ticker { position: absolute; top: 75px; left: 0; right: 0; z-index: 1000; width: 100%; background: white; padding: 10px 0; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.3); backface-visibility: hidden; }
-    .ticker-text { white-space: nowrap; display: inline-block; padding-left: 100%; animation: ticker 30s linear infinite; font-weight: bold; color: var(--kgm-blue); will-change: transform; transform: translate3d(0, 0, 0); backface-visibility: hidden; }
+    .ticker-text { white-space: nowrap; display: inline-block; padding-left: 100%; animation: ticker 25s linear infinite; font-family: 'Times New Roman', Times, serif !important; font-size: 16px; font-weight: bold; color: var(--kgm-blue); will-change: transform; transform: translate3d(0, 0, 0); backface-visibility: hidden; }
     @keyframes ticker { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-100%, 0, 0); } }
     
     .ui-controls { position: absolute; bottom: 25px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; gap: 8px; width: auto; }
@@ -109,7 +110,6 @@
         .ui-controls { bottom: 25px; left: 50%; transform: translateX(-50%); }
         @keyframes slideUp { from { bottom: 0px; opacity: 0; } to { bottom: 25px; opacity: 1; } }
     }
-            /* ... Vos styles existants actuels ... */
 
         /* --- BLOC CHIRURGICAL POUR LE NAVIGATEUR FACEBOOK --- */
         #map {
@@ -140,10 +140,6 @@
             });
         }
     </script>
-
-    ```
-
-En enregistrant ces deux modifications, la carte forcera le navigateur de Facebook à lui laisser le contrôle tactile, et si l'application mobile fait encore de la résistance, vos utilisateurs de Lomé sauront immédiatement comment basculer sur Chrome ou Safari pour retrouver une navigation 100 % fluide.
     
 <div id="flash-msg"></div>
 <button id="homeBtn" onclick="window.location.href='https://mirabilia-bot.github.io/index.html'" title="Retour à l'accueil"><i class="fas fa-arrow-left"></i></button>
@@ -177,10 +173,6 @@ En enregistrant ces deux modifications, la carte forcera le navigateur de Facebo
 </div>
 
 <header>
-   <a href="index.html" class="btn-retour-accueil" style="position: absolute; left: 15px; top: 20px; width: 40px; height: 40px; background-color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); color: #003366; text-decoration: none; font-size: 18px; font-weight: bold; z-index: 10;">
-  <i class="fas fa-arrow-left"></i>
-</a>
-
     <h1>URBAN-CLEAN | KGM EXPERTISE</h1>
     <p>Signaler et analyser la salubrité urbaine en temps réel</p>
 </header>
@@ -241,6 +233,19 @@ En enregistrant ces deux modifications, la carte forcera le navigateur de Facebo
         
         <label style="font-weight:bold; font-size:14px;">Description</label>
         <textarea id="descInput" placeholder="Détails du problème..." style="width:100%; padding:10px; margin:5px 0 10px 0; font-family: 'Montserrat', sans-serif; height:60px;"></textarea>
+
+        <div style="display:flex; gap:10px;">
+          <div style="flex:1;"><label style="font-weight:bold; font-size:12px;">Date</label><input type="date" id="dateInput" style="width:100%; padding:8px;"></div>
+          <div style="flex:1;"><label style="font-weight:bold; font-size:12px;">Heure</label><input type="time" id="heureInput" style="width:100%; padding:8px;"></div>
+        </div>
+
+        <label style="font-weight:bold; font-size:14px; margin-top:10px; display:block;"><i class="fas fa-camera"></i> Prendre une photo</label>
+<div style="display:flex; gap:5px; align-items:center; margin:5px 0 10px 0;">
+    <input type="file" id="photoInput" accept="image/*" capture="environment" style="flex:1;">
+    <button type="button" onclick="effacerPhotoSelectionnee()" style="background:var(--kgm-red); color:white; border:none; border-radius:5px; padding:5px 10px; cursor:pointer;" title="Supprimer la photo choisie">
+        <i class="fas fa-times"></i>
+    </button>
+</div>
 
         <div style="display:flex; gap:10px;">
           <div style="flex:1;"><label style="font-weight:bold; font-size:12px;">Date</label><input type="date" id="dateInput" style="width:100%; padding:8px;"></div>
