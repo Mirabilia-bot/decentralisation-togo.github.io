@@ -15,12 +15,10 @@
 <meta name="twitter:card" content="summary_large_image">
   
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
-
-<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
-<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
-<script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
-
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -113,6 +111,7 @@
         .ui-controls { bottom: 25px; left: 50%; transform: translateX(-50%); }
         @keyframes slideUp { from { bottom: 0px; opacity: 0; } to { bottom: 25px; opacity: 1; } }
     }
+            /* ... Vos styles existants actuels ... */
 
         /* --- BLOC CHIRURGICAL POUR LE NAVIGATEUR FACEBOOK --- */
         #map {
@@ -127,22 +126,6 @@
             -moz-user-select: none;
             -ms-user-select: none;
             user-select: none;
-        }
-
-        /* --- OPTIMISATION DU VISUEL DE REGROUPEMENT POUR LE CLUSTERING --- */
-        .leaflet-marker-cluster {
-            background-clip: padding-box;
-            border-radius: 20px;
-        }
-        .leaflet-marker-cluster div {
-            width: 30px;
-            height: 30px;
-            margin-left: 5px;
-            margin-top: 5px;
-            text-align: center;
-            border-radius: 15px;
-            font: 12px/30px 'Montserrat', sans-serif;
-            font-weight: bold;
         }
   
   </style>
@@ -159,9 +142,13 @@
             });
         }
     </script>
+
+    ```
+
+En enregistrant ces deux modifications, la carte forcera le navigateur de Facebook à lui laisser le contrôle tactile, et si l'application mobile fait encore de la résistance, vos utilisateurs de Lomé sauront immédiatement comment basculer sur Chrome ou Safari pour retrouver une navigation 100 % fluide.
     
 <div id="flash-msg"></div>
-<button id="homeBtn" onclick="window.location.href='https://mirabilia-bot.github.io/index.html'" title="Retour à l'accueil"><i class="fas fa-arrow-left"></i></button>
+<button id="homeBtn" onclick="window.location.href='[https://mirabilia-bot.github.io/index.html](https://mirabilia-bot.github.io/index.html)'" title="Retour à l'accueil"><i class="fas fa-arrow-left"></i></button>
   
 <div id="loadingOverlay">
     <i class="fas fa-spinner fa-spin fa-3x" style="color:var(--kgm-blue)"></i>
@@ -294,8 +281,9 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="[https://cdn.jsdelivr.net/npm/chart.js](https://cdn.jsdelivr.net/npm/chart.js)"></script>
+<script src="[https://unpkg.com/leaflet@1.9.4/dist/leaflet.js](https://unpkg.com/leaflet@1.9.4/dist/leaflet.js)"></script>
+<script src="[https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js](https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js)"></script>
 <script>
     const firebaseConfig = {
       apiKey: "AIzaSyAsA9pypTsCogmSq_OdDXr5KPAgVi4ncm4",
@@ -312,7 +300,7 @@
     const auth = firebase.auth();
     const IMGBB_API_KEY = "875aae76099064e2af713abc4a051601";
 
-        var map = L.map('map', { zoomControl: false, attributionControl: false, maxZoom: 22 }).setView([6.1319, 1.2228], 13);
+    var map = L.map('map', { zoomControl: false, attributionControl: false, maxZoom: 22 }).setView([6.1319, 1.2228], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 22, maxNativeZoom: 19 }).addTo(map);
 
     var currentUser = null;
@@ -320,25 +308,20 @@
     var userCircle = null;
     var data = [];
     var currentFilterStatus = "tous"; // Variable de suivi globale pour les filtres
-    
-    // REMPLACEMENT EFFECTUÉ ICI
     var markers = L.markerClusterGroup({
         spiderfyOnMaxZoom: true,
         showCoverageOnHover: false,
         zoomToBoundsOnClick: true
     });
     map.addLayer(markers);
-    
     var chart1, chart2;
-
 
     // DEFINITION ULTRA-FIABLE ET SECURISEE DES ROLES GESTIONNAIRES (MAIRIE / ADMIN KGM EXPERTISE)
     const ADMIN_EMAILS = ["mirabiliagnimdou@gmail.com", "kgmexpertise@gmail.com"];
 
-    // CHARGEMENT FIABLE ET ADAPTÉ DE LA COUCHE DES COMMUNES DE LOMÉ
-    fetch('communes.geojson')
+    fetch('./communes.geojson')
         .then(res => {
-            if (!res.ok) throw new Error("Erreur de chargement de communes.geojson");
+            if (!res.ok) throw new Error("Erreur");
             return res.json();
         })
         .then(geojson => {
@@ -352,23 +335,7 @@
                 }
             }).addTo(map);
         })
-        .catch(err => {
-            console.warn("Échec du fetch local standard (CORS ou environnement). Passage au mode de repli absolu.");
-            // REPLI STRATÉGIQUE SUR URL UNIQUE POUR SÉCURISER L'AFFICHAGE EN LOCAL SUR NAVIGATEUR
-            fetch('https://mirabilia-bot.github.io/communes.geojson')
-                .then(res => res.json())
-                .then(geojson => {
-                    L.geoJSON(geojson, {
-                        style: { color: "#00264d", weight: 2, fillOpacity: 0.05, interactive: true },
-                        onEachFeature: (f, l) => {
-                            let nom = f.properties["Noms des communes"]; 
-                            if(nom) {
-                                l.bindTooltip(nom, { permanent: true, direction: "center", className: "commune-label" });
-                            }
-                        }
-                    }).addTo(map);
-                }).catch(e => console.error("Impossible de charger la couche GeoJSON : ", e));
-        });
+        .catch(err => console.error(err));
 
    auth.onAuthStateChanged((user) => {
         if (user && user.emailVerified) {
@@ -517,7 +484,7 @@
 
             let popupContent = `<div style="min-width:180px;"><b style="color:var(--kgm-blue)">${d.quartier}</b><br><i>${d.desc}</i><br>`;
             
-            // INCORPORATION CELLULAIRE DE L'INTERFACE d'ACTION RESERVEE COMPTE GESTIONNAIRE VS VISU CITOYENNE
+            // INCORPORATION CELLULAIRE DE L'INTERFACE D'ACTION RESERVEE COMPTE GESTIONNAIRE VS VISU CITOYENNE
             if (estGestionnaire) {
                 popupContent += `Suivi : <select class="popup-status-select" onchange="changerStatutDirect('${d.id}', this.value)">
                     <option value="attente" ${itemStatus === 'attente' ? 'selected' : ''}>⏳ En attente</option>
