@@ -129,6 +129,22 @@
             -ms-user-select: none;
             user-select: none;
         }
+
+        /* --- OPTIMISATION DU VISUEL DE REGROUPEMENT POUR LE CLUSTERING --- */
+        .leaflet-marker-cluster {
+            background-clip: padding-box;
+            border-radius: 20px;
+        }
+        .leaflet-marker-cluster div {
+            width: 30px;
+            height: 30px;
+            margin-left: 5px;
+            margin-top: 5px;
+            text-align: center;
+            border-radius: 15px;
+            font: 12px/30px 'Montserrat', sans-serif;
+            font-weight: bold;
+        }
   
   </style>
 </head>
@@ -144,10 +160,6 @@
             });
         }
     </script>
-
-    ```
-
-En enregistrant ces deux modifications, la carte forcera le navigateur de Facebook à lui laisser le contrôle tactile, et si l'application mobile fait encore de la résistance, vos utilisateurs de Lomé sauront immédiatement comment basculer sur Chrome ou Safari pour retrouver une navigation 100 % fluide.
     
 <div id="flash-msg"></div>
 <button id="homeBtn" onclick="window.location.href='https://mirabilia-bot.github.io/index.html'" title="Retour à l'accueil"><i class="fas fa-arrow-left"></i></button>
@@ -190,7 +202,7 @@ En enregistrant ces deux modifications, la carte forcera le navigateur de Facebo
 </header>
 
 <div class="ticker">
-    <div class="ticker-text">🌿 <strong>Stop à l’insalubrité !</strong> Devenez acteur de la propreté de votre quartier en signalant les zones critiques via notre portail. Vos alertes sont transmises instantanément à la mairie pour une intervention rapide. Avec URBAN-CLEAN de KGM Expertise, quelques minutes suffisent pour protéger notre santé et assainir notre cadre de vie. Ensemble, rendons nos communes exemplaires ! Source de données géospatiales : Géoportail Togo et Openstreetmap 🌿</div>
+    <div class="ticker-text">🌿 <strong>Stop à l’insalubrité !</strong> Devenez actor de la propreté de votre quartier en signalant les zones critiques via notre portail. Vos alertes sont transmises instantanément à la mairie pour une intervention rapide. Avec URBAN-CLEAN de KGM Expertise, quelques minutes suffisent pour protéger notre santé et assainir notre cadre de vie. Ensemble, rendons nos communes exemplaires ! Source de données géospatiales : Géoportail Togo et Openstreetmap 🌿</div>
 </div>
   
 <div id="map"></div>
@@ -439,9 +451,7 @@ En enregistrant ces deux modifications, la carte forcera le navigateur de Facebo
     };
     return L.divIcon({ html: htmlIcons[type] || htmlIcons.dechets, className: 'c-icon', iconSize: [34, 34], iconAnchor: [17, 17] });
 };
-
-
-    /* FONCTION DE FILTRAGE ASSOCIEE AU SELECT DU MENU */
+  /* FONCTION DE FILTRAGE ASSOCIEE AU SELECT DU MENU */
     function filtrerStatutSurCarte(statut) {
         currentFilterStatus = statut;
         refresh();
@@ -489,7 +499,7 @@ En enregistrant ces deux modifications, la carte forcera le navigateur de Facebo
 
             let popupContent = `<div style="min-width:180px;"><b style="color:var(--kgm-blue)">${d.quartier}</b><br><i>${d.desc}</i><br>`;
             
-            // INCORPORATION CELLULAIRE DE L'INTERFACE D'ACTION RESERVEE COMPTE GESTIONNAIRE VS VISU CITOYENNE
+            // INCORPORATION CELLULAIRE DE L'INTERFACE d'ACTION RESERVEE COMPTE GESTIONNAIRE VS VISU CITOYENNE
             if (estGestionnaire) {
                 popupContent += `Suivi : <select class="popup-status-select" onchange="changerStatutDirect('${d.id}', this.value)">
                     <option value="attente" ${itemStatus === 'attente' ? 'selected' : ''}>⏳ En attente</option>
