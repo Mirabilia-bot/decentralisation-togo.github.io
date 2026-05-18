@@ -423,6 +423,10 @@
 
     function togglePanel(id) { document.querySelectorAll('.panel').forEach(p => p.id === id ? p.classList.toggle('active') : p.classList.remove('active')); }
     function effacerPhotoSelectionnee() { document.getElementById('photoInput').value = ""; }
+
+    window.addEventListener('load', () => {
+        map.invalidateSize();
+    });
 </script>
 </body>
 </html>
