@@ -89,6 +89,9 @@
     .status-badge.attente { background: #6c757d; }
     .status-badge.cours { background: #fd7e14; }
     .status-badge.resolu { background: #28a745; }
+    
+    /* STYLE APPLIQUÉ SUR LE SELECT DE STATUT DANS LES POPUPS POUR LES EXPERTS */
+    .popup-status-select { margin-top: 5px; padding: 3px 6px; font-size: 11px; font-family: 'Montserrat', sans-serif; font-weight: bold; border-radius: 4px; border: 1px solid #ccc; outline: none; color: #333; }
   </style>
 </head>
 <body>
@@ -129,7 +132,7 @@
 </header>
 
 <div class="ticker">
-    <div class="ticker-text">🌿 <strong>Stop à l’insalubrité !</strong> Devenez acteur de la propreté de votre quartier en signalant les zones critiques via notre portail. Vos alertes sont transmises instantanément à la mairie pour une intervention rapide. Avec URBAN-CLEAN de KGM Expertise, quelques minutes suffisent pour protéger notre santé et assainir notre cadre de vie. Ensemble, rendons nos communes exemplaires ! Source de données géospatiales : Géoportail Togo et Openstreetmap 🌿</div>
+    <div class="ticker-text">🌿 <strong>Stop à l’insalubrité !</strong> Devenez actor de la propreté de votre quartier en signalant les zones critiques via notre portail. Vos alertes sont transmises instantanément à la mairie pour une intervention rapide. Avec URBAN-CLEAN de KGM Expertise, quelques minutes suffisent pour protéger notre santé et assainir notre cadre de vie. Ensemble, rendons nos communes exemplaires ! Source de données géospatiales : Géoportail Togo et Openstreetmap 🌿</div>
 </div>
   
 <div id="map"></div>
@@ -209,7 +212,7 @@
           </div>
           <div style="flex:1;">
             <label style="font-weight:bold; font-size:14px; margin-top:10px; display:block;">Statut Suivi</label>
-            <select id="statusSelect" style="width:100%; padding:10px; margin:5px 0 10px 0;">
+            <select id="statusSelect" disabled style="width:100%; padding:10px; margin:5px 0 10px 0; background: #eee; cursor: not-allowed;">
                 <option value="attente">⏳ En attente</option>
                 <option value="cours">⚙️ En cours</option>
                 <option value="resolu">✅ Résolu</option>
@@ -251,6 +254,9 @@
     var markers = L.layerGroup().addTo(map);
     var chart1, chart2;
 
+    // DEFINITION ULTRA-FIABLE ET SECURISEE DES ROLES GESTIONNAIRES (MAIRIE / ADMIN KGM EXPERTISE)
+    const ADMIN_EMAILS = ["admin@kgmexpertise.com", "mairie@agoenyive1.tg", "gnimdou@kgmexpertise.com"];
+
     fetch('./communes.geojson')
         .then(res => {
             if (!res.ok) throw new Error("Erreur");
@@ -269,7 +275,7 @@
         })
         .catch(err => console.error(err));
 
-    auth.onAuthStateChanged((user) => {
+   auth.onAuthStateChanged((user) => {
         if (user && user.emailVerified) {
             currentUser = user;
             document.getElementById('loginBtn').style.display = 'none';
@@ -364,6 +370,18 @@
         refresh();
     }
 
+    // FONCTION CHIRURGICALE POUR LA MISE A JOUR PARTIELLE DU STATUT PAR UN EXPERT / MAIRIE
+    async function changerStatutDirect(docId, nouveauStatut) {
+        document.getElementById('loadingOverlay').style.display = 'flex';
+        try {
+            await db.collection('signalements').doc(docId).update({ status: nouveauStatut });
+            showFlash("⚙️ Statut mis à jour avec succès");
+        } catch(e) {
+            alert("Erreur de droits ou de synchronisation cloud.");
+        }
+        document.getElementById('loadingOverlay').style.display = 'none';
+    }
+
     function refresh() {
         markers.clearLayers();
         let counts = {dechets:0, pollution:0, securite:0};
@@ -375,6 +393,9 @@
             "cours": "<span class='status-badge cours'>⚙️ En cours</span>",
             "resolu": "<span class='status-badge resolu'>✅ Résolu</span>"
         };
+
+        // Verification du role administratif de l'utilisateur connecte
+        let estGestionnaire = currentUser && ADMIN_EMAILS.includes(currentUser.email);
 
         data.forEach(d => {
             // Initialisation rétrocompatible du statut s'il n'existe pas en BDD
@@ -389,7 +410,19 @@
                 }
             }
 
-            let popupContent = `<div style="min-width:180px;"><b style="color:var(--kgm-blue)">${d.quartier}</b><br><i>${d.desc}</i><br>Suivi : ${statusLabels[itemStatus] || statusLabels['attente']}`;
+            let popupContent = `<div style="min-width:180px;"><b style="color:var(--kgm-blue)">${d.quartier}</b><br><i>${d.desc}</i><br>`;
+            
+            // INCORPORATION CELLULAIRE DE L'INTERFACE D'ACTION RESERVEE COMPTE GESTIONNAIRE VS VISU CITOYENNE
+            if (estGestionnaire) {
+                popupContent += `Suivi : <select class="popup-status-select" onchange="changerStatutDirect('${d.id}', this.value)">
+                    <option value="attente" ${itemStatus === 'attente' ? 'selected' : ''}>⏳ En attente</option>
+                    <option value="cours" ${itemStatus === 'cours' ? 'selected' : ''}>⚙️ En cours</option>
+                    <option value="resolu" ${itemStatus === 'resolu' ? 'selected' : ''}>✅ Résolu</option>
+                </select>`;
+            } else {
+                popupContent += `Suivi : ${statusLabels[itemStatus] || statusLabels['attente']}`;
+            }
+
             if(d.photo) popupContent += `<br><img src="${d.photo}" class="popup-img" style="width:100%;max-height:150px;object-fit:cover;margin-top:5px;border-radius:4px" onclick="window.open('${d.photo}', '_blank')">`;
             popupContent += `<br><small style="margin-top:5px; display:block;"><i class="far fa-calendar"></i> ${d.date} | <i class="far fa-clock"></i> ${d.heure}</small></div>`;
           if(currentUser && d.userId === currentUser.uid) {
@@ -488,20 +521,33 @@
                 const imgData = await res.json(); photoUrl = imgData.data.url;
             }
             
-            // Inclusion chirurgicale de la propriété status dans l'objet de persistance Firestore
-            const signalementData = { 
-                quartier: q, 
-                type: document.getElementById('typeSelect').value, 
-                desc: document.getElementById('descInput').value, 
-                date: document.getElementById('dateInput').value, 
-                heure: document.getElementById('heureInput').value, 
-                status: document.getElementById('statusSelect').value,
-                photo: photoUrl || (editId ? data.find(item=>item.id===editId).photo : null), 
-                userId: currentUser.uid 
-            };
-            
-            if(!editId) { signalementData.lat = userPos.lat; signalementData.lng = userPos.lng; await db.collection('signalements').add(signalementData); }
-            else { await db.collection('signalements').doc(editId).update(signalementData); }
+            // Isolation de la structure de mise à jour pour garantir la préservation des métadonnées initiales du citoyen
+            if(!editId) {
+                const signalementData = { 
+                    quartier: q, 
+                    type: document.getElementById('typeSelect').value, 
+                    desc: document.getElementById('descInput').value, 
+                    date: document.getElementById('dateInput').value, 
+                    heure: document.getElementById('heureInput').value, 
+                    status: "attente", // Forçage strict à la création du signalement citoyen
+                    photo: photoUrl, 
+                    userId: currentUser.uid,
+                    lat: userPos.lat,
+                    lng: userPos.lng
+                };
+                await db.collection('signalements').add(signalementData);
+            } else {
+                // Modification par le citoyen : le champ status est exclu pour éviter toute corruption ou fraude
+                const updateData = {
+                    quartier: q,
+                    type: document.getElementById('typeSelect').value,
+                    desc: document.getElementById('descInput').value,
+                    date: document.getElementById('dateInput').value,
+                    heure: document.getElementById('heureInput').value,
+                    photo: photoUrl || data.find(item=>item.id===editId).photo
+                };
+                await db.collection('signalements').doc(editId).update(updateData);
+            }
             fermerModal();
         } catch(e) { alert("Erreur d'envoi."); }
         document.getElementById('loadingOverlay').style.display = 'none';
