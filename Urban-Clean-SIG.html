@@ -113,7 +113,6 @@
         .ui-controls { bottom: 25px; left: 50%; transform: translateX(-50%); }
         @keyframes slideUp { from { bottom: 0px; opacity: 0; } to { bottom: 25px; opacity: 1; } }
     }
-            /* ... Vos styles existants actuels ... */
 
         /* --- BLOC CHIRURGICAL POUR LE NAVIGATEUR FACEBOOK --- */
         #map {
@@ -202,7 +201,7 @@
 </header>
 
 <div class="ticker">
-    <div class="ticker-text">🌿 <strong>Stop à l’insalubrité !</strong> Devenez actor de la propreté de votre quartier en signalant les zones critiques via notre portail. Vos alertes sont transmises instantanément à la mairie pour une intervention rapide. Avec URBAN-CLEAN de KGM Expertise, quelques minutes suffisent pour protéger notre santé et assainir notre cadre de vie. Ensemble, rendons nos communes exemplaires ! Source de données géospatiales : Géoportail Togo et Openstreetmap 🌿</div>
+    <div class="ticker-text">🌿 <strong>Stop à l’insalubrité !</strong> Devenez acteur de la propreté de votre quartier en signalant les zones critiques via notre portail. Vos alertes sont transmises instantanément à la mairie pour une intervention rapide. Avec URBAN-CLEAN de KGM Expertise, quelques minutes suffisent pour protéger notre santé et assainir notre cadre de vie. Ensemble, rendons nos communes exemplaires ! Source de données géospatiales : Géoportail Togo et Openstreetmap 🌿</div>
 </div>
   
 <div id="map"></div>
@@ -336,9 +335,10 @@
     // DEFINITION ULTRA-FIABLE ET SECURISEE DES ROLES GESTIONNAIRES (MAIRIE / ADMIN KGM EXPERTISE)
     const ADMIN_EMAILS = ["mirabiliagnimdou@gmail.com", "kgmexpertise@gmail.com"];
 
-    fetch('./communes.geojson')
+    // CHARGEMENT FIABLE ET ADAPTÉ DE LA COUCHE DES COMMUNES DE LOMÉ
+    fetch('communes.geojson')
         .then(res => {
-            if (!res.ok) throw new Error("Erreur");
+            if (!res.ok) throw new Error("Erreur de chargement de communes.geojson");
             return res.json();
         })
         .then(geojson => {
@@ -352,7 +352,23 @@
                 }
             }).addTo(map);
         })
-        .catch(err => console.error(err));
+        .catch(err => {
+            console.warn("Échec du fetch local standard (CORS ou environnement). Passage au mode de repli absolu.");
+            // REPLI STRATÉGIQUE SUR URL UNIQUE POUR SÉCURISER L'AFFICHAGE EN LOCAL SUR NAVIGATEUR
+            fetch('https://mirabilia-bot.github.io/communes.geojson')
+                .then(res => res.json())
+                .then(geojson => {
+                    L.geoJSON(geojson, {
+                        style: { color: "#00264d", weight: 2, fillOpacity: 0.05, interactive: true },
+                        onEachFeature: (f, l) => {
+                            let nom = f.properties["Noms des communes"]; 
+                            if(nom) {
+                                l.bindTooltip(nom, { permanent: true, direction: "center", className: "commune-label" });
+                            }
+                        }
+                    }).addTo(map);
+                }).catch(e => console.error("Impossible de charger la couche GeoJSON : ", e));
+        });
 
    auth.onAuthStateChanged((user) => {
         if (user && user.emailVerified) {
@@ -451,7 +467,9 @@
     };
     return L.divIcon({ html: htmlIcons[type] || htmlIcons.dechets, className: 'c-icon', iconSize: [34, 34], iconAnchor: [17, 17] });
 };
-  /* FONCTION DE FILTRAGE ASSOCIEE AU SELECT DU MENU */
+
+
+    /* FONCTION DE FILTRAGE ASSOCIEE AU SELECT DU MENU */
     function filtrerStatutSurCarte(statut) {
         currentFilterStatus = statut;
         refresh();
