@@ -214,7 +214,7 @@
             return res.json();
         })
         .then(geojson => {
-            let boundary = L.geoJSON(geojson, {
+            L.geoJSON(geojson, {
                 style: { color: "#00264d", weight: 2, fillOpacity: 0.05, interactive: true },
                 onEachFeature: (f, l) => {
                     let nom = f.properties["Noms des communes"]; 
@@ -223,10 +223,6 @@
                     }
                 }
             }).addTo(map);
-
-            if (boundary && boundary.getBounds().isValid()) {
-                map.fitBounds(boundary.getBounds(), { padding: [20, 20], maxZoom: 14 });
-            }
         })
         .catch(err => console.error(err));
 
@@ -319,7 +315,7 @@
         securite: L.divIcon({ html: '<i class="fas fa-exclamation-triangle" style="color:#f57c00; font-size:20px;"></i>', className:'c-icon' })
     };
 
-    function refresh() {
+        function refresh() {
         markers.clearLayers();
         let counts = {dechets:0, pollution:0, securite:0};
         let qCounts = {};
