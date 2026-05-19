@@ -74,8 +74,6 @@
     .popup-actions { display: flex; gap: 15px; margin-top: 10px; border-top: 1px solid #eee; padding-top: 8px; justify-content: flex-end; clear: both; width: 100%; }
     .popup-actions i { cursor: pointer; font-size: 16px; }
 
-    #homeBtn { position: fixed; top: 15px; left: 15px; z-index: 1000; background: white; color: var(--kgm-blue); border: none; width: 40px; height: 40px; border-radius: 50%; box-shadow: 0 2px 10px rgba(0,0,0,0.3); cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 1.2em; }
-    #homeBtn:hover { background: #f0f0f0; }
     .popup-img { cursor: zoom-in; transition: transform 0.2s; }
     .popup-img:hover { transform: scale(1.02); }
     #flash-msg { position: fixed; top: 85px; left: 50%; transform: translateX(-50%); z-index: 5000; background: var(--kgm-green); color: white; padding: 10px 20px; border-radius: 50px; font-weight: bold; box-shadow: 0 12px 30px rgba(0,0,0,0.22); display: none; animation: fadeInDown 0.5s; backdrop-filter: blur(12px); }
@@ -99,7 +97,6 @@
         header p { font-size: 0.65em; width: 50%; margin-left: -55px; }
         #auth-bar { top: 8px; right: 8px; }
         .ui-btn { padding: 10px 12px; font-size: 12px; min-height: 42px; }
-        #homeBtn { width: 32px; height: 32px; font-size: 1em; top: 10px; left: 10px; }
     }
     @media (min-width: 1024px) {
         header h1 { font-size: 1.4em; width: auto; margin: 0; }
@@ -142,7 +139,6 @@
     </script>
     
 <div id="flash-msg"></div>
-<button id="homeBtn" onclick="window.location.href='https://mirabilia-bot.github.io/index.html'" title="Retour à l'accueil"><i class="fas fa-arrow-left"></i></button>
   
 <div id="loadingOverlay">
     <i class="fas fa-spinner fa-spin fa-3x" style="color:var(--kgm-blue)"></i>
@@ -217,7 +213,9 @@
 <div id="authModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:3000;justify-content:center;align-items:center;">
     <div style="background:white;padding:25px;border-radius:15px;width:90%;max-width:350px;text-align:center;">
         <h3 style="color:var(--kgm-blue);margin-top:0;">Espace KGM Expertise</h3>
-        <p style="font-size:0.9em;margin-bottom:20px;">Veuillez choisir une option pour continuer</p>
+        <p style="font-size:0.9em;margin-bottom:15px;">Veuillez choisir une option pour continuer</p>
+        <input type="email" id="authEmail" placeholder="Votre adresse e-mail" autocomplete="email" style="width:100%;padding:10px;margin-bottom:10px;border:1px solid #ccc;border-radius:8px;font-family:'Montserrat',sans-serif;font-size:14px;box-sizing:border-box;">
+        <input type="password" id="authPass" placeholder="Votre mot de passe" autocomplete="current-password" style="width:100%;padding:10px;margin-bottom:15px;border:1px solid #ccc;border-radius:8px;font-family:'Montserrat',sans-serif;font-size:14px;box-sizing:border-box;">
         <button class="ui-btn" style="width:100%;background:var(--kgm-blue);color:white;margin-bottom:10px;padding:12px;" onclick="gererAuth('login')">Se Connecter</button>
         <button class="ui-btn" style="width:100%;background:var(--kgm-green);color:white;margin-bottom:10px;padding:12px;" onclick="gererAuth('signup')">S'inscrire (Nouveau Compte)</button>
         <button style="background:none;border:none;color:var(--kgm-red);cursor:pointer;text-decoration:underline;display:block;margin:5px auto;" onclick="recupererPass()">Mot de passe oublié ? (Vérifiez vos spams)</button>
@@ -352,31 +350,35 @@
     }
 
     function ouvrirAuth() { document.getElementById('authModal').style.display = 'flex'; }
-    function fermerAuth() { document.getElementById('authModal').style.display = 'none'; }
+    function fermerAuth() { 
+        document.getElementById('authModal').style.display = 'none';
+        document.getElementById('authEmail').value = '';
+        document.getElementById('authPass').value = '';
+    }
 
     function gererAuth(type) {
-        const email = prompt("Veuillez saisir votre email :");
-        const pass = prompt("Veuillez saisir votre mot de passe :");
-        if(email && pass) {
-            if(type === 'login') {
-                auth.signInWithEmailAndPassword(email, pass).then(() => { 
-                    fermerAuth();
-                    showFlash("✅ Vous êtes connecté");
-                }).catch(e => alert("Erreur : " + e.message));
-            } else {
-                auth.createUserWithEmailAndPassword(email, pass).then((userCredential) => { 
-                    userCredential.user.sendEmailVerification();
-                    alert("Compte créé avec succès ! Vérifiez vos SPAMS.");
-                    fermerAuth(); 
-                }).catch(e => alert("Erreur : " + e.message));
-            }
+        const email = document.getElementById('authEmail').value.trim();
+        const pass = document.getElementById('authPass').value;
+        if(!email || !pass) return alert("Veuillez renseigner votre email et votre mot de passe.");
+        if(type === 'login') {
+            auth.signInWithEmailAndPassword(email, pass).then(() => { 
+                fermerAuth();
+                showFlash("✅ Vous êtes connecté");
+            }).catch(e => alert("Erreur : " + e.message));
+        } else {
+            auth.createUserWithEmailAndPassword(email, pass).then((userCredential) => { 
+                userCredential.user.sendEmailVerification();
+                alert("Compte créé avec succès ! Vérifiez vos SPAMS.");
+                fermerAuth(); 
+            }).catch(e => alert("Erreur : " + e.message));
         }
     }
 
     function recupererPass() {
-        const email = prompt("Entrez votre email pour recevoir le lien de réinitialisation :");
-        if(email) {
-            auth.sendPasswordResetEmail(email).then(() => {
+        const email = document.getElementById('authEmail').value.trim();
+        const emailSaisi = email || prompt("Entrez votre email pour recevoir le lien de réinitialisation :");
+        if(emailSaisi) {
+            auth.sendPasswordResetEmail(emailSaisi).then(() => {
                 alert("Lien envoyé ! Vérifiez votre boîte de réception et vos spams.");
             }).catch(e => alert("Erreur : " + e.message));
         }
@@ -424,6 +426,12 @@
 };
 
 
+    /* PROTECTION XSS : échappement des données utilisateur avant injection HTML */
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    }
+
     /* FONCTION DE FILTRAGE ASSOCIEE AU SELECT DU MENU */
     function filtrerStatutSurCarte(statut) {
         currentFilterStatus = statut;
@@ -470,7 +478,7 @@
                 }
             }
 
-            let popupContent = `<div style="min-width:180px;"><b style="color:var(--kgm-blue)">${d.quartier}</b><br><i>${d.desc}</i><br>`;
+            let popupContent = `<div style="min-width:180px;"><b style="color:var(--kgm-blue)">${escapeHtml(d.quartier)}</b><br><i>${escapeHtml(d.desc)}</i><br>`;
             
             // INCORPORATION CELLULAIRE DE L'INTERFACE D'ACTION RESERVEE COMPTE GESTIONNAIRE VS VISU CITOYENNE
             if (estGestionnaire) {
@@ -637,8 +645,9 @@
                 await db.collection('signalements').doc(editId).update(updateData);
             }
             fermerModal();
-        } catch(e) { alert("Erreur d'envoi."); }
-        document.getElementById('loadingOverlay').style.display = 'none';
+        } catch(e) { alert("Erreur d'envoi."); } finally {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
     }
 
     function togglePanel(id) { document.querySelectorAll('.panel').forEach(p => p.id === id ? p.classList.toggle('active') : p.classList.remove('active')); }
