@@ -106,17 +106,15 @@
         .ui-controls { bottom: 25px; left: 50%; transform: translateX(-50%); }
         @keyframes slideUp { from { bottom: 0px; opacity: 0; } to { bottom: 25px; opacity: 1; } }
     }
-            /* ... Vos styles existants actuels ... */
-
-        /* --- BLOC CHIRURGICAL POUR LE NAVIGATEUR FACEBOOK --- */
+        /* --- BLOC POUR LE NAVIGATEUR FACEBOOK --- */
         #map {
-            touch-action: none !important;
+            touch-action: manipulation;
             -webkit-tap-highlight-color: transparent;
         }
 
         .leaflet-container {
             cursor: grab;
-            touch-action: pan-x pan-y !important;
+            touch-action: pan-x pan-y;
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
@@ -560,6 +558,10 @@
         userCircle = L.circle(e.latlng, { radius: 10, color: '#007bff', fillColor: '#007bff', fillOpacity: 0.5 }).addTo(map);
         userCircle.bindPopup("<b style='color:var(--kgm-blue)'>Ma position actuelle</b><br><small>Précision GPS optimisée</small>", { closeButton: true, autoClose: true }).openPopup();
         map.flyTo(e.latlng, 18);
+    });
+
+    map.on('locationerror', () => {
+        showFlash("⚠️ Localisation refusée ou indisponible. Vérifiez les permissions GPS.");
     });
 
    function ouvrirModal() { 
